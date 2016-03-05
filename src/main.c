@@ -27,8 +27,8 @@ typedef struct{
 	int filial;
 } venda_t;
 
-int fileToStrArr(FILE *fp, char strArr[][TAM_CODIGOS], int nlinhas);
-int pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len);
+int fileToStrArr(char *filename, char strArr[][TAM_CODIGOS]);
+void * pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len);
 int comparaStrings(const void *str1, const void *str2);
 
 void criaVenda(char *campos_venda[7], venda_t *v_ptr);
@@ -40,21 +40,8 @@ int main(){
 	char produtos[NPRODUTOS][TAM_CODIGOS];
 	FILE *fp;
 
-	fp = fopen(FCLIENTES, "r");
-
-	if(fp == NULL)
-		OERROR_AND_EXIT(FCLIENTES);
-	
-	nclientes = fileToStrArr(fp, clientes, NCLIENTES); /* leitura do ficheiro com os códigos dos clientes */
-	fclose(fp);	
-
-	fp = fopen(FPRODUTOS, "r");
-
-	if(fp == NULL)
-		OERROR_AND_EXIT(FPRODUTOS);
-	
-	nprods = fileToStrArr(fp, produtos, NPRODUTOS); /* leitura do ficheiro com os códigos dos produtos */
-	fclose(fp);
+	nclientes = fileToStrArr(FCLIENTES, clientes);	
+    nprods = fileToStrArr(FPRODUTOS, produtos);
 
 	fp = fopen(FVENDAS, "r");
 
@@ -74,6 +61,7 @@ int main(){
 
 /* passa cada linha de um ficheiro para uma string, produzindo um
    array de strings ordenado lexicograficamente */
+/*
 int fileToStrArr(FILE *fp, char strArr[][TAM_CODIGOS], int nlinhas){
 	int i = 0;
 	char linha[MAXLINHA];
@@ -86,9 +74,24 @@ int fileToStrArr(FILE *fp, char strArr[][TAM_CODIGOS], int nlinhas){
 		}
 	}
 
-	qsort(strArr, i, TAM_CODIGOS, comparaStrings); /* ordenação lexicográfica */
+	qsort(strArr, i, TAM_CODIGOS, comparaStrings); 
 
-	return i; /* devolve número de strings do array */
+	return i; 
+}
+*/
+
+/* Dúvida: os ficheiros de clientes e produtos estão bem formatados(em termos de fim de linhas, etc) ??*/
+
+int fileToStrArr(char * filename, char strArr[][TAM_CODIGOS]){
+	int i;
+    FILE *fp = fopen(filename, "r");
+
+	if(fp == NULL) OERROR_AND_EXIT(filename);
+	for(i = 0; fgets(strArr[i], TAM_CODIGOS, fp); i++)
+        strtok(strArr[i], "\r\n");
+	fclose(fp);
+	qsort(strArr, i, TAM_CODIGOS * sizeof(char), comparaStrings); 
+	return i; /* #strings lidas */
 }
 
 /* cria um ficheiro com informação sobre as vendas válidas.
@@ -116,8 +119,8 @@ int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char p
 
 		/* testa se a venda é válida e se for, cria struct com os dados,
 		   escreve-a em ficheiro e incrementa nº de vendas válidas */
-		if(pesquisaBin(campos_venda[0], produtos, nprods) != -1 &&
-		   pesquisaBin(campos_venda[4], clientes, nclientes) != -1){
+		if(pesquisaBin(campos_venda[0], produtos, nprods) &&
+		   pesquisaBin(campos_venda[4], clientes, nclientes)){
 				criaVenda(campos_venda, &v);
 				fwrite(&v, sizeof(venda_t), 1, fdest);
 				++nvendas_val;
@@ -145,9 +148,10 @@ void criaVenda(char *campos_venda[7], venda_t *v_ptr){
 }
 
 /* pesquisa binária num array de strings */
+/*
 int pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len){
-	int l, m, u; /* low, middle, upper */
-	int res; /* res - resultado de strcmp */
+	int l, m, u; 
+	int res; 
 
 	l = 0;
 	u = len-1;
@@ -164,6 +168,10 @@ int pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len){
 	}
 
 	return (l == u && strcmp(str, strArr[l]) == 0) ? l : -1;
+}*/
+
+void * pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len){
+	return bsearch(str, strArr, len, TAM_CODIGOS, comparaStrings);
 }
 
 /* função de comparação utilizada no qsort para ordenar um array de strings */
