@@ -1,11 +1,11 @@
 CFLAGS =-Wall -Wextra -ansi -pedantic -O2
 
 all: tests
-src/gereVendas: $(OBJS)
+src/gereVendas: src/main.c
 	$(CC) $(CFLAGS) src/main.c -o src/gereVendas
 tests: src/gereVendas
 	cd tests; bash runtests.sh t ../src/gereVendas
-VendasValTxt:
+VendasValTxt: src/fprintVendasVal.c
 	$(CC) $(CFLAGS) src/fprintVendasVal.c -o src/fprintVendasVal
 	cd src; ./fprintVendasVal
 limpar:

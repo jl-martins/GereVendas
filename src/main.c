@@ -19,7 +19,7 @@
 
 typedef struct{
 	char codigoProduto[TAM_CODIGOS];
-	float preco;
+	double preco;
 	int nUnidades;
 	char tipoCompra;
 	char codigoCliente[TAM_CODIGOS];

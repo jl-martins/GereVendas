@@ -4,7 +4,7 @@
  
 typedef struct{
 	char codigoProduto[TAM_CODIGOS];
-	float preco;
+	double preco;
 	int nUnidades;
 	char tipoCompra;
 	char codigoCliente[TAM_CODIGOS];
@@ -71,7 +71,7 @@ FILE *askOverwrite(const char *filename){
 }
 
 void imprimeDadosVenda(FILE *fp, venda_t *v){
-	fprintf(fp, "%s %f %d %c %s %d %d\n", 
+	fprintf(fp, "%s %.2f %d %c %s %d %d\n", 
 				 v->codigoProduto, 
 				 v->preco, 
 				 v->nUnidades, 
