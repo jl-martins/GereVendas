@@ -6,6 +6,7 @@
 #define NCLIENTES 20000
 #define NPRODUTOS 200000
 #define MAXLINHA 64 /* tamanho do buffer usada na fgets */
+#define MAXLINHA_VENDAS 128
 #define TAM_CODIGOS 10 /* tamanho máximo dos códigos de cliente/produto */
 
 /* caminhos de ficheiros */
@@ -41,7 +42,7 @@ int main(){
 	FILE *fp;
 
 	nclientes = fileToStrArr(FCLIENTES, clientes);	
-    nprods = fileToStrArr(FPRODUTOS, produtos);
+	nprods = fileToStrArr(FPRODUTOS, produtos);
 
 	fp = fopen(FVENDAS, "r");
 
@@ -84,11 +85,11 @@ int fileToStrArr(FILE *fp, char strArr[][TAM_CODIGOS], int nlinhas){
 
 int fileToStrArr(char * filename, char strArr[][TAM_CODIGOS]){
 	int i;
-    FILE *fp = fopen(filename, "r");
+	FILE *fp = fopen(filename, "r");
 
 	if(fp == NULL) OERROR_AND_EXIT(filename);
 	for(i = 0; fgets(strArr[i], TAM_CODIGOS, fp); i++)
-        strtok(strArr[i], "\r\n");
+       		 strtok(strArr[i], "\r\n");
 	fclose(fp);
 	qsort(strArr, i, TAM_CODIGOS * sizeof(char), comparaStrings); 
 	return i; /* #strings lidas */
@@ -96,10 +97,14 @@ int fileToStrArr(char * filename, char strArr[][TAM_CODIGOS]){
 
 /* cria um ficheiro com informação sobre as vendas válidas.
    Devolve: o número de vendas válidas em caso de sucesso. -1 caso contrário. */
+
+enum campoVenda {CODIGO_PROD = 0, PRECO, UNIDADES, TIPO_COMPRA, CODIGO_CLIENTE, MES, FILIAL};
+
 int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char produtos[][TAM_CODIGOS], int nprods) {
 	venda_t v;
-	int i, nvendas_val;
-	char linha_venda[MAXLINHA];
+	int nvendas_val;
+	enum campoVenda i;
+	char linha_venda[MAXLINHA_VENDAS];
 	char *campos_venda[7];
 	FILE *fdest;
 		
@@ -109,18 +114,16 @@ int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char p
 		return -1;
 
 	nvendas_val = 0;
-	while(fgets(linha_venda, MAXLINHA, fp) != NULL){
+	while(fgets(linha_venda, MAXLINHA_VENDAS, fp) != NULL){
 
 		campos_venda[0] = strtok(linha_venda, " ");
 		for(i = 1; i < 7; ++i)
-			campos_venda[i] = strtok(NULL, " ");
-
-		campos_venda[i-1] = strtok(campos_venda[i-1], "\r\n"); /* remove newlines e/ou carriage returns */
+			campos_venda[i] = strtok(NULL, " \r\n");
 
 		/* testa se a venda é válida e se for, cria struct com os dados,
 		   escreve-a em ficheiro e incrementa nº de vendas válidas */
-		if(pesquisaBin(campos_venda[0], produtos, nprods) &&
-		   pesquisaBin(campos_venda[4], clientes, nclientes)){
+		if(pesquisaBin(campos_venda[CODIGO_PROD], produtos, nprods) &&
+		   pesquisaBin(campos_venda[CODIGO_CLIENTE], clientes, nclientes)){
 				criaVenda(campos_venda, &v);
 				fwrite(&v, sizeof(venda_t), 1, fdest);
 				++nvendas_val;
@@ -135,40 +138,17 @@ int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char p
    array de strings com as várias informações sobre a mesma. */
 void criaVenda(char *campos_venda[7], venda_t *v_ptr){
 	
-	strcpy(v_ptr->codigoProduto, campos_venda[0]);
+	strcpy(v_ptr->codigoProduto, campos_venda[CODIGO_PROD]);
 
-	v_ptr->preco = atof(campos_venda[1]);
-	v_ptr->nUnidades = atoi(campos_venda[2]);
-	v_ptr->tipoCompra = campos_venda[3][0];
+	v_ptr->preco = atof(campos_venda[PRECO]);
+	v_ptr->nUnidades = atoi(campos_venda[UNIDADES]);
+	v_ptr->tipoCompra = campos_venda[TIPO_COMPRA][0]; /* 1o char da string*/
 
-	strcpy(v_ptr->codigoCliente, campos_venda[4]);
+	strcpy(v_ptr->codigoCliente, campos_venda[CODIGO_CLIENTE]);
 
-	v_ptr->mes = atoi(campos_venda[5]);
-	v_ptr->filial = atoi(campos_venda[6]);
+	v_ptr->mes = atoi(campos_venda[MES]);
+	v_ptr->filial = atoi(campos_venda[FILIAL]);
 }
-
-/* pesquisa binária num array de strings */
-/*
-int pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len){
-	int l, m, u; 
-	int res; 
-
-	l = 0;
-	u = len-1;
-	while(l < u){
-		m = (l + u)/2;
-
-		res = strcmp(str, strArr[m]);
-		if(res < 0)
-			u = m - 1;
-		else if(res > 0)
-			l = m + 1;
-		else
-			l = u = m;
-	}
-
-	return (l == u && strcmp(str, strArr[l]) == 0) ? l : -1;
-}*/
 
 void * pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len){
 	return bsearch(str, strArr, len, TAM_CODIGOS, comparaStrings);
