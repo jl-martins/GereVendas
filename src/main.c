@@ -18,6 +18,11 @@
 /* erro de abertura de ficheiro e saída do programa com -1 */
 #define OERROR_AND_EXIT(file_name) {perror(file_name); exit(-1);}
 
+/*Testa os preços (0.0 - 999.99)*/
+#define TESTAPRECO(p) ((p)>=0.0 && (p)<=999.99 ? (p) : -1)
+/*Testa numero de unidades compradas*/
+#define TESTANMR_UNI(n) ((n)>=1 && (n)<=200 ? (n) : 0)
+
 typedef struct{
 	char codigoProduto[TAM_CODIGOS];
 	double preco;
@@ -122,7 +127,9 @@ int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char p
 
 		/* testa se a venda é válida e se for, cria struct com os dados,
 		   escreve-a em ficheiro e incrementa nº de vendas válidas */
-		if(pesquisaBin(campos_venda[CODIGO_PROD], produtos, nprods) &&
+		if(TESTAPRECO(atof(campos_venda[PRECO])) != -1 && 
+		   TESTANMR_UNI(atoi(campos_venda[UNIDADES])) &&
+		   pesquisaBin(campos_venda[CODIGO_PROD], produtos, nprods) &&
 		   pesquisaBin(campos_venda[CODIGO_CLIENTE], clientes, nclientes)){
 				criaVenda(campos_venda, &v);
 				fwrite(&v, sizeof(venda_t), 1, fdest);
