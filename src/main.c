@@ -18,10 +18,16 @@
 /* erro de abertura de ficheiro e saída do programa com -1 */
 #define OERROR_AND_EXIT(file_name) {perror(file_name); exit(-1);}
 
-/*Testa os preços (0.0 - 999.99)*/
+/*Avalia os preços (0.0 - 999.99)*/
 #define TESTAPRECO(p) ((p)>=0.0 && (p)<=999.99 ? (p) : -1)
-/*Testa numero de unidades compradas*/
+/*Avalia numero de unidades compradas*/
 #define TESTANMR_UNI(n) ((n)>=1 && (n)<=200 ? (n) : 0)
+/*Avalia o mês da compra*/
+#define TESTAMES(m) ((m)>=1 && (m)<=12 ? (m) : 0)
+/*Avalia o tipo de compra*/
+#define TESTATIPO(t) (t=='N' || t=='P' ? t : 0)
+/*Avalia a filial */
+#define TESTAFILIAL(f) ((f)>=1 && (f)<=3 ? (f) : 0)
 
 typedef struct{
 	char codigoProduto[TAM_CODIGOS];
@@ -39,6 +45,7 @@ int comparaStrings(const void *str1, const void *str2);
 
 void criaVenda(char *campos_venda[7], venda_t *v_ptr);
 int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char produtos[][TAM_CODIGOS], int nprods);
+int validaCamposVenda(char *campos_venda[7]);
 
 int main(){
 	int nclientes, nprods, nvendas_val;
@@ -127,8 +134,7 @@ int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char p
 
 		/* testa se a venda é válida e se for, cria struct com os dados,
 		   escreve-a em ficheiro e incrementa nº de vendas válidas */
-		if(TESTAPRECO(atof(campos_venda[PRECO])) != -1 && 
-		   TESTANMR_UNI(atoi(campos_venda[UNIDADES])) &&
+		if(validaCamposVenda(campos_venda) &&
 		   pesquisaBin(campos_venda[CODIGO_PROD], produtos, nprods) &&
 		   pesquisaBin(campos_venda[CODIGO_CLIENTE], clientes, nclientes)){
 				criaVenda(campos_venda, &v);
@@ -164,4 +170,13 @@ void * pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len){
 /* função de comparação utilizada no qsort para ordenar um array de strings */
 int comparaStrings(const void *str1, const void *str2){
 	return strcmp((char *) str1, (char *) str2);
+}
+
+int validaCamposVenda(char *campos_venda[7])
+{
+	return TESTAPRECO(atof(campos_venda[PRECO])) != -1 &&
+		   TESTANMR_UNI(atoi(campos_venda[UNIDADES])) &&
+		   TESTAMES(atoi(campos_venda[MES])) &&
+		   TESTATIPO(campos_venda[TIPO_COMPRA][0]) &&
+		   TESTAFILIAL(atoi(campos_venda[FILIAL]));
 }
