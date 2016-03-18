@@ -13,7 +13,7 @@
 #define FCLIENTES "../data/Clientes.txt" /* caminho do ficheiro de clientes */
 #define FPRODUTOS "../data/Produtos.txt" /* caminho do ficheiro de produtos */
 #define FVENDAS "../data/Vendas_1M.txt"     /* caminho do ficheiro de vendas */
-#define FVENDAS_VAL "../data/VendasVal.dat" /* caminho do ficheiro com as vendas válidas */
+#define FVENDAS_VAL "../data/VendasValidas.txt" /* caminho do ficheiro com as vendas válidas */
 
 /* erro de abertura de ficheiro e saída do programa com -1 */
 #define OERROR_AND_EXIT(file_name) {perror(file_name); exit(-1);}
@@ -113,10 +113,10 @@ int fileToStrArr(char * filename, char strArr[][TAM_CODIGOS]){
 enum campoVenda {CODIGO_PROD = 0, PRECO, UNIDADES, TIPO_COMPRA, CODIGO_CLIENTE, MES, FILIAL};
 
 int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char produtos[][TAM_CODIGOS], int nprods) {
-	venda_t v;
 	int nvendas_val;
 	enum campoVenda i;
-	char linha_venda[MAXLINHA_VENDAS];
+	char linha_venda[MAXLINHA_VENDAS],
+	     linha_venda_cpy[MAXLINHA_VENDAS];
 	char *campos_venda[7];
 	FILE *fdest;
 		
@@ -128,17 +128,16 @@ int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char p
 	nvendas_val = 0;
 	while(fgets(linha_venda, MAXLINHA_VENDAS, fp) != NULL){
 
+		strcpy(linha_venda_cpy, linha_venda);
 		campos_venda[0] = strtok(linha_venda, " ");
 		for(i = 1; i < 7; ++i)
 			campos_venda[i] = strtok(NULL, " \r\n");
 
 		/* testa se a venda é válida e se for, cria struct com os dados,
 		   escreve-a em ficheiro e incrementa nº de vendas válidas */
-		if(validaCamposVenda(campos_venda) &&
-		   pesquisaBin(campos_venda[CODIGO_PROD], produtos, nprods) &&
+		if(pesquisaBin(campos_venda[CODIGO_PROD], produtos, nprods) &&
 		   pesquisaBin(campos_venda[CODIGO_CLIENTE], clientes, nclientes)){
-				criaVenda(campos_venda, &v);
-				fwrite(&v, sizeof(venda_t), 1, fdest);
+				fprintf(fdest, "%s", linha_venda_cpy);
 				++nvendas_val;
 		}
 	}

@@ -11,4 +11,4 @@ VendasValTxt: src/fprintVendasVal.c
 limpar:
 	rm -f src/gereVendas src/fprintVendasVal 
 	rm -f tests/*.res
-	rm -f data/VendasVal.*
+	rm -f data/VendasValidas.*
