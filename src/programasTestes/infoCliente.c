@@ -25,6 +25,7 @@ int main(int argc, char ** argv){
 		for(j = 1; j <13; j++) comprasMeses[j] = 0;
 		nCompras = 0;
 		totalPago = 0;
+		quantidadeTotal = 0;
 
 		while(fgets(buf, BUFFSIZE, fp)){
 			parseVenda(buf);
