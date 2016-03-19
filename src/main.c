@@ -10,7 +10,6 @@
 #define MAXLINHA 64 /* tamanho do buffer usada na fgets */
 #define MAXLINHA_VENDAS 128
 #define TAM_CODIGOS 10 /* tamanho máximo dos códigos de cliente/produto */
-#define NUM_CAMPOS 7
 
 /* caminhos de ficheiros */
 /* sugestão: programar de forma a que se possa passar os caminhos dos ficheiros no argvs */
@@ -22,12 +21,16 @@
 /* erro de abertura de ficheiro e saída do programa com -1 */
 #define OERROR_AND_EXIT(file_name) {perror(file_name); exit(-1);}
 
+/* Definição dos campos nas linhas do ficheiro de vendas. Estes valores devem ser sempre alterados em simultâneo de forma a manterem concordância */
+#define NUM_CAMPOS 7
+enum campoVenda {CODIGO_PROD = 0, PRECO, UNIDADES, TIPO_COMPRA, CODIGO_CLIENTE, MES, FILIAL};
+
 /*Avalia os preços (0.0 - 999.99)*/
-#define TESTAPRECO(p) ((p)>=0.0 && (p)<=999.99 ? (p) : -1)
+#define TESTAPRECO(p) (((p)>=0.0 && (p)<=999.99) ? (p) : -1) /* porque n~ao fazer apenas ((p)>=0.0 && (p)<=999.99) ?? desta forma, não é ṕreciso andar a comparar com -1*/
 /*Avalia numero de unidades compradas*/
-#define TESTANMR_UNI(n) ((n)>=1 && (n)<=200 ? (n) : 0)
+#define TESTANMR_UNI(n) ((n)>=1 && (n)<=200 ? (n) : 0) /* já que nao precisamos do valor do n, nao precisamos de devolve-lo */
 /*Avalia o mês da compra*/
-#define TESTAMES(m) ((m)>=1 && (m)<=12 ? (m) : 0)
+#define TESTAMES(m) ((m)>=1 && (m)<=12 ? (m) : 0) 
 /*Avalia o tipo de compra*/
 #define TESTATIPO(t) (t=='N' || t=='P' ? t : 0)
 /*Avalia a filial */
@@ -35,9 +38,6 @@
 
 
 /* SUGESTÂO: passar struct para .h e definir os tipos com macros para ser mais fácil alterar se houvewr mudanças */
-
-
-enum campoVenda {CODIGO_PROD = 0, PRECO, UNIDADES, TIPO_COMPRA, CODIGO_CLIENTE, MES, FILIAL};
 
 typedef struct{
 	char codigoProduto[TAM_CODIGOS];
@@ -55,30 +55,21 @@ void * pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len);
 int comparaStrings(const void *str1, const void *str2);
 
 void criaVenda(char *campos_venda[NUM_CAMPOS], venda_t *v_ptr);
-int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char produtos[][TAM_CODIGOS], int nprods);
+int criaFvendasVal(char * filename, char clientes[][TAM_CODIGOS], int nclientes, char produtos[][TAM_CODIGOS], int nprods);
 int validaCamposVenda(char *campos_venda[NUM_CAMPOS]);
 
 int main(){
 	int nclientes, nprods, nvendas_val;
 	char clientes[NCLIENTES][TAM_CODIGOS];
 	char produtos[NPRODUTOS][TAM_CODIGOS];
-	FILE *fp;
 
 	nclientes = fileToStrArr(FCLIENTES, clientes, NCLIENTES);	
 	nprods = fileToStrArr(FPRODUTOS, produtos, NPRODUTOS);
-
-/*sugestão: passar a abertura de ficheiros e verificação de erros para dentro da função */
-	fp = fopen(FVENDAS, "r");
-
-	if(fp == NULL)
-		OERROR_AND_EXIT(FVENDAS);
-	/* tenta criar ficheiro com informação sobre as vendas válidas */	
-	nvendas_val = criaFvendasVal(fp, clientes, nclientes, produtos, nprods);
+	nvendas_val = criaFvendasVal(FVENDAS, clientes, nclientes, produtos, nprods);
 	
 	if(nvendas_val == -1)
 		fprintf(stderr, "Erro: Não foi possível criar o ficheiro de vendas válidas\n");
 
-	fclose(fp);
 	printf("nº produtos: %d | nº clientes: %d | nº vendas válidas: %d\n", nprods, nclientes, nvendas_val);
 
 	return 0;
@@ -101,33 +92,39 @@ int fileToStrArr(char * filename, char strArr[][TAM_CODIGOS], int nlinhas){
 	return i; /* #strings lidas */
 }
 
-/* cria um ficheiro com informação sobre as vendas válidas.
+/* tenta criar um ficheiro com informação sobre as vendas válidas.
    Devolve: o número de vendas válidas em caso de sucesso. -1 caso contrário. */
 
-int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char produtos[][TAM_CODIGOS], int nprods) {
+int criaFvendasVal(char * ficheiroVendas, char clientes[][TAM_CODIGOS], int nclientes, char produtos[][TAM_CODIGOS], int nprods) {
 	int nvendas_val;
 	enum campoVenda i;
 	char linha_venda[MAXLINHA_VENDAS],
 	     linha_venda_cpy[MAXLINHA_VENDAS];
-	char *campos_venda[7];
-	FILE *fdest;
-		
+	char *campos_venda[NUM_CAMPOS];
+	FILE *fdest, *fp;
+	
+	fp = fopen(ficheiroVendas, "r");
 	fdest = fopen(FVENDAS_VAL, "w");
 
+	/* porque é que num faz exit() e no outro retorna -1 ??*/
+	if(fp == NULL)
+		OERROR_AND_EXIT(ficheiroVendas);
 	if(fdest == NULL)
 		return -1;
-
+	/* Minha sugestão:
+	   if(fp == NULL || fdest == NULL){
+			fprintf(stderr, "Erro: Não foi possível criar o ficheiro de vendas válidas\n"); // isto desaparecia da main
+			OERROR_AND_EXIT(fp == NULL ? fp : fdest);
+	   }
+	*/
 	nvendas_val = 0;
 	while(fgets(linha_venda, MAXLINHA_VENDAS, fp) != NULL){
-
 		strcpy(linha_venda_cpy, linha_venda);
 		campos_venda[0] = strtok(linha_venda, " ");
-		for(i = 1; i < 7; ++i)
+		for(i = 1; i < NUM_CAMPOS; ++i)
 			campos_venda[i] = strtok(NULL, " \r\n");
 
-		/* Se a estrutura for válida, insere-a no ficheiro */
 		/* Sugestão: Passar as pesquisas binárias para dentro da função que valida */
-
 		if(/*validaCamposVenda(campos_venda) && */
 		   pesquisaBin(campos_venda[CODIGO_PROD], produtos, nprods) &&
 		   pesquisaBin(campos_venda[CODIGO_CLIENTE], clientes, nclientes)){
@@ -136,6 +133,7 @@ int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char p
 		}
 	}
 
+	fclose(fp);
 	fclose(fdest);
 	return nvendas_val;
 }
