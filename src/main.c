@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "venda.h"
+
 /* tamanhos de arrays */
 #define NCLIENTES 20000
 #define NPRODUTOS 200000
@@ -20,10 +22,6 @@
 
 /* erro de abertura de ficheiro e saída do programa com -1 */
 #define OERROR_AND_EXIT(file_name) {perror(file_name); exit(-1);}
-
-/* Definição dos campos nas linhas do ficheiro de vendas. Estes valores devem ser sempre alterados em simultâneo de forma a manterem concordância */
-#define NUM_CAMPOS 7
-enum campoVenda {CODIGO_PROD = 0, PRECO, UNIDADES, TIPO_COMPRA, CODIGO_CLIENTE, MES, FILIAL};
 
 /*Avalia os preços (0.0 - 999.99)*/
 #define TESTAPRECO(p) (((p)>=0.0 && (p)<=999.99) ? (p) : -1) /* porque n~ao fazer apenas ((p)>=0.0 && (p)<=999.99) ?? desta forma, não é ṕreciso andar a comparar com -1*/
