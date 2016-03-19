@@ -1,3 +1,5 @@
+/* Módulo de filtragem das vendas válidas */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,8 +10,10 @@
 #define MAXLINHA 64 /* tamanho do buffer usada na fgets */
 #define MAXLINHA_VENDAS 128
 #define TAM_CODIGOS 10 /* tamanho máximo dos códigos de cliente/produto */
+#define NUM_CAMPOS 7
 
 /* caminhos de ficheiros */
+/* sugestão: programar de forma a que se possa passar os caminhos dos ficheiros no argvs */
 #define FCLIENTES "../data/Clientes.txt" /* caminho do ficheiro de clientes */
 #define FPRODUTOS "../data/Produtos.txt" /* caminho do ficheiro de produtos */
 #define FVENDAS "../data/Vendas_1M.txt"     /* caminho do ficheiro de vendas */
@@ -29,23 +33,30 @@
 /*Avalia a filial */
 #define TESTAFILIAL(f) ((f)>=1 && (f)<=3 ? (f) : 0)
 
+
+/* SUGESTÂO: passar struct para .h e definir os tipos com macros para ser mais fácil alterar se houvewr mudanças */
+
+
+enum campoVenda {CODIGO_PROD = 0, PRECO, UNIDADES, TIPO_COMPRA, CODIGO_CLIENTE, MES, FILIAL};
+
 typedef struct{
 	char codigoProduto[TAM_CODIGOS];
+	char codigoCliente[TAM_CODIGOS];
 	double preco;
 	int nUnidades;
-	char tipoCompra;
-	char codigoCliente[TAM_CODIGOS];
 	int mes;
 	int filial;
+	char tipoCompra;
 } venda_t;
 
-int fileToStrArr(char *filename, char strArr[][TAM_CODIGOS]);
+
+int fileToStrArr(char *filename, char strArr[][TAM_CODIGOS], int nlines);
 void * pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len);
 int comparaStrings(const void *str1, const void *str2);
 
-void criaVenda(char *campos_venda[7], venda_t *v_ptr);
+void criaVenda(char *campos_venda[NUM_CAMPOS], venda_t *v_ptr);
 int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char produtos[][TAM_CODIGOS], int nprods);
-int validaCamposVenda(char *campos_venda[7]);
+int validaCamposVenda(char *campos_venda[NUM_CAMPOS]);
 
 int main(){
 	int nclientes, nprods, nvendas_val;
@@ -53,9 +64,10 @@ int main(){
 	char produtos[NPRODUTOS][TAM_CODIGOS];
 	FILE *fp;
 
-	nclientes = fileToStrArr(FCLIENTES, clientes);	
-	nprods = fileToStrArr(FPRODUTOS, produtos);
+	nclientes = fileToStrArr(FCLIENTES, clientes, NCLIENTES);	
+	nprods = fileToStrArr(FPRODUTOS, produtos, NPRODUTOS);
 
+/*sugestão: passar a abertura de ficheiros e verificação de erros para dentro da função */
 	fp = fopen(FVENDAS, "r");
 
 	if(fp == NULL)
@@ -72,36 +84,18 @@ int main(){
 	return 0;
 }
 
-/* passa cada linha de um ficheiro para uma string, produzindo um
-   array de strings ordenado lexicograficamente */
-/*
-int fileToStrArr(FILE *fp, char strArr[][TAM_CODIGOS], int nlinhas){
-	int i = 0;
-	char linha[MAXLINHA];
-	char *token;
-
-	while(i < nlinhas && fgets(linha, MAXLINHA, fp) != NULL){
-		if((int) strlen(linha) < TAM_CODIGOS){
-			token = strtok(linha, "\r\n");
-			strcpy(strArr[i++], token);
-		}
-	}
-
-	qsort(strArr, i, TAM_CODIGOS, comparaStrings); 
-
-	return i; 
-}
-*/
-
-/* Dúvida: os ficheiros de clientes e produtos estão bem formatados(em termos de fim de linhas, etc) ??*/
-
-int fileToStrArr(char * filename, char strArr[][TAM_CODIGOS]){
+int fileToStrArr(char * filename, char strArr[][TAM_CODIGOS], int nlinhas){
 	int i;
+	char * token, linha[MAXLINHA];
 	FILE *fp = fopen(filename, "r");
 
 	if(fp == NULL) OERROR_AND_EXIT(filename);
-	for(i = 0; fgets(strArr[i], TAM_CODIGOS, fp); i++)
-       		 strtok(strArr[i], "\r\n");
+	for(i = 0; i < nlinhas && fgets(linha, MAXLINHA, fp); i++){
+        if(strlen(linha) < TAM_CODIGOS){
+       		token = strtok(linha, "\r\n");
+			strcpy(strArr[i], token);
+ 	    }	
+	}	
 	fclose(fp);
 	qsort(strArr, i, TAM_CODIGOS * sizeof(char), comparaStrings); 
 	return i; /* #strings lidas */
@@ -109,8 +103,6 @@ int fileToStrArr(char * filename, char strArr[][TAM_CODIGOS]){
 
 /* cria um ficheiro com informação sobre as vendas válidas.
    Devolve: o número de vendas válidas em caso de sucesso. -1 caso contrário. */
-
-enum campoVenda {CODIGO_PROD = 0, PRECO, UNIDADES, TIPO_COMPRA, CODIGO_CLIENTE, MES, FILIAL};
 
 int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char produtos[][TAM_CODIGOS], int nprods) {
 	int nvendas_val;
@@ -133,9 +125,11 @@ int criaFvendasVal(FILE *fp, char clientes[][TAM_CODIGOS], int nclientes, char p
 		for(i = 1; i < 7; ++i)
 			campos_venda[i] = strtok(NULL, " \r\n");
 
-		/* testa se a venda é válida e se for, cria struct com os dados,
-		   escreve-a em ficheiro e incrementa nº de vendas válidas */
-		if(pesquisaBin(campos_venda[CODIGO_PROD], produtos, nprods) &&
+		/* Se a estrutura for válida, insere-a no ficheiro */
+		/* Sugestão: Passar as pesquisas binárias para dentro da função que valida */
+
+		if(/*validaCamposVenda(campos_venda) && */
+		   pesquisaBin(campos_venda[CODIGO_PROD], produtos, nprods) &&
 		   pesquisaBin(campos_venda[CODIGO_CLIENTE], clientes, nclientes)){
 				fprintf(fdest, "%s", linha_venda_cpy);
 				++nvendas_val;
@@ -171,6 +165,8 @@ int comparaStrings(const void *str1, const void *str2){
 	return strcmp((char *) str1, (char *) str2);
 }
 
+/* Sugestão: criar uma macro para o numero de campos de venda em vez de termos o 7 harcoded */
+/* há o perigo de não estarmos a verificar a sintaxe dos campos numericos e a função atof devolver um valor que não devia */
 int validaCamposVenda(char *campos_venda[7])
 {
 	return TESTAPRECO(atof(campos_venda[PRECO])) != -1 &&
