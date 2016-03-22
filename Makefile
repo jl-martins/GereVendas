@@ -5,9 +5,12 @@ src/gereVendas: src/main.c
 	$(CC) $(CFLAGS) src/main.c -o src/gereVendas
 tests: src/gereVendas
 	cd tests; bash runtests.sh t ../src/gereVendas
-VendasValTxt: src/fprintVendasVal.c
-	$(CC) $(CFLAGS) src/fprintVendasVal.c -o src/fprintVendasVal
-	cd src; ./fprintVendasVal
+tests1: src/gereVendas
+	cd src/programasTestes; $(CC) $(CFLAGS) infoCliente.c parseVenda.c -o infoCliente; 
+	cd src/programasTestes; $(CC) $(CFLAGS) vendasFilial.c parseVenda.c -o vendasFilial;
+limparTests1: 
+	rm -f src/programasTestes/infoCliente
+	rm -f src/programasTestes/vendasFilial
 limpar:
 	rm -f src/gereVendas src/fprintVendasVal 
 	rm -f tests/*.res

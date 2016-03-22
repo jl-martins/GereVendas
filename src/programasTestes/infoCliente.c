@@ -13,7 +13,8 @@
 
 int main(int argc, char ** argv){
 	char * gajo, buf[BUFFSIZE];
-	int i, j, comprasMeses[13], nCompras, quantidadeTotal;
+	int i, j, nCompras, quantidadeTotal;
+        int comprasMeses[13]; 
 	double totalPago;
 	FILE * fp = fopen(VENDAS, "r");
 
@@ -40,7 +41,7 @@ int main(int argc, char ** argv){
 		printf("Cliente: %s\n", gajo);
 		printf("Total de Registos de Compras = %d\n", nCompras); 
 		printf("Quantidade Total de Produtos Comprados = %d\n", quantidadeTotal);
-		printf("Total Pago pelo Cliente = %f\n", totalPago);
+		printf("Total Pago pelo Cliente = %.2f\n", totalPago);
 
 		printf("Compras mensais:\n");
 		for(j = 1; j < 13; j++){
