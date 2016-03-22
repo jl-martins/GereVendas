@@ -8,9 +8,11 @@ tests: src/gereVendas
 tests1: src/gereVendas
 	cd src/programasTestes; $(CC) $(CFLAGS) infoCliente.c parseVenda.c -o infoCliente; 
 	cd src/programasTestes; $(CC) $(CFLAGS) vendasFilial.c parseVenda.c -o vendasFilial;
+	cd src/programasTestes; $(CC) $(CFLAGS) infoProduto.c parseVenda.c -o infoProduto;
 limparTests1: 
 	rm -f src/programasTestes/infoCliente
 	rm -f src/programasTestes/vendasFilial
+	rm -f src/programasTestes/infoProduto
 limpar:
 	rm -f src/gereVendas src/fprintVendasVal 
 	rm -f tests/*.res

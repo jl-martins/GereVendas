@@ -109,6 +109,7 @@ int criaFvendasVal(char * ficheiroVendas, char clientes[][TAM_CODIGOS], int ncli
 		OERROR_AND_EXIT(ficheiroVendas);
 	if(fdest == NULL)
 		return -1;
+
 	/* Minha sugestão:
 	   if(fp == NULL || fdest == NULL){
 			fprintf(stderr, "Erro: Não foi possível criar o ficheiro de vendas válidas\n"); // isto desaparecia da main
@@ -138,19 +139,19 @@ int criaFvendasVal(char * ficheiroVendas, char clientes[][TAM_CODIGOS], int ncli
 
 /* cria uma struct com os dados de uma venda a partir de um
    array de strings com as várias informações sobre a mesma. */
-void criaVenda(char *campos_venda[7], venda_t *v_ptr){
+/*void criaVenda(char *campos_venda[7], venda_t *v_ptr){
 	
 	strcpy(v_ptr->codigoProduto, campos_venda[CODIGO_PROD]);
 
 	v_ptr->preco = atof(campos_venda[PRECO]);
 	v_ptr->nUnidades = atoi(campos_venda[UNIDADES]);
-	v_ptr->tipoCompra = campos_venda[TIPO_COMPRA][0]; /* 1o char da string*/
+	v_ptr->tipoCompra = campos_venda[TIPO_COMPRA][0];
 
 	strcpy(v_ptr->codigoCliente, campos_venda[CODIGO_CLIENTE]);
 
 	v_ptr->mes = atoi(campos_venda[MES]);
 	v_ptr->filial = atoi(campos_venda[FILIAL]);
-}
+}*/
 
 void * pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len){
 	return bsearch(str, strArr, len, TAM_CODIGOS, comparaStrings);

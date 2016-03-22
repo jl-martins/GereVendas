@@ -16,13 +16,17 @@ int main(int argc, char ** argv){
         int comprasMeses[13]; 
 	double totalPago;
 	FILE * fp = fopen(VENDAS, "r");
+	if(fp == NULL){
+    	fprintf(stderr, "Não foi possível abrir o ficheiro de vendas\n");
+    	return -1;
+    }
 
 	for(i = 1; i < argc; i++){
 		gajo = argv[i];
 		fseek(fp, 0, SEEK_SET);
 
 		/* inicializações para cada cliente */
-		for(j = 1; j <13; j++) comprasMeses[j] = 0;
+		for(j = 1; j < 13; j++) comprasMeses[j] = 0;
 		nCompras = 0;
 		totalPago = 0;
 		quantidadeTotal = 0;
