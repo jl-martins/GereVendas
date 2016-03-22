@@ -1,8 +1,8 @@
 CFLAGS =-Wall -Wextra -ansi -pedantic -O2
 
 all: tests
-src/gereVendas: src/main.c
-	$(CC) $(CFLAGS) src/main.c -o src/gereVendas
+src/gereVendas: src/filtraVendas.c
+	$(CC) $(CFLAGS) src/filtraVendas.c -o src/gereVendas
 tests: src/gereVendas
 	cd tests; bash runtests.sh t ../src/gereVendas
 tests1: src/gereVendas
