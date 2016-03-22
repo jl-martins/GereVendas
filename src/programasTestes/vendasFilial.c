@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../venda.h"
 #include "test.h"
 #include "parseVenda.h"
 

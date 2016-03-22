@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../venda.h"
 #include "parseVenda.h"
 #include "test.h"
 
