@@ -11,6 +11,7 @@ typedef struct nodoAVL {
 	
 typedef struct TCD_AVL {
 	AVL_NODO* raiz;
+	int (*compara)(const void*, const void*);
 } TCD_AVL;
 
 //lembrete: por a static as funcoes privadas */
