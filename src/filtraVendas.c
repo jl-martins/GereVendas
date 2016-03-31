@@ -34,14 +34,14 @@ typedef struct{
 	char tipoCompra;
 } venda;
 
-
-int fileToStrArr(char *filename, char strArr[][TAM_CODIGOS], int nlines);
-void * pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len);
-int comparaStrings(const void *str1, const void *str2);
-
 void criaVenda(char *campos_venda[NUM_CAMPOS], venda *v_ptr);
 int criaFvendasVal(char * filename, char clientes[][TAM_CODIGOS], int nclientes, char produtos[][TAM_CODIGOS], int nprods);
-int validaCamposVenda(char *campos_venda[NUM_CAMPOS]);
+int fileToStrArr(char *filename, char strArr[][TAM_CODIGOS], int nlines);
+
+static void * pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len);
+static int comparaStrings(const void *str1, const void *str2);
+static int validaCamposVenda(char *campos_venda[NUM_CAMPOS]);
+
 
 int main(){
 	int nclientes, nprods, nvendas_val;
@@ -56,26 +56,41 @@ int main(){
 	return 0;
 }
 
+/**
+ * Gera um array de strings com as linhas de um ficheiro
+ * @param filename Nome do ficheiro cujas linhas serão lidas
+ * @param strArr Array de strings onde serão guardas as linhas do ficheiro
+ * @param nlinhas Número máximo de linhas a ler
+ * @return Número de linhas lidas
+ */
 int fileToStrArr(char * filename, char strArr[][TAM_CODIGOS], int nlinhas){
 	int i;
 	char * token, linha[MAXLINHA];
 	FILE *fp = fopen(filename, "r");
 
-	if(fp == NULL) OERROR_AND_EXIT(filename);
-	for(i = 0; i < nlinhas && fgets(linha, MAXLINHA, fp); i++){
-        if(strlen(linha) < TAM_CODIGOS){
-       		token = strtok(linha, "\r\n");
-			strcpy(strArr[i], token);
- 	    }	
-	}	
+	if(fp == NULL)
+		OERROR_AND_EXIT(filename);
+	
+	for(i = 0; i < nlinhas && fgets(linha, MAXLINHA, fp); ++i){
+       	token = strtok(linha, "\r\n");
+		strcpy(strArr[i], token);
+	}
+
 	fclose(fp);
 	qsort(strArr, i, TAM_CODIGOS * sizeof(char), comparaStrings); 
+	
 	return i;
 }
 
-/* tenta criar um ficheiro com informação sobre as vendas válidas.
-   Devolve: o número de vendas válidas em caso de sucesso. -1 caso contrário. */
-
+/**
+ * Cria um ficheiro de texto com as vendas válidas
+ * @param ficheiroVendas Nome do ficheiro de vendas válidas a criar
+ * @param clientes Array de códigos de cliente
+ * @param nclientes Número de clientes
+ * @param produtos Array de códigos de produto
+ * @param nprods Número de produtos
+ * @return Número de vendas válidas em caso de sucesso. -1 em caso de insucesso.
+ */
 int criaFvendasVal(char * ficheiroVendas, char clientes[][TAM_CODIGOS], int nclientes, char produtos[][TAM_CODIGOS], int nprods) {
 	int nvendas_val;
 	enum campoVenda i;
@@ -129,12 +144,14 @@ int criaFvendasVal(char * ficheiroVendas, char clientes[][TAM_CODIGOS], int ncli
 	v_ptr->filial = atoi(campos_venda[FILIAL]);
 }*/
 
-void * pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len){
+/* Utiliza pesquisa binária para verificar se uma string pertence a um array
+ * de Strings ordenado lexicograficamente. */
+static void * pesquisaBin(char *str, char strArr[][TAM_CODIGOS], int len){
 	return bsearch(str, strArr, len, TAM_CODIGOS, comparaStrings);
 }
 
-/* função de comparação utilizada no qsort para ordenar um array de strings */
-int comparaStrings(const void *str1, const void *str2){
+/* Função de comparação utilizada no qsort para ordenar um array de strings */
+static int comparaStrings(const void *str1, const void *str2){
 	return strcmp((char *) str1, (char *) str2);
 }
 
@@ -152,9 +169,10 @@ int comparaStrings(const void *str1, const void *str2){
 /*Avalia a filial */
 #define TESTAFILIAL(f) ((f)>=1 && (f)<=3 ? (f) : 0)
 
-/* há o perigo de não estarmos a verificar a sintaxe dos campos numericos e a função atof devolver um valor que não devia */
-int validaCamposVenda(char *campos_venda[NUM_CAMPOS])
-{
+/* valida os vários campos de uma venda*/
+static int validaCamposVenda(char *campos_venda[NUM_CAMPOS]){
+	/* há o perigo de não estarmos a verificar a sintaxe dos campos
+	   numericos e a função atof devolver um valor que não devia */
 	return TESTAPRECO(atof(campos_venda[PRECO])) &&
 		   TESTANMR_UNI(atoi(campos_venda[UNIDADES])) &&
 		   TESTAMES(atoi(campos_venda[MES])) &&
