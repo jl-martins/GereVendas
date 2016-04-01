@@ -8,6 +8,7 @@ typedef struct nodoAVL {
 	struct nodoAVL * esquerda;
 	ValorNodo valor;
 	FatorBalanco equilibrio;
+	int nNodos;
 } AVL_NODO;
 	
 typedef struct TCD_AVL {
@@ -22,6 +23,7 @@ typedef struct TCD_AVL {
 AVL criaAVL(int (*compar)(const ValorNodo, const ValorNodo), ){
 	AVL nova = (AVL) malloc(sizeof(TCD_AVL));
 	if(nova == NULL) return NULL;
+	nova -> nNodos = 0;
 	nova -> raiz = NULL;
 	nova -> compara = compar;
 	return nova;
@@ -89,8 +91,9 @@ static AVL_NODO* insereDireita(AVL_NODO * raiz, ValorNodo val, int (*compara) (v
 }
 
 static AVL_NODO* insereNodo(AVL_NODO * raiz, ValorNodo val, int (*compara) (void *, void *), int * cresceu){
+	AVL_NODO * ret;
 	if(raiz == NULL){
-		raiz = (AVL_NODO *) malloc(sizeof(AVL_NODO));
+		ret = raiz = (AVL_NODO *) malloc(sizeof(AVL_NODO));
 		raiz -> valor;	
 		raiz -> esquerda = raiz -> direita = NULL;
 		raiz -> fatorBalanco = EQ;
@@ -98,15 +101,23 @@ static AVL_NODO* insereNodo(AVL_NODO * raiz, ValorNodo val, int (*compara) (void
 	}
 	else if(compara(val, raiz -> valor) < 0){
 		/* se raiz->valor > val */
-		insereEsquerda(raiz, val, compara, cresceu);
-	else insereDireira(raiz, val, compara, cresceu);	 
+		ret = insereEsquerda(raiz, val, compara, cresceu);
+	else ret = insereDireira(raiz, val, compara, cresceu);	 
+	return ret;
 }	
 
+/* ver qual deve ser o tipo de retorno */
 AVL insere(AVL arvore, ValorNodo val){
 	int cresceu;
 	if(arvore == NULL){
 		fprintf(stderr, "Necessário inicializar árvore");
 		return -1;
-	}else		
+	}else{
+		arvore -> nNodos++;		
 		arvore -> raiz = insereNodo(AVL_NODO * raiz, val, arvore -> compara, &cresceu);	
+	return arvore;
+}
+
+ValorNodo inorder(AVL arvore){
+	int tamanho = arvore -> nNodos;	
 }
