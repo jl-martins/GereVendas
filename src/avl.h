@@ -1,5 +1,5 @@
 typedef struct TCD_AVL* AVL;  
-typedef ValorNodo void*;
+typedef void* ValorNodo;
 
 /* API para trabalhar com AVL's */
 /* necessario passar funcao de comparacao entre elementos da arvore */
