@@ -60,8 +60,8 @@ static AVL_NODO equilibraEsquerda(AVL_NODO *raiz){
 				t->esquerda->fatorBalanco = ESQ;
 				break;
 			case DIR:
-				raiz->direita->fatorBalanco = RH;
-				raiz->esquerda->fatorBalanco = EH;
+				raiz->direita->fatorBalanco = DIR;
+				raiz->esquerda->fatorBalanco = EQ;
 				break;
 		}
 		raiz->fatorBalanco = EQ;
@@ -84,4 +84,4 @@ static int alturaAux(const AVL_NODO *raiz){
 		res = 1 + alturaAux(raiz->dir);
 
 	return res;
-}
+/bin/bash: line 0: fg: no job control

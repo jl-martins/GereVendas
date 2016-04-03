@@ -121,3 +121,5 @@ AVL insere(AVL arvore, ValorNodo val){
 ValorNodo inorder(AVL arvore){
 	int tamanho = arvore -> nNodos;	
 }
+
+
