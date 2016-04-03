@@ -23,7 +23,7 @@ CatProds initCatProds()
 
 CatProds insereProduto(CatProds c, Produto p)
 {
-	char j = fstLetter(p);
+	char j = fstLetter(p); /* Sugestão para nome da função fstLetter(): calculaIndiceAVL() */
 	c->catalogo[j] = insereAVL(c->catalogo[j], p);
 	return c;
 }
@@ -37,7 +37,7 @@ Boolean existeProduto(CatProds cp, Produto p)
 int totalProdutosLetra(CatProds cp, char l)
 {
 	l = l - 'A';
-	return cp->catalogo[l]->tamanho;
+	return cp->catalogo[l]->tamanho; /* (vamos ter que usar uma função para aceder ao tamanho da AVL) */
 }
 
 int totalProdutos(CatProds cp)
@@ -65,7 +65,7 @@ Lista_Prods listaProdutos(CatProds, char l)
 }
 
 static char fstLetter(Produto p)
-{
+{	/* Sugestão: poderíamos escrever só: return p->prod[0] - 'A' */
 	char l = p->prod[0];
 	l = l - 'A';
 	return j;
