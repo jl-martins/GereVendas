@@ -30,8 +30,18 @@ static AVL_NODO* equilibraEsquerda(AVL_NODO *raiz);
 static AVL_NODO* insereEsquerda(AVL_NODO *raiz, ValorNodo val, int (*compara) (const void *, const void *), int *cresceu);
 static int alturaAux(const AVL_NODO *raiz);
 
+/* DEBUG*/
+int compara(const void * x, const void * y){
+	return *(int *)x - *(int *)y;
+}
+
 int main(){
-	
+	int a = 2, b = 3, c = 1;
+	AVL nova = criaAVL(compara);
+	insere(nova, &a);
+	insere(nova, &b);
+	insere(nova, &c);
+
 }
 
 // ver o que fazer quando falha
