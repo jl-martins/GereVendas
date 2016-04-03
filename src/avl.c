@@ -1,6 +1,7 @@
 #include "avl.h"
 #include <stdlib.h>
-/*definir funçoes para travessias!! e toString*/
+//definir funçoes para travessias!! e toString
+//fazer codigo mais seguro para quando malloc falha
 typedef enum fatorBalanco {ESQ, EQ, DIR} FatorBalanco; 
 
 typedef struct nodoAVL {
@@ -8,28 +9,26 @@ typedef struct nodoAVL {
 	struct nodoAVL * esquerda;
 	ValorNodo valor;
 	FatorBalanco fatorBalanco;
-	int nNodos;
 } AVL_NODO;
 	
 typedef struct TCD_AVL {
 	AVL_NODO* raiz;
-	/* funcao de comparacao entre nodos - se o primeiro < segundo, o valor deve ser negativo */
+	// funcao de comparacao entre nodos - se o primeiro < segundo, o valor deve ser negativo 
 	int (*compara)(const void*, const void*);
+	int tamanho;
 } TCD_AVL;
 
 //lembrete: por a static as funcoes privadas 
-/* Protótipos das funções privadas ao ficheiro */
+// Protótipos das funções privadas ao ficheiro 
 static AVL_NODO* rodaDireita(AVL_NODO* t);
 static AVL_NODO* equilibraDireita(AVL_NODO * t);
-static AVL_NODO* insereDireita(AVL_NODO * raiz, ValorNodo val, int (*compara) (void*, void*), int * cresceu);
-static AVL_NODO* insereNodo(AVL_NODO * raiz, ValorNodo val, int (*compara) (void *, void *), int * cresceu);
-static AVL_NODO equilibraEsquerda(AVL_NODO *raiz);
-static AVL rodaEsquerda(AVL_NODO *raiz);
-static AVL_NODO equilibraEsquerda(AVL_NODO *raiz);
-static AVL_NODO* insereEsquerda(AVL_NODO *raiz, ValorNodo val, int (*compara) (void *, void *), int *cresceu);
+static AVL_NODO* insereDireita(AVL_NODO * raiz, ValorNodo val, int (*compara) (const void*, const void*), int * cresceu);
+static AVL_NODO* insereNodo(AVL_NODO * raiz, ValorNodo val, int (*compara) (const void *, const void *), int * cresceu);
+static AVL_NODO* equilibraEsquerda(AVL_NODO *raiz);
+static AVL_NODO* rodaEsquerda(AVL_NODO *raiz);
+static AVL_NODO* equilibraEsquerda(AVL_NODO *raiz);
+static AVL_NODO* insereEsquerda(AVL_NODO *raiz, ValorNodo val, int (*compara) (const void *, const void *), int *cresceu);
 static int alturaAux(const AVL_NODO *raiz);
-
-
 
 // ver o que fazer quando falha
 AVL criaAVL(int (*compar)(const void*, const void*)){
@@ -37,13 +36,14 @@ AVL criaAVL(int (*compar)(const void*, const void*)){
 	if(nova == NULL) return NULL;
 	nova -> raiz = NULL;
 	nova -> compara = compar;
+	nova -> tamanho = 0;
 	return nova;
 }
 
 static AVL_NODO* rodaDireita(AVL_NODO* t){
 	AVL_NODO* aux;
 	if ((! t) || (! t -> esquerda)) {
-		/* inserir código de tratamento de erros */
+		// inserir código de tratamento de erros 
 	} else {
 		aux = t -> esquerda;
 		t -> esquerda = aux -> direita;
@@ -81,7 +81,7 @@ static AVL_NODO* equilibraDireita(AVL_NODO * t){
 	return t;
 }
 
-static AVL_NODO* insereDireita(AVL_NODO * raiz, ValorNodo val, int (*compara) (void*, void*), int * cresceu){
+static AVL_NODO* insereDireita(AVL_NODO * raiz, ValorNodo val, int (*compara) (const void*, const void*), int * cresceu){
 	raiz -> direita = insereNodo(raiz -> direita, val, compara, cresceu);
 	if(*cresceu){
 		switch(raiz -> fatorBalanco){
@@ -101,45 +101,46 @@ static AVL_NODO* insereDireita(AVL_NODO * raiz, ValorNodo val, int (*compara) (v
 	return raiz;
 }
 
-static AVL_NODO* insereNodo(AVL_NODO * raiz, ValorNodo val, int (*compara) (void *, void *), int * cresceu){
+static AVL_NODO* insereNodo(AVL_NODO * raiz, ValorNodo val, int (*compara) (const void *, const void *), int * cresceu){
 	AVL_NODO * ret;
 	if(raiz == NULL){
 		ret = raiz = (AVL_NODO *) malloc(sizeof(AVL_NODO));
-		raiz -> valor;	
+		raiz -> valor = val;	
 		raiz -> esquerda = raiz -> direita = NULL;
 		raiz -> fatorBalanco = EQ;
 		*cresceu = 1;
 	}
-	else if(compara(val, raiz -> valor) < 0){
-		/* se raiz->valor > val */
+	else if(compara(val, raiz -> valor) < 0)
+		// se raiz->valor > val
 		ret = insereEsquerda(raiz, val, compara, cresceu);
-	else ret = insereDireira(raiz, val, compara, cresceu);	 
+	else ret = insereDireita(raiz, val, compara, cresceu);	 
 	return ret;
 }	
 
-/* ver qual deve ser o tipo de retorno */
+// ver qual deve ser o tipo de retorno 
 AVL insere(AVL arvore, ValorNodo val){
 	int cresceu;
 	if(arvore == NULL){
-		/* Podemos usar IO nos modulos?? */
+		// Podemos usar IO nos modulos?? 
 		//fprintf(stderr, "Necessário inicializar árvore");
-		return -1;
+		return NULL;
 	}else{
-		arvore -> nNodos++;		
-		arvore -> raiz = insereNodo(AVL_NODO * raiz, val, arvore -> compara, &cresceu);	
+		arvore -> tamanho++;		
+		arvore -> raiz = insereNodo(arvore -> raiz, val, arvore -> compara, &cresceu);	
+	}
 	return arvore;
 }
 
-static AVL_NODO equilibraEsquerda(AVL_NODO *raiz){
+static AVL_NODO* equilibraEsquerda(AVL_NODO *raiz){
 
 	if(raiz->esquerda->fatorBalanco == ESQ){
-		/* rotação simples à direita */
+		// rotação simples à direita
 		raiz = rodaDireita(raiz);
 		raiz->fatorBalanco = EQ;
 		raiz->direita->fatorBalanco = EQ;
 	}
 	else{
-		/* Dupla rotação */
+		// Dupla rotação
 		raiz->esquerda = rodaEsquerda(raiz->esquerda);
 		raiz = rodaDireita(raiz);
 
@@ -149,8 +150,8 @@ static AVL_NODO equilibraEsquerda(AVL_NODO *raiz){
 				raiz->direita->fatorBalanco = EQ;
 				break;
 			case ESQ:
-				t->direita->fatorBalanco = EQ;
-				t->esquerda->fatorBalanco = ESQ;
+				raiz->direita->fatorBalanco = EQ;
+				raiz->esquerda->fatorBalanco = ESQ;
 				break;
 			case DIR:
 				raiz->direita->fatorBalanco = DIR;
@@ -163,11 +164,11 @@ static AVL_NODO equilibraEsquerda(AVL_NODO *raiz){
 }
 
 // JM
-static AVL rodaEsquerda(AVL_NODO *raiz){
+static AVL_NODO* rodaEsquerda(AVL_NODO *raiz){
 	AVL_NODO *aux;
 
 	if(!raiz || !raiz->direita){
-		/* tratamento de erros */
+		// tratamento de erros 
 	}
 	else{
 		aux = raiz->direita;
@@ -179,39 +180,7 @@ static AVL rodaEsquerda(AVL_NODO *raiz){
 	return raiz;
 }
 
-static AVL_NODO equilibraEsquerda(AVL_NODO *raiz){
-
-	if(raiz->esquerda->fatorBalanco == ESQ){
-		/* rotação simples à direita */
-		raiz = rodaDireita(raiz);
-		raiz->fatorBalanco = EQ;
-		raiz->direita->fatorBalanco = EQ;
-	}
-	else{
-		/* Dupla rotação */
-		raiz->esquerda = rodaEsquerda(raiz->esquerda);
-		raiz = rodaDireita(raiz);
-
-		switch(raiz->fatorBalanco){
-			case EQ:
-				raiz->esquerda->fatorBalanco = EQ;
-				raiz->direita->fatorBalanco = EQ;
-				break;
-			case ESQ:
-				t->direita->fatorBalanco = EQ;
-				t->esquerda->fatorBalanco = ESQ;
-				break;
-			case DIR:
-				raiz->direita->fatorBalanco = DIR;
-				raiz->esquerda->fatorBalanco = EQ;
-				break;
-		}
-		raiz->fatorBalanco = EQ;
-	}
-	return raiz;
-}
-
-static AVL_NODO* insereEsquerda(AVL_NODO *raiz, ValorNodo val, int (*compara) (void *, void *), int *cresceu){
+static AVL_NODO* insereEsquerda(AVL_NODO *raiz, ValorNodo val, int (*compara) (const void *, const void *), int *cresceu){
 	raiz->esquerda = insereNodo(raiz->esquerda, val, compara, cresceu);
 	
 	if(*cresceu){
@@ -242,9 +211,9 @@ static int alturaAux(const AVL_NODO *raiz){
 	if(raiz == NULL)
 		res = 0;
 	else if(raiz->fatorBalanco == ESQ)
-		res = 1 + alturaAux(raiz->esq);
+		res = 1 + alturaAux(raiz->esquerda);
 	else
-		res = 1 + alturaAux(raiz->dir);
+		res = 1 + alturaAux(raiz->direita);
 
 	return res;
 }
