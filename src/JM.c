@@ -16,27 +16,6 @@ static AVL rodaEsquerda(AVL_NODO *raiz){
 	return raiz;
 }
 
-static AVL_NODO* insereEsquerda(AVL_NODO *raiz, ValorNodo val, int (*compara) (void *, void *), int *cresceu){
-	raiz->esquerda = insereNodo(raiz->esquerda, val, compara, cresceu);
-	
-	if(*cresceu){
-		switch(raiz->fatorBalanco){
-			case ESQ:
-				raiz = equilibraEsquerda(raiz);
-				*cresceu = 0;
-				break;
-			case EQ:
-				raiz->fatorBalanco = ESQ;
-				break;
-			case DIR:
-				raiz->fatorBalanco = EQ;
-				*cresceu = 0;
-				break;
-		}
-	}
-	return raiz;
-}
-
 static AVL_NODO equilibraEsquerda(AVL_NODO *raiz){
 
 	if(raiz->esquerda->fatorBalanco == ESQ){
@@ -69,6 +48,27 @@ static AVL_NODO equilibraEsquerda(AVL_NODO *raiz){
 	return raiz;
 }
 
+static AVL_NODO* insereEsquerda(AVL_NODO *raiz, ValorNodo val, int (*compara) (void *, void *), int *cresceu){
+	raiz->esquerda = insereNodo(raiz->esquerda, val, compara, cresceu);
+	
+	if(*cresceu){
+		switch(raiz->fatorBalanco){
+			case ESQ:
+				raiz = equilibraEsquerda(raiz);
+				*cresceu = 0;
+				break;
+			case EQ:
+				raiz->fatorBalanco = ESQ;
+				break;
+			case DIR:
+				raiz->fatorBalanco = EQ;
+				*cresceu = 0;
+				break;
+		}
+	}
+	return raiz;
+}
+
 int altura(const AVL arv){
 	return (arv == NULL) ? -1 : alturaAux(arv->raiz);
 }
@@ -84,4 +84,4 @@ static int alturaAux(const AVL_NODO *raiz){
 		res = 1 + alturaAux(raiz->dir);
 
 	return res;
-/bin/bash: line 0: fg: no job control
+}
