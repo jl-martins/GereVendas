@@ -2,13 +2,11 @@
 
 #define MAX_AVL 26
 
-struct prods { AVL catalogo[MAX_AVL]; } cprods;
+struct cprods { AVL catalogo[MAX_AVL]; } Cprods;
 
-struct prod { char* prod; } produto;
+struct prod { char* prod; } Prod;
 
-struct conjprods { } Conj_Prods;
-
-struct listaprods { } Lista_Prods;
+struct prods { char** produtos; } Prods;
 
 static int compara(Produto, Produto);
 static char fstLetter(Produto);
@@ -59,6 +57,11 @@ void removeCatProds(CatProds cp)
 		apagaAVL(cp->catalogo[i]);
 
 	free(cp); /*??*/
+}
+
+Lista_Prods listaProdutos(CatProds, char l)
+{
+	
 }
 
 static char fstLetter(Produto p)
