@@ -16,27 +16,6 @@ static AVL rodaEsquerda(AVL_NODO *raiz){
 	return raiz;
 }
 
-static AVL_NODO* insereEsquerda(AVL_NODO *raiz, ValorNodo val, int (*compara) (void *, void *), int *cresceu){
-	raiz->esquerda = insereNodo(raiz->esquerda, val, compara, cresceu);
-	
-	if(*cresceu){
-		switch(raiz->fatorBalanco){
-			case ESQ:
-				raiz = equilibraEsquerda(raiz);
-				*cresceu = 0;
-				break;
-			case EQ:
-				raiz->fatorBalanco = ESQ;
-				break;
-			case DIR:
-				raiz->fatorBalanco = EQ;
-				*cresceu = 0;
-				break;
-		}
-	}
-	return raiz;
-}
-
 static AVL_NODO equilibraEsquerda(AVL_NODO *raiz){
 
 	if(raiz->esquerda->fatorBalanco == ESQ){
@@ -60,11 +39,32 @@ static AVL_NODO equilibraEsquerda(AVL_NODO *raiz){
 				t->esquerda->fatorBalanco = ESQ;
 				break;
 			case DIR:
-				raiz->direita->fatorBalanco = RH;
-				raiz->esquerda->fatorBalanco = EH;
+				raiz->direita->fatorBalanco = DIR;
+				raiz->esquerda->fatorBalanco = EQ;
 				break;
 		}
 		raiz->fatorBalanco = EQ;
+	}
+	return raiz;
+}
+
+static AVL_NODO* insereEsquerda(AVL_NODO *raiz, ValorNodo val, int (*compara) (void *, void *), int *cresceu){
+	raiz->esquerda = insereNodo(raiz->esquerda, val, compara, cresceu);
+	
+	if(*cresceu){
+		switch(raiz->fatorBalanco){
+			case ESQ:
+				raiz = equilibraEsquerda(raiz);
+				*cresceu = 0;
+				break;
+			case EQ:
+				raiz->fatorBalanco = ESQ;
+				break;
+			case DIR:
+				raiz->fatorBalanco = EQ;
+				*cresceu = 0;
+				break;
+		}
 	}
 	return raiz;
 }
