@@ -14,13 +14,13 @@ typedef struct nodoAVL {
 typedef struct TCD_AVL {
 	AVL_NODO* raiz;
 	/* funcao de comparacao entre nodos - se o primeiro < segundo, o valor deve ser negativo */
-	int (*compara)(const ValorNodo, const ValorNodo);
+	int (*compara)(const void*, const void*);
 } TCD_AVL;
 
 //lembrete: por a static as funcoes privadas 
 
 // ver o que fazer quando falha
-AVL criaAVL(int (*compar)(const ValorNodo, const ValorNodo), ){
+AVL criaAVL(int (*compar)(const void*, const void*), ){
 	AVL nova = (AVL) malloc(sizeof(TCD_AVL));
 	if(nova == NULL) return NULL;
 	nova -> nNodos = 0;
