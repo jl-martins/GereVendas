@@ -11,6 +11,7 @@ struct conjprods { } Conj_Prods;
 struct listaprods { } Lista_Prods;
 
 static int compara(Produto, Produto);
+static char fstLetter(Produto);
 
 CatProds initCatProds()
 {
@@ -24,10 +25,47 @@ CatProds initCatProds()
 
 CatProds insereProduto(CatProds c, Produto p)
 {
-	char j = p->prod[0];
-	j = j - 'A';
+	char j = fstLetter(p);
 	c->catalogo[j] = insereAVL(c->catalogo[j], p);
 	return c;
+}
+
+Boolean existeProduto(CatProds cp, Produto p)
+{
+	char j = fstLetter(p);
+	return existeAVl(c->catalogo[j], p);
+}
+
+int totalProdutosLetra(CatProds cp, char l)
+{
+	l = l - 'A';
+	return cp->catalogo[l]->tamanho;
+}
+
+int totalProdutos(CatProds cp)
+{
+	int i, total = 0;
+	for(i = 0; i < MAX_AVL; i++)
+	{
+		total += cp->catalogo[l]->tamanho;
+	}
+	return total;
+}
+
+void removeCatProds(CatProds cp)
+{
+	int i;
+	for(int i = 0; i < MAX_AVL; i++)
+		apagaAVL(cp->catalogo[i]);
+
+	free(cp); /*??*/
+}
+
+static char fstLetter(Produto p)
+{
+	char l = p->prod[0];
+	l = l - 'A';
+	return j;
 }
 
 
