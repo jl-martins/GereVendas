@@ -30,6 +30,10 @@ static AVL_NODO* equilibraEsquerda(AVL_NODO *raiz);
 static AVL_NODO* insereEsquerda(AVL_NODO *raiz, ValorNodo val, int (*compara) (const void *, const void *), int *cresceu);
 static int alturaAux(const AVL_NODO *raiz);
 
+int main(){
+	
+}
+
 // ver o que fazer quando falha
 AVL criaAVL(int (*compar)(const void*, const void*)){
 	AVL nova = (AVL) malloc(sizeof(TCD_AVL));
