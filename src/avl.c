@@ -1,5 +1,17 @@
 #include "avl.h"
 #include <stdlib.h>
+
+#define MODO_TESTE 1
+
+#if MODO_TESTE
+	#include <stdio.h>
+	#define comentario1 /
+	#define comentario2 *	
+	#define TESTE_INICIO comentario1##comentario2
+	#define TESTE_FIM comentario2##comentario1
+#endif
+
+
 //definir funçoes para travessias!! e toString
 //fazer codigo mais seguro para quando malloc falha
 typedef enum fatorBalanco {ESQ, EQ, DIR} FatorBalanco; 
@@ -30,19 +42,46 @@ static AVL_NODO* equilibraEsquerda(AVL_NODO *raiz);
 static AVL_NODO* insereEsquerda(AVL_NODO *raiz, ValorNodo val, int (*compara) (const void *, const void *), int *cresceu);
 static int alturaAux(const AVL_NODO *raiz);
 
+
 /* DEBUG*/
+TESTE_INICIO
 int compara(const void * x, const void * y){
 	return *(int *)x - *(int *)y;
 }
 
-int main(){
-	int a = 2, b = 3, c = 1;
-	AVL nova = criaAVL(compara);
-	insere(nova, &a);
-	insere(nova, &b);
-	insere(nova, &c);
-
+void printArvore(AVL_NODO* raiz){
+	static int tabs = 0;
+	int i = 0;
+	if(raiz == NULL){
+//		for (i = 0; i < tabs; i++) printf("\t");
+		 printf("NULL\n");
+		 tabs--;
+	}else{
+		tabs++;
+		printArvore(raiz->esquerda);
+		
+//		for (i = 0; i < tabs; i++) printf("\t");
+		printf("%d\n", *((int*) raiz -> valor));
+		tabs++;
+		printArvore(raiz->direita);
+	}	
 }
+
+int main(){
+	int d = 10, a = 2, b = 3, c = 1;
+	AVL nova = criaAVL(compara);
+	insere(nova, &b);
+	insere(nova, &a);
+	
+	printArvore(nova->raiz);
+	printf("\n");
+	insere(nova, &c);
+	printArvore(nova->raiz);
+	insere(nova, &d);
+	printf("\n");
+	printArvore(nova->raiz);
+}
+TESTE_FIM
 
 // ver o que fazer quando falha
 AVL criaAVL(int (*compar)(const void*, const void*)){
