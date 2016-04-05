@@ -288,7 +288,7 @@ static AVL_NODO* rodaDireita(AVL_NODO* raiz){
  * @param val Valor a procurar
  * @return 1 se o valor existir; 0 caso contrário.
  */
-int existeAVL(AVL arv, ValorNodo val){
+int existeAVL(const AVL arv, ValorNodo val){
 	int existe = 0;
 	int r_compara; /* resultado de uma comparação */
 	AVL_NODO *nodo_atual = arv->raiz;
