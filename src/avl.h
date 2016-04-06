@@ -1,8 +1,13 @@
+#ifndef AVL_H
+#define AVL_H
+
+#include "bool.h"
+
 typedef struct TCD_AVL* AVL;  
 typedef void* ValorNodo;
 
 /* Cria uma AVL vazia, que vai utilizar a função de comparação 'compar' */
-AVL criaAVL(int (*compar)(const void *,const void *));
+AVL criaAVLgenerica (int (*compar)(const void *,const void *), void (*atualiza) (void *, const void*));
 /* Insere um valor na AVL 'arvore' */
 AVL insere(AVL arvore, ValorNodo val);
 /* Testa se o valor 'val' ocorre na AVL 'arvore' */
@@ -13,3 +18,7 @@ AVL apagaAVL(AVL arvore);
 int tamanho(const AVL arvore);
 /* Devolve a altura de uma AVL */
 int altura(const AVL arvore);
+/* cria uma AVL cujos nodos com a mesma chave podem ser atualizados */
+#define criaAVL(func) (criaAVLgenerica(func, NULL))
+
+#endif

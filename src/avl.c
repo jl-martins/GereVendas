@@ -22,22 +22,24 @@ typedef struct nodoAVL {
 typedef struct TCD_AVL {
 	AVL_NODO* raiz;
 	/* funcao de comparacao entre nodos - se o primeiro < segundo, o valor deve ser negativo */
-	int (*compara)(const void*, const void*);
+	Comparador compara;
+	/* funcao usada para atualizar o valor de um nodo(o 1o argumento) usando um segundo elemento*/ 
+	Atualizador atualiza;
 	/* ValorNodo criaValorNodo(void * val); */
 	int tamanho;
 } TCD_AVL;
 
-/* lembrete: por a static as funcoes privadas */
 
 /* Protótipos das funções privadas ao ficheiro */
-static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, int (*compara) (const void *, const void *), int* cresceu);
-static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, int (*compara) (const void *, const void *), int* cresceu);
-static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, int (*compara) (const void *, const void *), int* cresceu);
+static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu);
+static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu);
+static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu);
 static AVL_NODO* equilibraEsquerda(AVL_NODO* raiz);
 static AVL_NODO* equilibraDireita(AVL_NODO* raiz);
 static AVL_NODO* rodaEsquerda(AVL_NODO* raiz);
 static AVL_NODO* rodaDireita(AVL_NODO* raiz);
 static int alturaAux(const AVL_NODO* raiz);
+
 
 /* DEBUG*/
 /* TESTE_INICIO */
@@ -107,16 +109,18 @@ int main(){
 /* TESTE_FIM */
 
 /* ver o que fazer quando falha */
-AVL criaAVL(int (*compar)(const void *, const void *)){
+AVL criaAVLgenerica(Comparador compara, Atualizador atualiza){
 	AVL nova = (AVL) malloc(sizeof(TCD_AVL));
 	
 	if(nova == NULL)
 		return NULL;
 	nova -> raiz = NULL;
-	nova -> compara = compar;
+	nova -> compara = compara;
+	nova -> atualiza = atualiza;
 	nova -> tamanho = 0;
 	return nova;
 }
+
 
 /* ver qual deve ser o tipo de retorno */
 AVL insere(AVL arvore, ValorNodo val){
@@ -128,13 +132,14 @@ AVL insere(AVL arvore, ValorNodo val){
 		return NULL;
 	}else{
 		arvore -> tamanho++;		
-		arvore -> raiz = insereNodo(arvore -> raiz, val, arvore -> compara, &cresceu);	
+		arvore -> raiz = insereNodo(arvore -> raiz, val, arvore -> compara, arvore -> atualiza, &cresceu);	
 	}
 	return arvore;
 }
 
-static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, int (*compara) (const void *, const void *), int* cresceu){
+static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu){
 	AVL_NODO * ret;
+	int comparacao;
 	
 	if(raiz == NULL){
 		ret = raiz = (AVL_NODO *) malloc(sizeof(AVL_NODO));
@@ -143,15 +148,17 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, int (*compara) (const
 		raiz -> fatorBalanco = EQ;
 		*cresceu = 1;
 	}
-	else if(compara(val, raiz -> valor) < 0) /* raiz->valor > val */
-		ret = insereEsquerda(raiz, val, compara, cresceu);
-	else
-		ret = insereDireita(raiz, val, compara, cresceu);	 
+	else if(comparacao = compara(val, raiz -> valor) < 0) /* raiz->valor > val */
+		ret = insereEsquerda(raiz, val, compara, atualiza, cresceu);
+	else if(atualiza != NULL && comparacao == 0)
+		atualiza(raiz, val);
+	else 
+		ret = insereDireita(raiz, val, compara, atualiza, cresceu);	 
 	return ret;
 }
 
-static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, int (*compara) (const void *, const void *), int* cresceu){
-	raiz->esquerda = insereNodo(raiz->esquerda, val, compara, cresceu);
+static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu){
+	raiz->esquerda = insereNodo(raiz->esquerda, val, compara, atualiza, cresceu);
 	
 	if(*cresceu){
 		switch(raiz->fatorBalanco){
@@ -171,8 +178,8 @@ static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, int (*compara) (c
 	return raiz;
 }
 
-static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, int (*compara) (const void *, const void *), int* cresceu){
-	raiz -> direita = insereNodo(raiz -> direita, val, compara, cresceu);
+static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu){
+	raiz -> direita = insereNodo(raiz -> direita, val, compara, atualiza, cresceu);
 	
 	if(*cresceu){
 		switch(raiz -> fatorBalanco){
