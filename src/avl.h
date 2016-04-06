@@ -6,8 +6,11 @@
 typedef struct TCD_AVL* AVL;  
 typedef void* ValorNodo;
 
+typedef void (*Atualizador)(void *, const void *);
+typedef int (*Comparador) (const void *, const void *);
+
 /* Cria uma AVL vazia, que vai utilizar a função de comparação 'compar' */
-AVL criaAVLgenerica (int (*compar)(const void *,const void *), void (*atualiza) (void *, const void*));
+AVL criaAVLgenerica (Comparador compara, Atualizador atualiza);
 /* Insere um valor na AVL 'arvore' */
 AVL insere(AVL arvore, ValorNodo val);
 /* Testa se o valor 'val' ocorre na AVL 'arvore' */
