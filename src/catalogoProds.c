@@ -69,12 +69,14 @@ void removeCatProds(CatProds cp)
 	for(int i = 0; i < MAX_AVL; i++)
 		apagaAVL(cp->catalogo[i]);
 
-	free(cp); /*??*/
+	free(cp); 
 }
 
-Lista_Prods listaProdutos(CatProds, char l)
+Conjunto_Prods conjProdutos(CatProds cp, char l)
 {
-	
+	Conjunto_Prods conjP = (Prods*) malloc(sizeof(struct prods));
+	conjP->produtos = (char**) inorder(cp->catalogo[l]);
+	return conjP;
 }
 
 static int calculaIndiceAVL(Produto p)
