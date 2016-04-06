@@ -1,20 +1,28 @@
 #include <catalogoProds.h>
+#include <ctype.h>
 
 #define MAX_AVL 26
 
-struct cprods { AVL catalogo[MAX_AVL]; } Cprods;
+typedef struct cprods {
+	AVL catalogo[MAX_AVL];
+} Cprods;
 
-struct prod { char* prod; } Prod;
+typedef struct prod {
+	char* prod;
+} Prod;
 
-struct prods { char** produtos; } Prods;
+typedef struct prods {
+	char** produtos;
+} Prods;
 
 static int compara(Produto, Produto);
-static char fstLetter(Produto);
+static char calculaIndiceAVL(Produto);
 
-CatProds initCatProds()
+CatProds initCatProds(int (*compara) (const void *, const void *))
 {
 	CatProds cat;
 	int i;
+
 	for(i = 0; i < MAX_AVL; i++)
 		cat->catalogo[i] = criaAVL(compara);
 	
@@ -23,29 +31,33 @@ CatProds initCatProds()
 
 CatProds insereProduto(CatProds c, Produto p)
 {
-	char j = fstLetter(p); /* Sugestão para nome da função fstLetter(): calculaIndiceAVL() */
-	c->catalogo[j] = insereAVL(c->catalogo[j], p);
+	int i = calculaIndiceAVL(p);
+	
+	c->catalogo[i] = insereAVL(c->catalogo[i], p);
 	return c;
 }
 
 Boolean existeProduto(CatProds cp, Produto p)
 {
-	char j = fstLetter(p);
-	return existeAVl(c->catalogo[j], p);
+	int i = calculaIndiceAVL(p);
+
+	return existeAVl(c->catalogo[i], p);
 }
 
 int totalProdutosLetra(CatProds cp, char l)
 {
-	l = l - 'A';
-	return cp->catalogo[l]->tamanho; /* (vamos ter que usar uma função para aceder ao tamanho da AVL) */
+	int i = isUpper(l) ? l - 'A' : -1;
+
+	return (i == -1) ? 0 : tamanho(cp->catalogo[i]);
 }
 
 int totalProdutos(CatProds cp)
 {
 	int i, total = 0;
+
 	for(i = 0; i < MAX_AVL; i++)
 	{
-		total += cp->catalogo[l]->tamanho;
+		total += tamanho(cp->catalogo[i]);
 	}
 	return total;
 }
@@ -53,6 +65,7 @@ int totalProdutos(CatProds cp)
 void removeCatProds(CatProds cp)
 {
 	int i;
+	
 	for(int i = 0; i < MAX_AVL; i++)
 		apagaAVL(cp->catalogo[i]);
 
@@ -64,11 +77,9 @@ Lista_Prods listaProdutos(CatProds, char l)
 	
 }
 
-static char fstLetter(Produto p)
-{	/* Sugestão: poderíamos escrever só: return p->prod[0] - 'A' */
-	char l = p->prod[0];
-	l = l - 'A';
-	return j;
+static int calculaIndiceAVL(Produto p)
+{	
+	return p->prod[0] - 'A';
 }
 
 

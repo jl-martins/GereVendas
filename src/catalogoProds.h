@@ -8,7 +8,7 @@ typedef Prods* Lista_Prods;
 
 typedef Prods* Conjunto_Prods;
 
-CatProds initCatProds();
+CatProds initCatProds(int (*compara) (const void *, const void *));
 CatProds insereProduto(CatProds, Produto);
 Boolean existeProduto(CatProds, Produto);
 int totalProdutos(CatProds);
