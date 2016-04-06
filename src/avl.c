@@ -49,7 +49,6 @@ int compara(const void* x, const void* y){
 
 void printArvore(AVL_NODO* raiz){
 	static int tabs = 0;
-	int i = 0;
 	if(raiz == NULL){
 /*		for (i = 0; i < tabs; i++) printf("\t"); */
 		 printf("NULL\n");
@@ -148,7 +147,7 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, A
 		raiz -> fatorBalanco = EQ;
 		*cresceu = 1;
 	}
-	else if(comparacao = compara(val, raiz -> valor) < 0) /* raiz->valor > val */
+	else if((comparacao = compara(val, raiz -> valor)) < 0) /* raiz->valor > val */
 		ret = insereEsquerda(raiz, val, compara, atualiza, cresceu);
 	else if(atualiza != NULL && comparacao == 0)
 		atualiza(raiz, val);
