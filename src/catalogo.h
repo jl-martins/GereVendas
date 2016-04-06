@@ -17,11 +17,11 @@ Catalogo insereElem(Catalogo c, Elem e);
 /* Testa se um elemento ocorre num catálogo */
 bool existeElem(Catalogo c, Elem e);
 /* Devolve o número total de elementos de um catálogo */
-int totalProdutos(Catalogo c);
+int totalElems(Catalogo c);
 /* Devolve o número total de elementos começados por uma letra */
-int totalProdutosLetra(Catalogo c, char l);
+int totalElemsLetra(Catalogo c, char l);
 /* Apaga um catálogo */
-void removeCatProds(Catalogo c);
+void removeCatalogo(Catalogo c);
 /* Devolve conjunto com os elementos de um catálogo começados por uma letra */
 ConjuntoElems elemsPorLetra(Catalogo c, char l);
 

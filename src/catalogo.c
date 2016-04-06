@@ -20,7 +20,7 @@ struct conjElems {
 
 static int calculaIndiceAVL(Elem e);
 
-Catalogo initCatProds(int (*compara) (const void *, const void *))
+Catalogo initCatalogo(int (*compara) (const void *, const void *))
 {	
 	Catalogo c = (Catalogo) malloc(sizeof(struct cat));
 	
@@ -34,7 +34,7 @@ Catalogo initCatProds(int (*compara) (const void *, const void *))
 	return c;
 }
 
-Catalogo insereProduto(Catalogo c, Elem e)
+Catalogo insereElem(Catalogo c, Elem e)
 {
 	int i = calculaIndiceAVL(e);
 	
@@ -42,21 +42,21 @@ Catalogo insereProduto(Catalogo c, Elem e)
 	return c;
 }
 
-bool existeProduto(Catalogo c, Elem e)
+bool existeElem(Catalogo c, Elem e)
 {
 	int i = calculaIndiceAVL(e);
 
 	return existeAVL(c->catalogo[i], e);
 }
 
-int totalProdutosLetra(Catalogo c, char l)
+int totalElemsLetra(Catalogo c, char l)
 {
 	int i = isupper(l) ? l - 'A' : -1;
 
 	return (i == -1) ? 0 : tamanho(c->catalogo[i]);
 }
 
-int totalProdutos(Catalogo c)
+int totalElems(Catalogo c)
 {
 	int i, total = 0;
 
@@ -66,7 +66,7 @@ int totalProdutos(Catalogo c)
 	return total;
 }
 
-void removeCatProds(Catalogo c)
+void removeCatalogo(Catalogo c)
 {
 	int i;
 	
