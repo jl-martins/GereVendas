@@ -12,7 +12,7 @@ all: filtraVendas avl.o catalogo.o tests
 
 $(EXEC): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) $(OUTPUT_OPTION)
-tests: $(EXEC)
+tests: filtraVendas
 	cd tests; bash runtests.sh t ../src/filtraVendas
 filtraVendas: filtraVendas.c venda.h
 	$(LINK.c) $< -o src/$@
@@ -21,7 +21,7 @@ filtraVendas: filtraVendas.c venda.h
 avl.o: avl.c avl.h
 	$(CC) $(CFLAGS) -c $< -o src/avl.o
 catalogo.o: catalogo.c catalogo.h avl.o avl.h
-	$(CC) $(CFLAGS) src/avl.o -c $< -o src/catalogo.o
+	$(CC) $(CFLAGS) -c $< -o src/catalogo.o
 
 # executáveis para validar a leitura dos dados
 tests1: filtraVendas infoCliente vendasFilial infoProduto
@@ -32,12 +32,14 @@ vendasFilial: vendasFilial.c parseVenda.c
 	$(CC) $(CFLAGS) $^ -o src/programasTestes/$@
 infoProduto: infoProduto.c parseVenda.c
 	$(CC) $(CFLAGS) $^ -o src/programasTestes/$@
+
 # documentação
 doc: src/*.c
 	cd doc; doxygen
 limpar:
-	$(RM) filtraVendas src/*.o src/programasTestes/*.o
-	$(RM) src/programasTestes/{infoCliente,vendasFilial,infoProduto}
+	$(RM) src/filtraVendas src/*.o src/programasTestes/*.o
 	$(RM) tests/*.res
 	$(RM) data/VendasValidas.*
+	# descobrir melhor forma de remover os executáveis de src/programasTestes
+	$(RM) src/programasTestes/infoCliente src/programasTestes/vendasFilial src/programasTestes/infoProduto
 	
