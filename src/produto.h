@@ -3,4 +3,7 @@
 
 typedef struct produto * Produto;
 
+Produto criaProduto(char * codigoProduto);
+char* obterCodigoProduto(Produto prod);
+
 #endif

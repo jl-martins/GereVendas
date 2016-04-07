@@ -1,18 +1,19 @@
-#include <avl.h>
+#ifndef CATALOGO_PRODS_H
+#define CATALOGO_PRODS_H
 
-typedef Cprods* CatProds;
+#include "produto.h"
 
-typedef Prod* Produto;
+/* tipos exportados */
+typedef struct catProds* CatProds;
+typedef struct conjProds* ConjuntoProds;
 
-typedef Prods* Lista_Prods;
-
-typedef Prods* Conjunto_Prods;
-
-CatProds initCatProds(int (*compara) (const void *, const void *));
+/* funções sobre CatProds */
+CatProds criaCatProds();
 CatProds insereProduto(CatProds, Produto);
-Boolean existeProduto(CatProds, Produto);
+bool existeProduto(CatProds, Produto);
 int totalProdutos(CatProds);
-int totalProdutosLetra(CatProds, char l);
+int totalProdutosLetra(CatProds, char);
 void removeCatProds(CatProds);
-Conjunto_Prods conjProdutos(CatProds, char l);
-Lista_Prods listaProdutos(CatProds, char l);
+ConjuntoProds prodsPorLetra(CatProds, char);
+
+#endif

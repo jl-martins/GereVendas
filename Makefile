@@ -6,7 +6,7 @@ TARGET_ARCH := -march=native
 # diretorias onde o utilitário 'make' vai procurar pelas dependências e objetivos da makefile
 VPATH = src/ src/programasTestes
 
-all: filtraVendas avl.o catalogo.o tests
+all: tests avl.o catalogoProds.o catalogoClientes.o 
 
 .PHONY: all doc tests limpar
 
@@ -16,12 +16,14 @@ tests: filtraVendas
 	cd tests; bash runtests.sh t ../src/filtraVendas
 filtraVendas: filtraVendas.c venda.h
 	$(LINK.c) $< -o src/$@
-# avl.o e catalogo.o são "targets" temporários.
-# (não vão ser usados nas versões finais do projeto)
+
+# os próximos 3 targets são temporários
 avl.o: avl.c avl.h
-	$(CC) $(CFLAGS) -c $< -o src/avl.o
-catalogo.o: catalogo.c catalogo.h avl.o avl.h
-	$(CC) $(CFLAGS) -c $< -o src/catalogo.o
+	$(COMPILE.c) $< -o src/$@
+catalogoProds.o: catalogoProds.c catalogoProds.h produto.h avl.h 
+	$(COMPILE.c) $< -o src/$@
+catalogoClientes.o: catalogoClientes.c catalogoClientes.h cliente.h avl.h
+	$(COMPILE.c) $< -o src/$@
 
 # executáveis para validar a leitura dos dados
 tests1: filtraVendas infoCliente vendasFilial infoProduto
