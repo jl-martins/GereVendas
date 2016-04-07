@@ -1,6 +1,6 @@
 EXEC = gereVendas
 CFLAGS = -Wall -Wextra -Wno-unused-function -Wno-unused-result -ansi -pedantic -O2
-OBJS = $(patsubst(src/%.c, src/%.o, $(wildcard *.c)))
+OBJS = $(patsubst(src/%.c, src/%.o, $(wildcard src/*.c)))
 TARGET_ARCH := -march=native
 
 # diretorias onde o utilitário 'make' vai procurar pelas dependências e objetivos da makefile
