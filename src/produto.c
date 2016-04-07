@@ -14,3 +14,7 @@ Produto criaProduto(char * codigoProduto){
 	strcpy(novo -> codigoProduto, codigoProduto);
 	return novo;
 }
+
+char * codigoProduto(Produto prod){
+	return strdup(prod->codigoProduto);
+}
