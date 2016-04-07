@@ -111,7 +111,8 @@ int interpretador()
 }
 
 /* NOTA: Falta completar esta função */
-int interpreta(char linha[]){
+int interpreta(char linha[])
+{
 	char *tmp;
 	/* strtol() devolve um long. */ 
 	long i = strtol(linha, &tmp, 10); /* !(Ver se vale a pena fazer cast pra int) */
@@ -123,6 +124,8 @@ int interpreta(char linha[]){
 	}
 	else
 		r = CONTINUAR;
+
+	return r;
 }
 
 /* Imprime as opções do GereVendas */
@@ -136,65 +139,80 @@ static void imprimeOpcoes(char *opcoes[N_OPCOES])
 }
 
 /* Mensagem de opção inválida */
-static void opcaoInvalida(char opcao[]){
-	fprintf(stderr, "A opção %s é inválida\n\n", opcao);
+static void opcaoInvalida(char opcao[])
+{
+	fprintf(stderr, "A opção '%s' é inválida\n\n", opcao);
 }
 
-static int query1( /* faltam os args */){
-	
+static int query1( /* faltam os args */)
+{
+	return 0;
 }
 
-static int query2( /* faltam os args */){
-	
+static int query2( /* faltam os args */)
+{
+	return 0;
 }
 
-static int query3( /* faltam os args */){
-	
+static int query3( /* faltam os args */)
+{
+	return 0;
 }
 
-static int query4( /* faltam os args */){
-	
+static int query4( /* faltam os args */)
+{
+	return 0;
 }
 
-static int query5( /* faltam os args */){
-	
+static int query5( /* faltam os args */)
+{
+	return 0;
 }
 
-static int query6( /* faltam os args */){
-	
+static int query6( /* faltam os args */)
+{
+	return 0;
 }
 
-static int query7( /* faltam os args */){
-	
+static int query7( /* faltam os args */)
+{
+	return 0;
 }
 
-static int query8( /* faltam os args */){
-	
+static int query8( /* faltam os args */)
+{
+	return 0;
 }
 
-static int query9( /* faltam os args */){
-	
+static int query9( /* faltam os args */)
+{
+	return 0;
 }
 
-static int query10( /* faltam os args */){
-	
+static int query10( /* faltam os args */)
+{
+	return 0;	
 }
 
-static int query11( /* faltam os args */){
-	
+static int query11( /* faltam os args */)
+{
+	return 0;
 }
 
-static int query12( /* faltam os args */){
-	
+static int query12( /* faltam os args */)
+{
+	return 0;	
 }
 
 /* Liberta toda a memória alocada e devolve o valor SAIR para o interpretador */
-static int sair( /* faltam os args */ ){
+static int sair( /* faltam os args */ )
+{
 	return SAIR;
 }
 /* Função que apresenta uma mensagem de erro quando o utilizador 
  * tenta realizar uma query se ter lido os ficheiros de dados. */
-static void erroNaoLeuFich(){
+static void erroNaoLeuFich()
+{
 	fputs("Erro: Ainda não leu os ficheiros de dados\n"
-		  "Introduza 1 e prima ENTER para o fazer\n", stderr);
+		  "Introduza '1' e prima ENTER para o fazer\n", stderr);
 }
