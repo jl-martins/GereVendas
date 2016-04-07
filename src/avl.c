@@ -1,11 +1,9 @@
 #include "avl.h"
 #include <stdlib.h>
 
-#define MODO_TESTE 1
-
+#define MODO_TESTE 0
 #if MODO_TESTE
 	#include <stdio.h>
-	#define TO_INT(ValorNodo) *((int *) (ValorNodo))
 #endif
 
 /* definir funçoes para travessias!! e toString
@@ -40,73 +38,6 @@ static AVL_NODO* rodaEsquerda(AVL_NODO* raiz);
 static AVL_NODO* rodaDireita(AVL_NODO* raiz);
 static int alturaAux(const AVL_NODO* raiz);
 
-
-/* DEBUG*/
-/* TESTE_INICIO */
-int compara(const void* x, const void* y){
-	return TO_INT(x) - TO_INT(y);
-}
-
-void printArvore(AVL_NODO* raiz){
-	static int tabs = 0;
-	if(raiz == NULL){
-/*		for (i = 0; i < tabs; i++) printf("\t"); */
-		 printf("NULL\n");
-		 tabs--;
-	}else{
-		tabs++;
-		printArvore(raiz->esquerda);
-		
-/*		for (i = 0; i < tabs; i++) printf("\t"); */
-		printf("%d\n", *((int*) raiz -> valor));
-		tabs++;
-		printArvore(raiz->direita);
-	}	
-}
-
-/* Imprime uma AVL */
-void imprimeAVL(AVL_NODO* raiz){
-	AVL_NODO *esq, *dir;
-
-	if(!raiz)
-		return;
-
-	esq = raiz->esquerda;
-	dir = raiz->direita;
-
-	if(!esq && !dir)
-		printf("%d\n", TO_INT(raiz->valor));
-	else{
-		if(esq){
-			printf("%d -> (E) %d\n", TO_INT(raiz->valor), TO_INT(esq->valor));
-			imprimeAVL(esq);
-		}
-
-		if(dir){
-			printf("%d -> (D) %d\n", TO_INT(raiz->valor), TO_INT(dir->valor));
-			imprimeAVL(dir);
-		}
-	}
-}
-
-int main(){
-	int d = 10, a = 2, b = 3, c = 1;
-	AVL nova = criaAVL(compara);
-	insere(nova, &b);
-	insere(nova, &a);
-	
-	printArvore(nova->raiz);
-	printf("\n");
-	insere(nova, &c);
-	printArvore(nova->raiz);
-	insere(nova, &d);
-	printf("\n");
-	printArvore(nova->raiz);
-
-	return 0;
-}
-/* TESTE_FIM */
-
 /* ver o que fazer quando falha */
 AVL criaAVLgenerica(Comparador compara, Atualizador atualiza){
 	AVL nova = (AVL) malloc(sizeof(TCD_AVL));
@@ -126,11 +57,10 @@ AVL insere(AVL arvore, ValorNodo val){
 	int cresceu;
 	
 	if(arvore == NULL){
-		/* Podemos usar IO nos modulos?? 
-		   fprintf(stderr, "Necessário inicializar árvore"); */
-		return NULL;
+		/*codigo de erros*/
 	}else{
 		arvore -> tamanho++;		
+		/* ver o que fazer se nao der para inserir */
 		arvore -> raiz = insereNodo(arvore -> raiz, val, arvore -> compara, arvore -> atualiza, &cresceu);	
 	}
 	return arvore;
@@ -199,7 +129,6 @@ static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, Comparador compara
 }
 
 static AVL_NODO* equilibraEsquerda(AVL_NODO* raiz){
-
 	if(raiz->esquerda->fatorBalanco == ESQ){
 		/* rotação simples à direita */
 		raiz = rodaDireita(raiz);
