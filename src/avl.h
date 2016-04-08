@@ -6,7 +6,7 @@
 typedef struct TCD_AVL* AVL;  
 typedef void* ValorNodo;
 
-typedef void (*Atualizador)(void *, const void *);
+typedef void (*Atualizador) (void *, const void *);
 typedef int (*Comparador) (const void *, const void *);
 typedef ValorNodo (*Duplicador) (const void *);
 typedef bool (*Predicado) (const void *);
@@ -27,6 +27,6 @@ int altura(const AVL arvore);
 ValorNodo* inorder(const AVL arv);
 
 /* cria uma AVL que permite repetições */
-#define criaAVL(comp,dup) (criaAVLgenerica(comparador, NULL, dup))
+#define criaAVL(comp,dup) (criaAVLgenerica(comp, NULL, dup))
 
 #endif

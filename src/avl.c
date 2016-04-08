@@ -6,8 +6,8 @@
 	#include <stdio.h>
 #endif
 
-/* tamanho incial do array utilizado em filtraAVL */
-#define TAM_INI(tamanhoArv) (1/16 * (tamanhoArv)) 
+/* Tamanho inicial do array produzido pela função filtraAVL() */
+#define TAM_INI_FILTRA 40
 
 /* definir funçoes para travessias!! e toString
    fazer codigo mais seguro para quando malloc falha */
@@ -47,9 +47,9 @@ AVL criaAVLgenerica(Comparador compara, Atualizador atualiza, Duplicador duplica
 {
 	AVL nova = NULL;
 	
-	/* só é criada uma AVL se tivermos uma funções para comparar e duplicar elementos */
+	/* só é criada uma AVL se tivermos uma função de comparação */
 	if(compara && duplicaElem){
-		nova = (AVL) malloc(sizeof(TCD_AVL));
+		nova = malloc(sizeof(TCD_AVL));
 
 		if(nova){
 			nova -> raiz = NULL;
@@ -85,7 +85,7 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, A
 	int comparacao;
 	
 	if(raiz == NULL){
-		ret = raiz = (AVL_NODO *) malloc(sizeof(AVL_NODO));
+		ret = raiz = malloc(sizeof(AVL_NODO));
 		raiz -> valor = val;	
 		raiz -> esquerda = raiz -> direita = NULL;
 		raiz -> fatorBalanco = EQ;
@@ -272,20 +272,22 @@ bool existeAVL(const AVL arv, ValorNodo val)
 	return existe;
 }
 
-/* Faz uma travessia inorder da AVL 'arv' e devolve um array com os valores dos nodos
-   que satisfazem o predicado passado como argumento.
+/* Faz uma travessia inorder da AVL 'arv' e devolve um array com os 
+   valores dos nodos que satisfazem o predicado passado como argumento.
    NOTA: filtraAVL(arv, NULL) produz o mesmo resultado que inorder(arv)
 */
 
-/* ValorNodo* filtraAVL(const AVL arv, Predicado p)
+/*
+ValorNodo* filtraAVL(const AVL arv, Predicado p)
 {
-	ValorNodo* res;
+	ValorNodo* res = NULL;
 
 	if(arv && arv->raiz){
-		res = filtraAVLaux(arv->raiz, p, 0, TAM_INI(arv->tamanho));
+		res = malloc(TAM_INI_FILTRA * sizeof(ValorNodo *));
+
+		if(res != NULL)
+			res = filtraAVLaux(arv->raiz, p, 0, TAM_INI(arv->tamanho));
 	}
-	else
-		res = NULL;
 
 	return res;
 }
@@ -293,15 +295,18 @@ bool existeAVL(const AVL arv, ValorNodo val)
 ValorNodo* filtraAVLaux(AVL_NODO* raiz, Predicado p, int tamanho, int max)
 {
 
-}*/
+}
+*/
 
 ValorNodo* inorder(const AVL arv)
 {
 	ValorNodo* res = NULL;
 
 	if(arv && arv->raiz){
-		res = (ValorNodo*) malloc(arv->tamanho * sizeof(ValorNodo));
-		res = inorderAux(arv->raiz, arv->duplicaElem, res);
+		res = malloc(arv->tamanho * sizeof(ValorNodo));
+		
+		if(res != NULL)
+			res = inorderAux(arv->raiz, arv->duplicaElem, res);
 	}
 
 	return res;
