@@ -6,15 +6,17 @@
 	#include <stdio.h>
 #endif
 
+/* tamanho incial do array utilizado em filtraAVL */
+#define TAM_INI(tamanhoArv) (1/16 * (tamanhoArv)) 
+
 /* definir funçoes para travessias!! e toString
    fazer codigo mais seguro para quando malloc falha */
 typedef enum fatorBalanco {ESQ, EQ, DIR} FatorBalanco; 
 
 typedef struct nodoAVL {
-	struct nodoAVL * direita;
-	struct nodoAVL * esquerda;
 	ValorNodo valor;
 	FatorBalanco fatorBalanco;
+	struct nodoAVL *esquerda, *direita;
 } AVL_NODO;
 	
 typedef struct TCD_AVL {
@@ -24,6 +26,7 @@ typedef struct TCD_AVL {
 	/* funcao usada para atualizar o valor de um nodo(o 1o argumento) usando um segundo elemento*/ 
 	Atualizador atualiza;
 	/* ValorNodo criaValorNodo(void * val); */
+	Duplicador duplicaElem; /* funcão usada para fazer clone do valor de um nodo */
 	int tamanho;
 } TCD_AVL;
 
@@ -36,24 +39,34 @@ static AVL_NODO* equilibraEsquerda(AVL_NODO* raiz);
 static AVL_NODO* equilibraDireita(AVL_NODO* raiz);
 static AVL_NODO* rodaEsquerda(AVL_NODO* raiz);
 static AVL_NODO* rodaDireita(AVL_NODO* raiz);
+static ValorNodo* inorderAux(AVL_NODO* raiz, Duplicador dup, ValorNodo* res);
 static int alturaAux(const AVL_NODO* raiz);
 
 /* ver o que fazer quando falha */
-AVL criaAVLgenerica(Comparador compara, Atualizador atualiza){
-	AVL nova = (AVL) malloc(sizeof(TCD_AVL));
+AVL criaAVLgenerica(Comparador compara, Atualizador atualiza, Duplicador duplicaElem)
+{
+	AVL nova = NULL;
 	
-	if(nova == NULL)
-		return NULL;
-	nova -> raiz = NULL;
-	nova -> compara = compara;
-	nova -> atualiza = atualiza;
-	nova -> tamanho = 0;
+	/* só é criada uma AVL se tivermos uma funções para comparar e duplicar elementos */
+	if(compara && duplicaElem){
+		nova = (AVL) malloc(sizeof(TCD_AVL));
+
+		if(nova){
+			nova -> raiz = NULL;
+			nova -> compara = compara;
+			nova -> atualiza = atualiza;
+			nova -> duplicaElem = duplicaElem;
+			nova -> tamanho = 0;
+		}
+	}
+	
 	return nova;
 }
 
 
 /* ver qual deve ser o tipo de retorno */
-AVL insere(AVL arvore, ValorNodo val){
+AVL insere(AVL arvore, ValorNodo val)
+{
 	int cresceu;
 	
 	if(arvore == NULL){
@@ -66,8 +79,9 @@ AVL insere(AVL arvore, ValorNodo val){
 	return arvore;
 }
 
-static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu){
-	AVL_NODO * ret;
+static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu)
+{
+	AVL_NODO* ret = NULL;
 	int comparacao;
 	
 	if(raiz == NULL){
@@ -86,7 +100,8 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, A
 	return ret;
 }
 
-static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu){
+static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu)
+{
 	raiz->esquerda = insereNodo(raiz->esquerda, val, compara, atualiza, cresceu);
 	
 	if(*cresceu){
@@ -107,7 +122,8 @@ static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, Comparador compar
 	return raiz;
 }
 
-static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu){
+static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu)
+{
 	raiz -> direita = insereNodo(raiz -> direita, val, compara, atualiza, cresceu);
 	
 	if(*cresceu){
@@ -128,7 +144,8 @@ static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, Comparador compara
 	return raiz;
 }
 
-static AVL_NODO* equilibraEsquerda(AVL_NODO* raiz){
+static AVL_NODO* equilibraEsquerda(AVL_NODO* raiz)
+{
 	if(raiz->esquerda->fatorBalanco == ESQ){
 		/* rotação simples à direita */
 		raiz = rodaDireita(raiz);
@@ -159,7 +176,8 @@ static AVL_NODO* equilibraEsquerda(AVL_NODO* raiz){
 	return raiz;
 }
 
-static AVL_NODO* equilibraDireita(AVL_NODO* raiz){
+static AVL_NODO* equilibraDireita(AVL_NODO* raiz)
+{
 	if (raiz -> direita -> fatorBalanco == DIR) {
 		/* Rotacao simples a esquerda */
 		raiz = rodaEsquerda(raiz);
@@ -187,7 +205,8 @@ static AVL_NODO* equilibraDireita(AVL_NODO* raiz){
 	return raiz;
 }
 
-static AVL_NODO* rodaEsquerda(AVL_NODO* raiz){
+static AVL_NODO* rodaEsquerda(AVL_NODO* raiz)
+{
 	AVL_NODO *aux;
 
 	if(!raiz || !raiz->direita){
@@ -203,7 +222,8 @@ static AVL_NODO* rodaEsquerda(AVL_NODO* raiz){
 	return raiz;
 }
 
-static AVL_NODO* rodaDireita(AVL_NODO* raiz){
+static AVL_NODO* rodaDireita(AVL_NODO* raiz)
+{
 	AVL_NODO* aux;
 	
 	if ((! raiz) || (! raiz -> esquerda)) {
@@ -223,30 +243,89 @@ static AVL_NODO* rodaDireita(AVL_NODO* raiz){
  * @param val Valor a procurar
  * @return 1 se o valor existir; 0 caso contrário.
  */
-bool existeAVL(const AVL arv, ValorNodo val){
-	int existe = FALSE;
-	int r_compara; /* resultado de uma comparação */
+ValorNodo procuraAVL(const AVL arv, ValorNodo val)
+{
+	int r_compara; /* guarda o resultado de uma comparação */
+	ValorNodo res = NULL;
 	AVL_NODO *nodo_atual = arv->raiz;
 	
-	while(!existe && nodo_atual){
+	while(nodo_atual){
 		r_compara = arv->compara(nodo_atual->valor, val);
 		
 		if(r_compara < 0) /* procura na subárvore esquerda */
 			nodo_atual = nodo_atual->esquerda;
 		else if(r_compara > 0) /* procura na subárvore direita */
 			nodo_atual = nodo_atual->direita;
-		else
-			existe = TRUE;
+		else{
+			/* ver código de tratamento de erros */
+			res = arv->duplicaElem(nodo_atual->valor);
+			break; /* encontramos o valor */
+		}
 	}
+	return res;
+}
+
+bool existeAVL(const AVL arv, ValorNodo val)
+{
+	bool existe = procuraAVL(arv, val) != NULL;
 
 	return existe;
+}
+
+/* Faz uma travessia inorder da AVL 'arv' e devolve um array com os valores dos nodos
+   que satisfazem o predicado passado como argumento.
+   NOTA: filtraAVL(arv, NULL) produz o mesmo resultado que inorder(arv)
+*/
+
+/* ValorNodo* filtraAVL(const AVL arv, Predicado p)
+{
+	ValorNodo* res;
+
+	if(arv && arv->raiz){
+		res = filtraAVLaux(arv->raiz, p, 0, TAM_INI(arv->tamanho));
+	}
+	else
+		res = NULL;
+
+	return res;
+}
+
+ValorNodo* filtraAVLaux(AVL_NODO* raiz, Predicado p, int tamanho, int max)
+{
+
+}*/
+
+ValorNodo* inorder(const AVL arv)
+{
+	ValorNodo* res = NULL;
+
+	if(arv && arv->raiz){
+		res = (ValorNodo*) malloc(arv->tamanho * sizeof(ValorNodo));
+		res = inorderAux(arv->raiz, arv->duplicaElem, res);
+	}
+
+	return res;
+}
+
+static ValorNodo* inorderAux(AVL_NODO* raiz, Duplicador dup, ValorNodo* res)
+{	
+	static int i = 0;
+
+	if(raiz){
+		res = inorderAux(raiz->esquerda, dup, res);
+		res[i++] = dup(raiz->valor);
+		res = inorderAux(raiz->direita, dup, res);
+	}
+
+	return res;
 }
 
 /**
  * @param arvore AVL cujo tamanho será retornado
  * @return Tamanho de 'arvore' se esta existir. -1 caso contrário.
  */
-int tamanho(const AVL arvore){
+int tamanho(const AVL arvore)
+{
 	return (arvore == NULL) ? -1 : arvore->tamanho;
 }
 
@@ -254,11 +333,13 @@ int tamanho(const AVL arvore){
  * @param arvore AVL cuja altura será calculada
  * @return A altura de 'arvore' se esta exisitir. -1 caso contrário.
  */ 
-int altura(const AVL arvore){
+int altura(const AVL arvore)
+{
 	return (arvore == NULL) ? -1 : alturaAux(arvore->raiz);
 }
 
-static int alturaAux(const AVL_NODO *raiz){
+static int alturaAux(const AVL_NODO *raiz)
+{
 	int res;
 
 	if(raiz == NULL)
