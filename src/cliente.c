@@ -20,8 +20,11 @@ Cliente criaCliente(char * codigoCliente){
 
 char* obterCodigoCliente(Cliente c){
 	char* copiaCodigo = (char*) malloc(MAX_CODIGO_CLIENTE * sizeof(char));
-	/* strdup não faz parte do ANSI C. É uma função POSIX */
 	if(copiaCodigo)
 		strcpy(copiaCodigo, c->codigoCliente);
 	return copiaCodigo;
+}
+
+char inicioCodigoCliente(Cliente c){
+	return c->codigoCliente[0];
 }

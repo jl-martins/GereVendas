@@ -5,56 +5,46 @@
 #include "catalogoClientes.h"
 
 /* número de AVLs usadas no catálogo */
+#define calculaPos(c) ((inicioCodigoCliente((c))) -'A')
 #define MAX_AVL 26 
 
 struct catClientes {
 	AVL catalogo[MAX_AVL];
 };
 
-struct cliente {
-	char* codigo;
-};
-
 struct conjClientes {
-	char** codigos;
+	Cliente * clientes;
+	int tamanho;
 };
 
-static int calculaIndiceAVL(Cliente c);
 static int compara(const void *, const void *);
 
 CatClientes criaCatClientes()
-{	
+{	int i;
 	CatClientes catC = (CatClientes) malloc(sizeof(struct catClientes));
 	
-	if(catC){ /* assumimos que compara != NULL */
-		int i;
-
+	if(catC) 
 		for(i = 0; i < MAX_AVL; ++i)
 			catC->catalogo[i] = criaAVL(compara);
-	}
-	
 	return catC;
 }
 
 CatClientes insereCliente(CatClientes catC, Cliente c)
 {
-	int i = calculaIndiceAVL(c);
-	
+	int i = calculaPos(c);
 	catC->catalogo[i] = insere(catC->catalogo[i], c);
 	return catC;
 }
 
 bool existeCliente(CatClientes catC, Cliente c)
 {
-	int i = calculaIndiceAVL(c);
-
+	int i = calculaPos(c); 
 	return existeAVL(catC->catalogo[i], c);
 }
 
 int totalClientesLetra(CatClientes catC, char l)
 {
-	int i = isupper(l) ? l - 'A' : -1;
-
+	int i = isalpha(l) ? toupper(l) - 'A' : -1;
 	return (i == -1) ? 0 : tamanho(catC->catalogo[i]);
 }
 
@@ -71,10 +61,8 @@ int totalClientes(CatClientes catC)
 void removeCatClientes(CatClientes catC)
 {
 	int i;
-	
 	for(i = 0; i < MAX_AVL; ++i)
 		apagaAVL(catC->catalogo[i]);
-
 	free(catC); 
 }
 
@@ -95,15 +83,6 @@ ConjuntoClientes clientesPorLetra(CatClientes catC, char l)
 
 	return conjunto;
 }*/
-
-static int calculaIndiceAVL(Cliente c)
-{	
-	char* codigoCliente = obterCodigoCliente(c);
-	int i = codigoCliente[0] - 'A';
-
-	free(codigoCliente); /* já não precisamos do código do cliente */
-	return i;
-}
 
 static int compara(const void *str1, const void *str2)
 {
