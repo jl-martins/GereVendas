@@ -161,11 +161,3 @@ static int compara(const void *cliente1, const void *cliente2) {
 	return r;
 }
 
-/* Cria um duplicado de um Cliente */
-static void* duplica(const void *cliente) {
-	char* codigo = obterCodigoCliente((Cliente) cliente);
-	Cliente dup = criaCliente(codigo);
-
-	free(codigo);
-	return (void*) dup;
-}

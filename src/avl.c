@@ -1,10 +1,8 @@
+/* Garantir que os tipos são opacos para preservar encapsulamento, eliminar funçoes de duplicaçao */
+
+
 #include "avl.h"
 #include <stdlib.h>
-
-#define MODO_TESTE 0
-#if MODO_TESTE
-	#include <stdio.h>
-#endif
 
 /* Tamanho inicial do array produzido pela função filtraAVL() */
 #define TAM_INI_FILTRA 40
@@ -59,10 +57,8 @@ AVL criaAVLgenerica(Comparador compara, Atualizador atualiza, Duplicador duplica
 			nova -> tamanho = 0;
 		}
 	}
-	
 	return nova;
 }
-
 
 /* ver qual deve ser o tipo de retorno */
 AVL insere(AVL arvore, ValorNodo val)

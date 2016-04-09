@@ -160,12 +160,3 @@ static int compara(const void* prod1, const void* prod2) {
 	
 	return r;
 }
-
-/* Cria um duplicado de um produto */
-static void* duplica(const void* prod) {
-	char* codigo = obterCodigoProduto((Produto) prod);
-	Produto dup = criaProduto(codigo);
-
-	free(codigo);
-	return (void *) dup;
-}

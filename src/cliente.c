@@ -2,7 +2,6 @@
 #include <stdlib.h> /* para usar a função malloc() */
 #include <string.h>
 
-#define MAX_CODIGO_CLIENTE 8
 
 struct cliente {
 	char codigoCliente[MAX_CODIGO_CLIENTE];
@@ -30,4 +29,8 @@ char* obterCodigoCliente(Cliente c) {
 
 char inicioCodigoCliente(Cliente c) {
 	return c->codigoCliente[0];
+}
+
+int comparaCodigosCliente(Cliente c1, Cliente c2){
+	strcmp(c1, c2);
 }

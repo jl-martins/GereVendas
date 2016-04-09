@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_CODIGO_PROD 8
-
 struct produto {
 	char codigoProduto[MAX_CODIGO_PROD];
 };
@@ -33,4 +31,8 @@ char* obterCodigoProduto(Produto prod) {
    do produto poderiamos fazer 'caraterPos(p, 0)' */
 char inicioCodigoProduto(Produto prod) {
 	return prod->codigoProduto[0];
+}
+
+int comparaCodigosProduto(Produto p1, Produto p2){
+	strcmp(p1->codigoProduto, p2->codigoProduto);
 }
