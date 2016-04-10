@@ -1,4 +1,4 @@
-/* Garantir que os tipos são opacos para preservar encapsulamento, eliminar funçoes de duplicaçao */
+/* Garantir que os tipos são opacos para preservar encapsulamento */
 
 #include "avl.h"
 #include <stdlib.h>
@@ -44,6 +44,7 @@ static AVL_NODO* equilibraDireita(AVL_NODO* raiz);
 static AVL_NODO* rodaEsquerda(AVL_NODO* raiz);
 static AVL_NODO* rodaDireita(AVL_NODO* raiz);
 static int alturaAux(const AVL_NODO* raiz);
+static void inorderAux(const AVL_NODO* arv, ValorNodo * res);
 
 /* ver o que fazer quando falha */
 AVL criaAVLgenerica(Comparador compara, Atualizador atualiza)
@@ -298,34 +299,34 @@ ValorNodo* filtraAVLaux(AVL_NODO* raiz, Predicado p, int tamanho, int max)
 
 }
 */
-/*
-ValorNodo* inorder(const AVL arv)
+
+ValorNodo* inorder(const AVL arv/*, int * tamanho*/)
 {
 	ValorNodo* res = NULL;
-
+	/* *tamanho = 0;*/
 	if(arv && arv->raiz){
 		res = malloc(arv->tamanho * sizeof(ValorNodo));
 		
-		if(res != NULL)
-			res = inorderAux(arv->raiz, arv->duplicaElem, res);
+		if(res != NULL){
+			inorderAux(arv->raiz, res);
+			/**tamanho = arv->tamanho;*/
+		}
 	}
 
 	return res;
 }
 
-static ValorNodo* inorderAux(AVL_NODO* raiz, Duplicador dup, ValorNodo* res)
+static void inorderAux(const AVL_NODO* raiz, ValorNodo * res)
 {	
 	static int i = 0;
 
 	if(raiz){
-		res = inorderAux(raiz->esquerda, dup, res);
-		res[i++] = dup(raiz->valor);
-		res = inorderAux(raiz->direita, dup, res);
+		inorderAux(raiz->esquerda, res);
+		res[i++] = raiz->valor;
+		inorderAux(raiz->direita, res);
 	}
-
-	return res;
 }
-*/
+
 /**
  * @param arvore AVL cujo tamanho será retornado
  * @return Tamanho de 'arvore' se esta existir. -1 caso contrário.
