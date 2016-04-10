@@ -8,11 +8,10 @@ typedef void* ValorNodo;
 
 typedef void (*Atualizador) (void *, void *);
 typedef int (*Comparador) (const void *, const void *);
-typedef ValorNodo (*Duplicador) (const void *);
 typedef bool (*Predicado) (const void *);
 
 /* Cria uma AVL vazia, que vai utilizar a função de comparação 'compar' */
-AVL criaAVLgenerica (Comparador compara, Atualizador atualiza, Duplicador dulicaElem);
+AVL criaAVLgenerica (Comparador compara, Atualizador atualiza);
 /* Insere um valor na AVL 'arvore' */
 AVL insere(AVL arvore, ValorNodo val);
 /* Testa se o valor 'val' ocorre na AVL 'arvore' */
@@ -29,6 +28,6 @@ ValorNodo* inorder(const AVL arv);
 ValorNodo procuraAVL(const AVL arv, ValorNodo val);
 
 /* cria uma AVL que permite repetições */
-#define criaAVL(comp,dup) (criaAVLgenerica(comp, NULL, dup))
+#define criaAVL(comp) (criaAVLgenerica(comp, NULL))
 
 #endif

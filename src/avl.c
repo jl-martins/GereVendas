@@ -1,6 +1,5 @@
 /* Garantir que os tipos são opacos para preservar encapsulamento, eliminar funçoes de duplicaçao */
 
-
 #include "avl.h"
 #include <stdlib.h>
 
@@ -24,7 +23,6 @@ typedef struct TCD_AVL {
 	/* funcao usada para atualizar o valor de um nodo(o 1o argumento) usando um segundo elemento*/ 
 	Atualizador atualiza;
 	/* ValorNodo criaValorNodo(void * val); */
-	Duplicador duplicaElem; /* funcão usada para fazer clone do valor de um nodo */
 	int tamanho;
 } TCD_AVL;
 
@@ -37,23 +35,20 @@ static AVL_NODO* equilibraEsquerda(AVL_NODO* raiz);
 static AVL_NODO* equilibraDireita(AVL_NODO* raiz);
 static AVL_NODO* rodaEsquerda(AVL_NODO* raiz);
 static AVL_NODO* rodaDireita(AVL_NODO* raiz);
-static ValorNodo* inorderAux(AVL_NODO* raiz, Duplicador dup, ValorNodo* res);
+/*static ValorNodo* inorderAux(AVL_NODO* raiz, Duplicador dup, ValorNodo* res);*/
 static int alturaAux(const AVL_NODO* raiz);
 
 /* ver o que fazer quando falha */
-AVL criaAVLgenerica(Comparador compara, Atualizador atualiza, Duplicador duplicaElem)
+AVL criaAVLgenerica(Comparador compara, Atualizador atualiza)
 {
 	AVL nova = NULL;
-	
 	/* só é criada uma AVL se tivermos uma função de comparação */
-	if(compara && duplicaElem){
+	if(compara){
 		nova = malloc(sizeof(TCD_AVL));
-
 		if(nova){
 			nova -> raiz = NULL;
 			nova -> compara = compara;
 			nova -> atualiza = atualiza;
-			nova -> duplicaElem = duplicaElem;
 			nova -> tamanho = 0;
 		}
 	}
@@ -64,7 +59,6 @@ AVL criaAVLgenerica(Comparador compara, Atualizador atualiza, Duplicador duplica
 AVL insere(AVL arvore, ValorNodo val)
 {
 	int cresceu;
-	
 	if(arvore == NULL){
 		/*codigo de erros*/
 	}else{
@@ -254,7 +248,7 @@ ValorNodo procuraAVL(const AVL arv, ValorNodo val)
 			nodo_atual = nodo_atual->direita;
 		else{
 			/* ver código de tratamento de erros */
-			res = arv->duplicaElem(nodo_atual->valor);
+			res = nodo_atual->valor;
 			break; /* encontramos o valor */
 		}
 	}
@@ -293,7 +287,7 @@ ValorNodo* filtraAVLaux(AVL_NODO* raiz, Predicado p, int tamanho, int max)
 
 }
 */
-
+/*
 ValorNodo* inorder(const AVL arv)
 {
 	ValorNodo* res = NULL;
@@ -320,7 +314,7 @@ static ValorNodo* inorderAux(AVL_NODO* raiz, Duplicador dup, ValorNodo* res)
 
 	return res;
 }
-
+*/
 /**
  * @param arvore AVL cujo tamanho será retornado
  * @return Tamanho de 'arvore' se esta existir. -1 caso contrário.

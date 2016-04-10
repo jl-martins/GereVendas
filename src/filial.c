@@ -1,33 +1,33 @@
+#include <stdlib.h>
+#include "filial.h"
 #include "avl.h"
-#include "cliente.h"
-#include "produto.h"
 
 typedef AVL AVL_VendaProd;
 typedef AVL AVL_ComprasCliente;
 
 struct filial{
 	AVL_ComprasCliente comprasClientes[26];	
-}
+};
 
 struct comprasCliente {
 	Cliente cliente;
 	AVL_VendaProd comprasPorMes[13]; 
-}
+};
 
 struct vendaProduto {
 	Produto produto;
 	int vendas;
 	double faturacao;
 	bool modoP, modoN;
-}
+};
 
-int comparaComprasCliente(void * cc1, void * cc2){
-	struct comprasCliente * cc_1 = (struct comprasCliente) cc1,
-			      * cc_2 = (struct comprasCliente) cc2;
+int comparaComprasCliente(const void * cc1, const void * cc2){
+	struct comprasCliente * cc_1 = (struct comprasCliente *) cc1,
+			      * cc_2 = (struct comprasCliente *) cc2;
 	return comparaCodigosCliente(cc_1->cliente, cc_2->cliente);		
 }
 
-int comparaVendaProduto(void * vp1, void * vp2){
+int comparaVendaProduto(const void * vp1, const void * vp2){
 	struct vendaProduto * vendaProd1 = vp1,
 		            * vendaProd2 = vp2;
 	return comparaCodigosProduto(vendaProd1->produto,vendaProd2->produto);
