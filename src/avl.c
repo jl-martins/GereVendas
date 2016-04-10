@@ -62,6 +62,7 @@ AVL insere(AVL arvore, ValorNodo val)
 	if(arvore == NULL){
 		/*codigo de erros*/
 	}else{
+		/* bug: se a AVL for atualizado, o tamanho não deve aumentar */
 		arvore -> tamanho++;		
 		/* ver o que fazer se nao der para inserir */
 		arvore -> raiz = insereNodo(arvore -> raiz, val, arvore -> compara, arvore -> atualiza, &cresceu);	
@@ -83,8 +84,10 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, A
 	}
 	else if((comparacao = compara(val, raiz -> valor)) < 0) /* raiz->valor > val */
 		ret = insereEsquerda(raiz, val, compara, atualiza, cresceu);
-	else if(atualiza != NULL && comparacao == 0)
+	else if(atualiza != NULL && comparacao == 0){
+		*cresceu = 0;
 		atualiza(raiz, val);
+	}
 	else 
 		ret = insereDireita(raiz, val, compara, atualiza, cresceu);	 
 	return ret;

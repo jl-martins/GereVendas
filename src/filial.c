@@ -37,6 +37,7 @@ static void atualizaVendaProduto(void * vp1, void * vp2){
 		            * vendaProd2 = vp2;
 	vendaProd1->vendas += vendaProd2->vendas;
 	vendaProd1->faturacao += vendaProd2->faturacao;
+	/* definir isto no bool.h*/
 	vendaProd1->modoP = vendaProd2->modoP ? vendaProd2->modoP : vendaProd1->modoP;	
 	vendaProd1->modoN = vendaProd2->modoN ? vendaProd2->modoN : vendaProd1->modoN;
 	free(vendaProd2);
@@ -85,4 +86,6 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	return filial;		
 }
 
+/* funçoes para queries */
+/*querie 5*/
 
