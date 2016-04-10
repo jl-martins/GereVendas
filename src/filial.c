@@ -5,32 +5,31 @@
 typedef AVL AVL_VendaProd;
 typedef AVL AVL_ComprasCliente;
 
+/*temporario*/
+typedef enum tipoVenda {N = 0, P} TipoVenda;
+
 struct filial{
 	AVL_ComprasCliente comprasClientes[26];	
 };
 
-struct comprasCliente {
+typedef struct comprasCliente {
 	Cliente cliente;
 	AVL_VendaProd comprasPorMes[13]; 
-};
+} * ComprasCliente;
 
-struct vendaProduto {
+typedef struct vendaProduto {
 	Produto produto;
 	int vendas;
 	double faturacao;
 	bool modoP, modoN;
-};
+} *VendaProduto;
 
 int comparaComprasCliente(const void * cc1, const void * cc2){
-	struct comprasCliente * cc_1 = (struct comprasCliente *) cc1,
-			      * cc_2 = (struct comprasCliente *) cc2;
-	return comparaCodigosCliente(cc_1->cliente, cc_2->cliente);		
+	return comparaCodigosCliente(((ComprasCliente) cc1)->cliente, ((ComprasCliente) cc2)->cliente);		
 }
 
 int comparaVendaProduto(const void * vp1, const void * vp2){
-	struct vendaProduto * vendaProd1 = vp1,
-		            * vendaProd2 = vp2;
-	return comparaCodigosProduto(vendaProd1->produto,vendaProd2->produto);
+	return comparaCodigosProduto(((VendaProduto) vp1)->produto, ((VendaProduto) vp2)->produto);
 }
 
 void atualizaVendaProduto(void * vp1, void * vp2){
@@ -45,7 +44,7 @@ void atualizaVendaProduto(void * vp1, void * vp2){
 
 Filial criaFilial(){
 	int i;
-	Filial nova = malloc(sizof(struct filial));		
+	Filial nova = malloc(sizeof(struct filial));		
 
 	if(nova != NULL)
 		for(i = 0; i < 26; i++)		
@@ -59,27 +58,27 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 		     TipoVenda tipoVenda, int unidades, double preco)
 {
 	int posicao = inicioCodigoCliente(cliente) - 'A';
-	struct vendaProduto * vendaProdAux = malloc(sizeof(vendaProduto));
+	struct vendaProduto * vendaProdAux = malloc(sizeof(struct vendaProduto));
 	vendaProdAux->produto = produto;
 	vendaProdAux->vendas = unidades;
 	vendaProdAux->faturacao = preco * unidades;
-	vendas->modoP = tipoVenda == P;
-	vendas->modoN = tipoVenda == N;
+	vendaProdAux->modoP = tipoVenda == P;
+	vendaProdAux->modoN = tipoVenda == N;
 
 	/* procura se existe cliente */	
-	struct comprasCliente * ccliente = calloc(sizeof(struct comprasCliente));
+	struct comprasCliente * ccliente = calloc(1, sizeof(struct comprasCliente));
 	ccliente->cliente = cliente;
-	struct comprasCliente * naAVL = procuraAVL(filial->compras[posicao], ccliente);
+	struct comprasCliente * naAVL = procuraAVL(filial->comprasClientes[posicao], ccliente);
 	
 	if(naAVL == NULL){
 		/* inicializar os campos */
 		ccliente->comprasPorMes[mes] = criaAVLgenerica(comparaVendaProduto, atualizaVendaProduto);
 		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[mes], vendaProdAux);
-		filial->compras[posicao] = insere(filial->compras[posicao], ccliente);
+		filial->comprasClientes[posicao] = insere(filial->comprasClientes[posicao], ccliente);
 	}
 	else{
 		free(ccliente);
-		insere(naAVL, vendaProdAux); /*nota: a funçao de atualização deve fazer o free no caso de atualizar */
+		insere(naAVL->comprasPorMes[mes], vendaProdAux); /*nota: a funçao de atualização deve fazer o free no caso de atualizar */
 	}	
 	return filial;		
 }
