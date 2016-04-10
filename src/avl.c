@@ -3,6 +3,14 @@
 #include "avl.h"
 #include <stdlib.h>
 
+/* Casos Possíveis de evolução das árvores */
+/* A árvore mudou de tamanho devido a uma inserção de um nodo novo e a altura aumentou */
+#define INSERIU_CRESCEU 0
+/* Um nodo novo foi inserido mas não aumentou o tamanho da árvore */
+#define INSERIU 1 
+/* Um nodo já existente foi atualizado pelo que o numero de nodos se manteve */
+#define ATUALIZOU 2
+
 /* Tamanho inicial do array produzido pela função filtraAVL() */
 #define TAM_INI_FILTRA 40
 
@@ -28,14 +36,13 @@ typedef struct TCD_AVL {
 
 
 /* Protótipos das funções privadas ao ficheiro */
-static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu);
-static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu);
-static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu);
+static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* modo);
+static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int * modo);
+static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int * modo);
 static AVL_NODO* equilibraEsquerda(AVL_NODO* raiz);
 static AVL_NODO* equilibraDireita(AVL_NODO* raiz);
 static AVL_NODO* rodaEsquerda(AVL_NODO* raiz);
 static AVL_NODO* rodaDireita(AVL_NODO* raiz);
-/*static ValorNodo* inorderAux(AVL_NODO* raiz, Duplicador dup, ValorNodo* res);*/
 static int alturaAux(const AVL_NODO* raiz);
 
 /* ver o que fazer quando falha */
@@ -58,79 +65,80 @@ AVL criaAVLgenerica(Comparador compara, Atualizador atualiza)
 /* ver qual deve ser o tipo de retorno */
 AVL insere(AVL arvore, ValorNodo val)
 {
-	int cresceu;
+	int modoInsercao;
 	if(arvore == NULL){
 		/*codigo de erros*/
 	}else{
 		/* bug: se a AVL for atualizado, o tamanho não deve aumentar */
-		arvore -> tamanho++;		
 		/* ver o que fazer se nao der para inserir */
-		arvore -> raiz = insereNodo(arvore -> raiz, val, arvore -> compara, arvore -> atualiza, &cresceu);	
+		arvore -> raiz = insereNodo(arvore -> raiz, val, arvore -> compara, arvore -> atualiza, &modoInsercao);	
+		if(modoInsercao != ATUALIZOU) arvore->tamanho++;
 	}
 	return arvore;
 }
 
-static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu)
+static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int * modoInsercao)
 {
 	AVL_NODO* ret = NULL;
 	int comparacao;
 	
 	if(raiz == NULL){
 		ret = raiz = malloc(sizeof(AVL_NODO));
-		raiz -> valor = val;	
-		raiz -> esquerda = raiz -> direita = NULL;
-		raiz -> fatorBalanco = EQ;
-		*cresceu = 1;
+		raiz->valor = val;	
+		raiz->esquerda = raiz->direita = NULL;
+		raiz->fatorBalanco = EQ;
+		*modoInsercao = INSERIU_CRESCEU;
 	}
 	else if((comparacao = compara(val, raiz -> valor)) < 0) /* raiz->valor > val */
-		ret = insereEsquerda(raiz, val, compara, atualiza, cresceu);
+		ret = insereEsquerda(raiz, val, compara, atualiza, modoInsercao);
 	else if(atualiza != NULL && comparacao == 0){
-		*cresceu = 0;
+		*modoInsercao = ATUALIZOU;
 		atualiza(raiz, val);
+		ret = raiz;
 	}
 	else 
-		ret = insereDireita(raiz, val, compara, atualiza, cresceu);	 
+		ret = insereDireita(raiz, val, compara, atualiza, modoInsercao);	 
 	return ret;
 }
 
-static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu)
+static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* modoInsercao)
 {
-	raiz->esquerda = insereNodo(raiz->esquerda, val, compara, atualiza, cresceu);
+	raiz->esquerda = insereNodo(raiz->esquerda, val, compara, atualiza, modoInsercao);
 	
-	if(*cresceu){
+	if(*modoInsercao == INSERIU_CRESCEU){
 		switch(raiz->fatorBalanco){
 			case ESQ:
 				raiz = equilibraEsquerda(raiz);
-				*cresceu = 0;
+				*modoInsercao = INSERIU;
 				break;
 			case EQ:
 				raiz->fatorBalanco = ESQ;
 				break;
 			case DIR:
 				raiz->fatorBalanco = EQ;
-				*cresceu = 0;
+				*modoInsercao = INSERIU;
 				break;
 		}
 	}
 	return raiz;
 }
 
-static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* cresceu)
+static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, Comparador compara, Atualizador atualiza, int* modoInsercao)
 {
-	raiz -> direita = insereNodo(raiz -> direita, val, compara, atualiza, cresceu);
+	raiz -> direita = insereNodo(raiz -> direita, val, compara, atualiza, modoInsercao);
 	
-	if(*cresceu){
+	if(*modoInsercao == INSERIU_CRESCEU){
 		switch(raiz -> fatorBalanco){
 			case ESQ:
 				raiz -> fatorBalanco = EQ;
-				*cresceu = 0;
+				*modoInsercao = INSERIU;
 				break;
 			case EQ:
 				raiz -> fatorBalanco = DIR;
 				break;
 			case DIR:
 				raiz = equilibraDireita(raiz);
-				*cresceu = 0;
+				*modoInsercao = INSERIU;
 				break;
 		}
 	}

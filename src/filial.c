@@ -60,7 +60,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 {
 	int posicao = inicioCodigoCliente(cliente) - 'A';
 	int i;
-	struct vendaProduto * vendaProdAux = malloc(sizeof(struct vendaProduto));
+	VendaProduto vendaProdAux = malloc(sizeof(struct vendaProduto));
 	vendaProdAux->produto = produto;
 	vendaProdAux->vendas = unidades;
 	vendaProdAux->faturacao = preco * unidades;
@@ -68,9 +68,9 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	vendaProdAux->modoN = tipoVenda == N;
 
 	/* procura se existe cliente */	
-	struct comprasCliente * ccliente = calloc(1, sizeof(struct comprasCliente));
+	ComprasCliente ccliente = calloc(1, sizeof(struct comprasCliente));
 	ccliente->cliente = cliente;
-	struct comprasCliente * naAVL = procuraAVL(filial->comprasClientes[posicao], ccliente);
+	ComprasCliente naAVL = procuraAVL(filial->comprasClientes[posicao], ccliente);
 	
 	if(naAVL == NULL){
 		/* inicializar os campos */
@@ -86,6 +86,22 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	return filial;		
 }
 
+static ComprasCliente procuraClienteNasVendas(Cliente cliente, Filial filial){
+	/*tratamento de erros */
+	int posicao = inicioCodigoCliente(cliente) - 'A';
+	ComprasCliente ccliente = malloc(1, sizeof(struct comprasCliente));
+	ccliente->cliente = cliente;
+	ComprasCliente naAVL = procuraAVL(filial->comprasClientes[posicao], ccliente);
+	return naAVL;
+}
+
 /* funçoes para queries */
 /*querie 5*/
+Produto * produtosClienteMes(Cliente cliente, Filial filial, int mes, int * tamanho){
+	ComprasCliente comprasDoCliente = procuraClienteNasVendas(cliente, filial);
+	if(comprasDoCliente == NULL)
+		/* o cliente não fez nenhuma compra */;
+		return NULL;
+	/* necessario fazer a inorder */		
 
+}
