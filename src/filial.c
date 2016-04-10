@@ -24,15 +24,15 @@ typedef struct vendaProduto {
 	bool modoP, modoN;
 } *VendaProduto;
 
-int comparaComprasCliente(const void * cc1, const void * cc2){
+static int comparaComprasCliente(const void * cc1, const void * cc2){
 	return comparaCodigosCliente(((ComprasCliente) cc1)->cliente, ((ComprasCliente) cc2)->cliente);		
 }
 
-int comparaVendaProduto(const void * vp1, const void * vp2){
+static int comparaVendaProduto(const void * vp1, const void * vp2){
 	return comparaCodigosProduto(((VendaProduto) vp1)->produto, ((VendaProduto) vp2)->produto);
 }
 
-void atualizaVendaProduto(void * vp1, void * vp2){
+static void atualizaVendaProduto(void * vp1, void * vp2){
 	struct vendaProduto * vendaProd1 = vp1,
 		            * vendaProd2 = vp2;
 	vendaProd1->vendas += vendaProd2->vendas;
@@ -58,6 +58,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 		     TipoVenda tipoVenda, int unidades, double preco)
 {
 	int posicao = inicioCodigoCliente(cliente) - 'A';
+	int i;
 	struct vendaProduto * vendaProdAux = malloc(sizeof(struct vendaProduto));
 	vendaProdAux->produto = produto;
 	vendaProdAux->vendas = unidades;
@@ -72,7 +73,8 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	
 	if(naAVL == NULL){
 		/* inicializar os campos */
-		ccliente->comprasPorMes[mes] = criaAVLgenerica(comparaVendaProduto, atualizaVendaProduto);
+		for(i = 1; i < 13; i++)
+			ccliente->comprasPorMes[i] = criaAVLgenerica(comparaVendaProduto, atualizaVendaProduto);
 		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[mes], vendaProdAux);
 		filial->comprasClientes[posicao] = insere(filial->comprasClientes[posicao], ccliente);
 	}
