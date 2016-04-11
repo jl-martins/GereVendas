@@ -1,36 +1,37 @@
 /* As 3 macros que se seguem podem (possivelmente) ser colocadas noutro .h */
-#define N_TIPOS_VENDA 2
+#include "faturacaoGlobal.h"
+#include "avl.h"
+#include <stdlib.h>
+#include <string.h> /* para utilizar a função memcpy() */
+
+/* !! Decidir onde vamos colocar estas defnições */
 #define N_FILIAIS 3
 #define N_MESES 12
 
-#define N_CHARS 26 /* nº de carateres diferentes que podem surgir como 1ª letra do código de um produto */
+/* !! Decidir se vale a pena validar meses */
 #define MES_VALIDO(mes) ((mes) >= 1 && (mes) <= 12)
 
-#include "avl.h"
-
-/*
-		FaturacaoGlobal    		
-	 ______________________________	
-	|                              | 	
-	|  AVL fatMensal[13];          |	
-	|______________________________|	
- 
-				||
-				\/
-
-			FaturacaoMes
-	 ______________________________
+/* Estruturas de dados do módulo:
+		        		
+	 _FaturacaoGlobal______________		  _foiVendido_______________
+	|  							   |	 |							|
+	|  AVL foramVendidos;          | ==> |	Produto prod;			|
+	|  FatMes fatMensal[13];       | 	 |	bool vendido[N_FILIAIS] |
+	|______________________________|	 |__________________________|
+				 
+				 ||
+				 \/	
+	 _FatMes_______________________
 	|                              |
 	|  int totalVendas;            |
 	|  int totalFaturado;          |
 	|  AVL fatProds;               |
 	|______________________________|
 
-				||
-				\/
+				 ||
+				 \/
 
-			FaturacaoProduto
- 	 ______________________________
+ 	 _FaturacaoProd________________
 	|                              |
 	|  Produto prod;               |
 	|  int vendas[2][3]            |
@@ -38,33 +39,48 @@
 	|______________________________|
 */
 
- 
-struct fatG{
-	AVL foramVendidos; /* permite saber quais os códigos produto que ninguém comprou (por filial ou no total) */
-	FatMes fatMensal[N_MESES+1]; /* guarda, para cada mês, informação quantitativa sobre os produtos vendidos*/
-};
+/* Guarda informação sobre a faturação de um produto (num dado mês) */
 
-/* Informação sobre a faturação de um dado mês */
-typedef struct fatMes{
-	int totalVendas;
-	double totalFaturado;
-	AVL fatProds;
-};
-
-typedef struct fatMens* FatMes;
-
-/* Guarda informação sobre a faturação de um produto */
 struct fatProd{
 	Produto prod;
 	int vendas[N_TIPOS_VENDA][N_FILIAIS];
 	double faturacao[N_TIPOS_VENDA][N_FILIAIS];
 };
 
+/* Guarda informação sobre a faturação de um dado mês */
+
+typedef struct fatMes{
+	int totalVendas;
+	double totalFaturado;
+	AVL fatProds;
+}* FatMes;
+
+/* Faturação global */
+struct fatG{
+	/* permite saber quais os códigos produto que ninguém comprou (por filial ou no total) */
+	AVL foramVendidos;
+	/* guarda, para cada mês, informação quantitativa sobre os produtos vendidos*/
+	FatMes fatMensal[N_MESES+1]; 
+};
+
 /* Indica se um produto foi vendido e, se sim, em que filiais */
+
 typedef struct foiVendido{
 	Produto prod;
 	bool vendido[N_FILIAIS];
 }* FoiVendido;
+
+/* Funções privadas ao módulo */
+
+/* !! ver como partir a assinatura de funções em várias linhas para ficar mais legível */
+static FaturacaoProd criaFaturacaoProd(Produto p, int quantidade, double total_faturado,
+	    							   TipoVenda tipo, int filial);
+
+/* Funções utilizadas na criação de AVLs */
+static int comparaFaturacaoProd(const void* p1, const void* p2);
+static int comparaFoiVendido(const void* p1, const void* p2);
+static void atualizaFaturacaoProd(void *, void* );
+static void atualizaFoiVendido(void* , void* );
 
 FaturacaoGlobal criaFaturacaoGlobal(){
 	int i;
@@ -72,42 +88,20 @@ FaturacaoGlobal criaFaturacaoGlobal(){
 	
 	if(fg != NULL){
 		/* ver com que parâmetros devemos criar as AVLs */
-		fg->foramVendidos = criaAVLgenerica(compara, atualizaFatProd);
+		fg->foramVendidos = criaAVLgenerica(comparaFoiVendido, atualizaFoiVendido);
 		for(i = 1; i <= N_MESES; i++){
 			fg->fatMensal[i]->totalVendas = 0;
 			fg->fatMensal[i]->totalFaturado = 0;
-			fg->fatMensal->fatProds = criaAVLgenerica(compara, atualiza, duplica);
+			fg->fatMensal[i]->fatProds = criaAVLgenerica(comparaFaturacaoProd,
+				                                         atualizaFaturacaoProd);
 		}
 	}
 	return fg; /* se o malloc() falhou, é retornado NULL. Na main decidimos o que fazer */
 }
 
-/*
-Venda criaVenda(  Cliente c, )
-{
-	Venda v = malloc(sizeof(struct venda));
-
-	if(v != NULL){
-		v->prod = p;
-		v->preco_unit = preco_unit;
-		v->quantidade = quantidade;
-		v->tipo = tipo;
-		v->cliente = c;
-		v->filial = filial;
-	}
-	return v;
-}
-*/
-
 /* Ver como sinalizar erros */
-FaturacaoGlobal
-registaVenda(FaturacaoGlobal fg,
-			 Produto p,
-			 double preco_unit,
-			 int quantidade,
-			 TipoVenda tipo,
-			 int filial,
-			 int mes)
+FaturacaoGlobal registaVenda(FaturacaoGlobal fg, Produto p, double preco_unit,
+			 				 int quantidade, TipoVenda tipo, int filial, int mes)
 {
 	double total_faturado = quantidade * preco_unit;
 	FaturacaoProd fatP = criaFaturacaoProd(p, quantidade, total_faturado, tipo, filial);
@@ -125,7 +119,8 @@ registaVenda(FaturacaoGlobal fg,
 	return fg;
 }
 
-FaturacaoProd criaFaturacaoProd(Produto p, int quantidade, double total_faturado, TipoVenda tipo, Filial filial)
+static FaturacaoProd criaFaturacaoProd(Produto p, int quantidade, double total_faturado,
+									   TipoVenda tipo, int filial)
 {
 	FaturacaoProd fProd = malloc(sizeof(struct fatProd));
 
@@ -186,21 +181,20 @@ double totalFatIntervMeses(const FaturacaoGlobal fg, int inicio, int fim){
 
 /* Fim das funções usadas na query6 */
 
-
 /* Funções usadas na query3 */
 
 int* vendasPorFilial(FaturacaoProd fProd, TipoVenda tipo)
 {	
 	int* copiaVendas;
 
-	if(fprod != NULL){ /* o produto foi vendido */
+	if(fProd != NULL){ /* o produto foi vendido */
 		copiaVendas = malloc(N_FILIAIS * sizeof(int));
 		if(copiaVendas != NULL)
 			copiaVendas = memcpy(copiaVendas, fProd->vendas[tipo], N_FILIAIS * sizeof(int));
 	}
 	else /* o produto não foi vendido, logo devolvemos um array incializado a 0 */
-		copiaVendas = calloc(N_FILIAIS * sizeof(int));
-		
+		copiaVendas = calloc(N_FILIAIS, sizeof(int));
+
 	return copiaVendas;
 }
 
@@ -208,11 +202,11 @@ int vendasTotais(FaturacaoProd fProd, TipoVenda tipo)
 {
 	int total = 0;
 
-	if(frpod != NULL){
+	if(fProd != NULL){
 		int i;
 
 		for(i = 0; i < N_FILIAIS; ++i)
-			total += fprod->vendas[tipo][i];
+			total += fProd->vendas[tipo][i];
 	}
 	return total;
 }
@@ -221,13 +215,13 @@ double* faturacaoPorFilial(FaturacaoProd fProd, TipoVenda tipo)
 {	
 	double* copiaFat;
 
-	if(fprod != NULL){ /* o produto foi vendido */
+	if(fProd != NULL){ /* o produto foi vendido */
 		copiaFat = malloc(N_FILIAIS * sizeof(double));
 		if(copiaFat != NULL)
 			copiaFat = memcpy(copiaFat, fProd->faturacao[tipo], N_FILIAIS * sizeof(double));
 	}
 	else /* o produto não foi vendido, logo devolvemos um array incializado a 0 */
-		copiaFat = calloc(N_FILIAIS * sizeof(int));
+		copiaFat = calloc(N_FILIAIS, sizeof(int));
 		
 	return copiaFat;
 }
@@ -240,22 +234,28 @@ double faturacaoTotal(FaturacaoProd fProd, TipoVenda tipo)
 		int i;
 
 		for(i = 0; i < N_FILIAIS; ++i)
-			total += fprod->faturacao[tipo][i];
+			total += fProd->faturacao[tipo][i];
 	}
 	return total;
 }
 
 /* Fim das funções utilizadas na query3 */
 
-/* Devolve um array com os produtos que não foram comprados, guardando
-   o total na posição de memória apontada pelo 2º argumento. */
-Produto* semCompras(FaturacaoGlobal fg, int *total)
-{
-	Produto* naoComprados;
-	
+/* Funções utilizadas na criação da AVLs */
+
+static int comparaFaturacaoProd(const void* p1, const void* p2)
+{	
+	return comparaCodigosProduto( ((FaturacaoProd) p1)->prod, 
+		                          ((FaturacaoProd) p2)->prod );
 }
 
-void atualizaFaturacaoProd(void* p1, void* p2)
+static int comparaFoiVendido(const void* p1, const void* p2)
+{
+	return comparaCodigosProduto( ((FoiVendido) p1)->prod, 
+		                          ((FoiVendido) p2)->prod );
+}
+
+static void atualizaFaturacaoProd(void* p1, void* p2)
 {
 	FaturacaoProd atual = p1;
 	FaturacaoProd adicional = p2;
@@ -268,4 +268,14 @@ void atualizaFaturacaoProd(void* p1, void* p2)
 		}
 	}
 	free(adicional);
+}
+
+static void atualizaFoiVendido(void* p1, void* p2)
+{
+	FoiVendido atual = p1;
+	FoiVendido adicional = p2;
+	int i;
+
+	for(i = 0; i < N_FILIAIS; ++i)
+		atual->vendido[i] = atual->vendido[i] || adicional->vendido[i];
 }

@@ -17,13 +17,16 @@ tests: filtraVendas
 filtraVendas: filtraVendas.c venda.h
 	$(LINK.c) $< -o src/$@
 
-# os próximos 3 targets são temporários
+# início dos targets temporários
 avl.o: avl.c avl.h
 	$(COMPILE.c) $< -o src/$@
-catalogoProds.o: catalogoProds.c catalogoProds.h produto.h avl.h 
+catalogoProds.o: catalogoProds.c catalogoProds.h avl.h bool.h produto.h
 	$(COMPILE.c) $< -o src/$@
-catalogoClientes.o: catalogoClientes.c catalogoClientes.h cliente.h avl.h
+catalogoClientes.o: catalogoClientes.c catalogoClientes.h avl.h bool.h cliente.h
 	$(COMPILE.c) $< -o src/$@
+faturacaoGlobal.o: faturacaoGlobal.c faturacaoGlobal.h avl.h bool.h produto.h venda.h
+	$(COMPILE.c) $< -o src/$@
+# fim dos targets temporários
 
 # executáveis para validar a leitura dos dados
 tests1: filtraVendas infoCliente vendasFilial infoProduto
