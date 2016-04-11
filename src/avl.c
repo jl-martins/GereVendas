@@ -1,5 +1,5 @@
 /* Garantir que os tipos são opacos para preservar encapsulamento */
-
+/* Nao libertar memoria dos campos das avls e dos tipos devolvidos a nao ser por funções da api */
 #include "avl.h"
 #include <stdlib.h>
 
@@ -358,3 +358,4 @@ static int alturaAux(const AVL_NODO *raiz)
 
 	return res;
 }
+

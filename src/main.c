@@ -7,8 +7,15 @@
 #include <catalogoProds.h>
 #include <catalogoClientes.h>
 #include <faturacaoGlobal.h>
-#include <vendasFilial.h>
+#include <filial.h>
+#include "cliente.h"
+#include "produto.h"
 
+static CatalogoClientes catClientes = NULL;
+static CatalogoProds catProds = NULL;
+static Filial filiais[N_FILIAIS] = NULL;
+static FaturacaoGlobal faturacaoGlobal = NULL;
+ 
 /* Tamanho máximo da linha do interpretador de comandos */
 #define MAXLINHA 32
 
@@ -31,6 +38,7 @@ static void opcaoInvalida(char opcao[]);
 static void erroNaoLeuFich();
 
 /* Queries interativas */
+typedef int (*Query) (void);
 static int query1( /* faltam os args */ );
 static int query2( /* faltam os args */ );
 static int query3( /* faltam os args */ );
@@ -43,6 +51,9 @@ static int query9( /* faltam os args */);
 static int query10( /* faltam os args */);
 static int query11( /* faltam os args */);
 static int query12( /* faltam os args */);
+
+Query queries[14] = {NULL, query1, query2, query3, query4, query5, query6, query7, query8,
+		     query9, query10, query11, query12, sair};
 
 /* Função invocada imediatamente antes de sair */
 static int sair( /* faltam os args */ );
@@ -64,26 +75,6 @@ static const char* opcoes[N_OPCOES] = {
 		"Sair"
 };
 
-/* Array de apontadores para as queries, para funções que apresentam
- * mensagens de erro e para a função sair() */
-static int (*funcoes[N_QUERIES + N_ERROS + 1]) = {
-	opcaoInvalida,
-	query1,
-	query2,
-	query3,
-	query4,
-	query5,
-	query6,
-	query7,
-	query8,
-	query9,
-	query10,
-	query11,
-	query12,
-	sair,
-	erroNaoLeuFich
-};
-
 int main()
 {
 	int r = interpretador();
@@ -92,11 +83,6 @@ int main()
 
 int interpretador()
 {
-	CatProds cp;
-	CatClientes cc;
-	FaturacaoGlobal fatG;
-	VendasFilial vFiliais[3];
-	
 	int r = CONTINUAR;
 	char linha[MAXLINHA];
 
