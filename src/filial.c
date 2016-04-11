@@ -52,17 +52,21 @@ Filial criaFilial(){
 	if(nova != NULL)
 		for(i = 0; i < 26; i++)		
 			nova->comprasClientes[i] = criaAVL(comparaComprasCliente);
-	else	
-		; /* ver tratamento de erros */
+	/*else	
+		;  ver tratamento de erros */
 	return nova;
 }
 /* ver encapsulamento das funçoes */
 Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes, 
 		     TipoVenda tipoVenda, int unidades, double preco)
 {
-	int posicao = inicioCodigoCliente(cliente) - 'A';
-	int i;
-	VendaProduto vendaProdAux = malloc(sizeof(struct vendaProduto));
+	ComprasCliente ccliente;
+	int posicao, i;
+	ComprasCliente naAVL;
+	VendaProduto vendaProdAux;
+
+	posicao = inicioCodigoCliente(cliente) - 'A';
+	vendaProdAux = malloc(sizeof(struct vendaProduto));
 	vendaProdAux->produto = produto;
 	vendaProdAux->vendas = unidades;
 	vendaProdAux->faturacao = preco * unidades;
@@ -70,9 +74,9 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	vendaProdAux->modoN = tipoVenda == N;
 
 	/* procura se existe cliente */	
-	ComprasCliente ccliente = calloc(1, sizeof(struct comprasCliente));
+	ccliente = calloc(1, sizeof(struct comprasCliente));
 	ccliente->cliente = cliente;
-	ComprasCliente naAVL = procuraAVL(filial->comprasClientes[posicao], ccliente);
+	naAVL = procuraAVL(filial->comprasClientes[posicao], ccliente);
 	
 	if(naAVL == NULL){
 		/* inicializar os campos */
@@ -89,11 +93,13 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 }
 
 static ComprasCliente procuraClienteNasVendas(Cliente cliente, Filial filial){
-	/*tratamento de erros */
-	int posicao = inicioCodigoCliente(cliente) - 'A';
-	ComprasCliente ccliente = malloc(sizeof(struct comprasCliente));
+	int posicao;
+	ComprasCliente naAVL;
+	ComprasCliente ccliente;
+	posicao = inicioCodigoCliente(cliente) - 'A';
+	ccliente = malloc(sizeof(struct comprasCliente));
 	ccliente->cliente = cliente;
-	ComprasCliente naAVL = procuraAVL(filial->comprasClientes[posicao], ccliente);
+	naAVL = procuraAVL(filial->comprasClientes[posicao], ccliente);
 	return naAVL;
 }
 
@@ -102,8 +108,10 @@ static ComprasCliente procuraClienteNasVendas(Cliente cliente, Filial filial){
 /* devolve um array com 13 entradas(12 validas) que à entrada i daz corresponder o numero de vendas do mes i */
 int * vendasClientePorMes(Filial filial, Cliente cliente){
 	int i;
-	int * vendas = calloc(13, sizeof(int));
-	ComprasCliente comprasDoCliente = procuraClienteNasVendas(cliente, filial);
+	int * vendas; 
+	ComprasCliente comprasDoCliente;
+	vendas = calloc(13, sizeof(int));
+	comprasDoCliente = procuraClienteNasVendas(cliente, filial);
 	if(comprasDoCliente){ 
 		for (i = 1; i < 13; i++){
 			vendas[i] = somaUnidadesMes(comprasDoCliente->comprasPorMes[i]);
@@ -128,11 +136,13 @@ static int somaUnidadesMes(AVL_VendaProd arv){
 Cliente * clientesCompraramNaFilial(Filial filial){
 	int tamanhoArv = 0, quantasCompras;
 	int i, j, lim, k;
+	Cliente * clientes;
 	ComprasCliente* compras;
+
 	for(i = 0; i < 26; i++){
 		tamanhoArv += tamanho(filial->comprasClientes[i]);
 	}		
-	Cliente * clientes = malloc(sizeof(Cliente) * tamanhoArv);
+	clientes = malloc(sizeof(Cliente) * tamanhoArv);
 	i = 0;
 	for(j = 0; j < 26; j++){
 		compras = (ComprasCliente *) inorder(filial->comprasClientes[i]);
@@ -145,6 +155,8 @@ Cliente * clientesCompraramNaFilial(Filial filial){
 	}
 	return clientes;
 }
+
+/* fazer funçoes que libertam avls alocadas (mas nao Produtos e Vendas) e Produtos * e Vendas * (talvez ecapsular Produto *) */
 
 /*querie 8*/
 
