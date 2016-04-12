@@ -32,5 +32,5 @@ char inicioCodigoCliente(Cliente c) {
 }
 
 int comparaCodigosCliente(Cliente c1, Cliente c2){
-	strcmp(c1, c2);
+	return strcmp(c1, c2);
 }

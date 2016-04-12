@@ -23,6 +23,8 @@ typedef struct nodoAVL {
 	FatorBalanco fatorBalanco;
 	struct nodoAVL *esquerda, *direita;
 } AVL_NODO;
+
+/* SUGESTAO: ter campo para a funçao de libertaçao que deve ser inicializado à parte, por defeito é a free*/
 	
 typedef struct TCD_AVL {
 	AVL_NODO* raiz;

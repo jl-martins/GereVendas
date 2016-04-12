@@ -14,11 +14,19 @@ Produto criaProduto(char* codigoProduto) {
 	return novo;
 }
 
+Produto duplicaProduto(Produto p){
+	Produto novo = malloc(sizeof(struct Produto));
+	if(novo == null)
+		;
+	else strcpy(novo->codigoProduto, p->codigoProduto);
+	return novo;
+}
+
 void removeProduto(Produto p) {
 	free(p);
 }
 
-char* obterCodigoProduto(Produto prod) {
+char* obterCodigoProduto(Produto prod){
 	char* copiaCodigo = malloc(MAX_CODIGO_PROD * sizeof(char));
 	
 	if(copiaCodigo != NULL)

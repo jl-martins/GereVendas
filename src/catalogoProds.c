@@ -28,7 +28,7 @@ CatProds criaCatProds() {
 	int i;
 	CatProds catP = malloc(sizeof(struct catProds));
 	
-	if(catP != NULL)
+	if(catP)
 		for(i = 0; i < MAX_AVL; ++i)
 			catP->catalogo[i] = criaAVL(compara, duplica);
 	return catP;
@@ -36,21 +36,24 @@ CatProds criaCatProds() {
 
 CatProds insereProduto(CatProds catP, Produto p) {
 	int i = calculaPos(p);
-	
-	catP->catalogo[i] = insere(catP->catalogo[i], p);
+	if(catP)	
+		catP->catalogo[i] = insere(catP->catalogo[i], p);
 	return catP;
 }
 
 bool existeProduto(CatProds catP, Produto p) {
 	bool existe = FALSE;
+	int i;
 
-	if(catP != NULL){ /* temos um catálogo */
-		int i = calculaPos(p);
+	if(catP){ /* temos um catálogo */
+		i = calculaPos(p);
 		existe = existeAVL(catP->catalogo[i], p);
 	}
+
 	return existe;
 }
 
+/* onde é usada??*/
 int totalProdutosLetra(CatProds catP, char l) {
 	int i = isupper(l) ? l - 'A' : -1; /* validação da letra */
 	
