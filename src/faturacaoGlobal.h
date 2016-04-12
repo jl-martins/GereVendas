@@ -7,7 +7,11 @@
 
 /* faturação global do ano */
 typedef struct fatGlobal* FaturacaoGlobal;
-/* informação sobre a faturação de um produto num dado mês */
+/* guarda informação relativa à faturação anual de um produto */
+typedef struct fatAnualProd* FatAnualProd;
+/* guarda informação relativa à faturação de um mês */
+typedef struct fatMes* FatMes;
+/* guarda informação sobre a faturação de um produto num dado mês */
 typedef struct fatMensalProd* FatMensalProd;
 
 FaturacaoGlobal criaFaturacaoGlobal();
@@ -43,19 +47,29 @@ double totalFatIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
 /* Dada a faturação de produto 'fprod' e o tipo de venda 'tipo',
    devolve um array que em cada posição i tem o nº de vendas 
    registadas em 'fprod', para a filial i+1. */
-int* vendasPorFilial(FatMensalProd fProd, TipoVenda tipo);
+int* vendasPorFilial(const FatMensalProd fprod, TipoVenda tipo);
 
 /* Dada a faturação de produto 'fProd' e o tipo de venda 'tipo', devolve
    o total de vendas do tipo especificado que estão registadas em 'fprod' */
-int vendasTotais(FatMensalProd fProd, TipoVenda tipo);
+int vendasTotais(const FatMensalProd fprod, TipoVenda tipo);
 
 /* Dada a faturação de produto 'fprod' e o tipo de venda 'tipo',
    devolve um array que em cada posição i tem a faturação
    registada em 'fprod', para a filial i+1. */
-double* faturacaoPorFilial(FatMensalProd fProd, TipoVenda tipo);
+double* faturacaoPorFilial(const FatMensalProd fprod, TipoVenda tipo);
 
 /* Devolve, para a faturação de produto 'fProd' e para o tipo de venda 'tipo',
    a faturação total que está registada em 'fprod' */
-double faturacaoTotal(FatMensalProd fProd, TipoVenda tipo);
+double faturacaoTotal(const FatMensalProd fProd, TipoVenda tipo);
+
+/* Devolve o total de vendas anuais de um produto */
+int obterTotalVendasAnuais(const FatAnualProd);
+/* Devolve TRUE se um produto não foi comprado no ano todo. Devolve FALSE c.c. */
+bool naoComprado(const FatAnualProd);
+/* Devolve um conjunto com os produtos que não foram comprados em nenhuma filial */
+ConjuntoProds naoCompradosGlobal(const FaturacaoGlobal);
+/* Devolve um array de conjuntos de produtos, um por filial. Cada conjunto
+   de produtos armazena os códigos de produto não vendidos na respetiva filial. */
+ConjuntoProds* naoCompradosPorFilial(const FaturacaoGlobal);
 
 #endif
