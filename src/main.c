@@ -147,12 +147,12 @@ static void opcaoInvalida(char opcao[])
 	fprintf(stderr, "A opção '%s' é inválida\n\n", opcao);
 }
 
-static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[], int tamanhoBuffer, char * tipoDeElems){
+static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[BUF_SIZE], char * tipoDeElems){
 	int i;
 	FILE * fp;
 	char * caminho;
 	printf("Insira o caminho do ficheiro de %s (Enter para abrir ficheiro padrao):", tipoDeElems);	
-	fgets(buf, tamanhoBuffer, stdin);
+	fgets(buf, BUF_SIZE, stdin);
 	for(i = 0; buf[i] && isspace(buf[i]); i++)
 		;
 	if(buf[i] != '\0' && buf[i] != '\n') 
@@ -167,10 +167,12 @@ int leCatalogoProdutos(){
 	Produto p;
 	FILE * fp;	
 	char buf[BUF_SIZE];
+	char * tmp;
 
-	fp = perguntaAbreFicheiro(FPRODUTOS, buf, BUF_SIZE, "produtos");
+	fp = perguntaAbreFicheiro(FPRODUTOS, buf, "produtos");
 	if(fp == NULL) return ERRO_LER;
 	while(fgets(buf, BUF_SIZE, fp)){
+		tmp = strtok(buf, " \r\n");
 		p = criaProduto(buf);
 		if(p == NULL)return ERRO_LER; 
 		insereProduto(catProds, p); /*inserir tratamento de erros */
@@ -185,11 +187,13 @@ int leCatalogoClientes(){
 	FILE * fp;	
 	char buf[BUF_SIZE];
 	Cliente c;
+	char * tmp;
 
-	fp = perguntaAbreFicheiro(FCLIENTES, buf, BUF_SIZE, "clientes");
+	fp = perguntaAbreFicheiro(FCLIENTES, buf, "clientes");
 	if(fp == NULL) return ERRO_LER;
 
 	while(fgets(buf, BUF_SIZE, fp)){
+		tmp = strtok(buf, " \r\n");
 		c = criaCliente(buf);
 		if(c == NULL) return ERRO_LER;
 		insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
@@ -217,7 +221,7 @@ int insereSeValida(char buf[BUF_SIZE]){
 	TipoVenda tipoVenda;
 	char * it;
 
-	it = strtok(buf, " ");
+	it = strtok(buf, " \r\n");
 	VERIFICA(it);
 	produto = criaProduto(it);
 
@@ -267,7 +271,7 @@ int carregaVendasValidas(){
 	char buf[BUF_SIZE];
 	FILE * fp;
 
-	fp = perguntaAbreFicheiro(FVENDAS, buf, BUF_SIZE, "vendas");
+	fp = perguntaAbreFicheiro(FVENDAS, buf, "vendas");
 	if(fp == NULL) return ERRO;
 	
 	while(fgets(buf, BUF_SIZE, fp))
@@ -312,7 +316,6 @@ static int query2(CatProds catP)
 	if(catP)
 	{
 		char letra;
-		
 		letra = fgetc(stdin);
 		letra = isupper(letra) ? letra : toupper(letra);
 		conjP = prodsPorLetra(catP, letra);
