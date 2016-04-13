@@ -7,27 +7,25 @@
 
 /* faturação global do ano */
 typedef struct fatGlobal* FaturacaoGlobal;
-/* guarda informação relativa à faturação anual de um produto */
-typedef struct fatAnualProd* FatAnualProd;
-/* guarda informação relativa à faturação de um mês */
-typedef struct fatMes* FatMes;
 /* guarda informação sobre a faturação de um produto num dado mês */
-typedef struct fatMensalProd* FatMensalProd;
+typedef struct fatProdMes* FatProdMes;
 
 FaturacaoGlobal criaFaturacaoGlobal();
 
+/* Regista um produto na faturação global */
+FaturacaoGlobal registaProduto(FaturacaoGlobal fg, Produto p);
+
 /* Regista uma venda na faturação global */
-FaturacaoGlobal registaVenda(
+FaturacaoGlobal registaVenda
+(
 	FaturacaoGlobal fg,
 	Produto p,
-	double preco_unit,
+	double precoUnit,
 	int quantidade,
 	TipoVenda tipo,
 	int filial,
-	int mes);
-
-/* Regista um produto na faturação global */
-FaturacaoGlobal registaProduto(FaturacaoGlobal fg, Produto p);
+	int mes
+);
 
 /* Devolve o total de unidades vendidas num mês */
 int totalVendasMes(const FaturacaoGlobal fg, int mes);
@@ -41,36 +39,40 @@ int totalVendasIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
 /* Devolve o total faturado num intervalo fechado de meses */
 double totalFatIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
 
+/* Devolve uma cópia da estrutura com informção
+ * sobre a faturação de um produto num dado mês */
+FatProdMes obterFatProdMes(const FaturacaoGlobal fg, const Produto p, int mes);
 
-/* Devolve uma estrutura com informção sobre a faturação de um produto num dado mês */
-FatMensalProd obterFatMensalProd(const FaturacaoGlobal fg, const Produto p, int mes);
+/* Recebe a faturação de um produto num mês ('fProdMes') e o tipo de venda ('tipo'). 
+ * Devolve o total de vendas do tipo especificado, registadas em 'fProdMes' */
+int vendasTotaisProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
-/* Dada a faturação de produto 'fprod' e o tipo de venda 'tipo',
-   devolve um array que em cada posição i tem o nº de vendas 
-   registadas em 'fprod', para a filial i+1. */
-int* vendasPorFilial(const FatMensalProd fprod, TipoVenda tipo);
+/* Recebe a faturação de um produto num mês ('fProdMes') e o tipo de venda
+ * ('tipo'). Devolve um array que em cada posição i tem o nº de vendas 
+ * do tipo especificado, registadas em 'fProdMes' para a filial i+1. */
+int* vendasPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
-/* Dada a faturação de produto 'fProd' e o tipo de venda 'tipo', devolve
-   o total de vendas do tipo especificado que estão registadas em 'fprod' */
-int vendasTotais(const FatMensalProd fprod, TipoVenda tipo);
+/* Devolve, para a faturação de produto 'fProdMes' e para o tipo de
+ * venda tipo', a faturação total registada em 'fProdMes' */
+double faturacaoTotalProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
-/* Dada a faturação de produto 'fprod' e o tipo de venda 'tipo',
-   devolve um array que em cada posição i tem a faturação
-   registada em 'fprod', para a filial i+1. */
-double* faturacaoPorFilial(const FatMensalProd fprod, TipoVenda tipo);
+/* Recebe a faturação de um produto num mês ('fProdMes') e o tipo de venda ('tipo').
+ * Devolve um array que em cada posição i tem o total faturado na filial 
+ * i+1, com vendas registadas em 'fProdMes', para o tipo especificado.  */
+double* faturacaoPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
-/* Devolve, para a faturação de produto 'fProd' e para o tipo de venda 'tipo',
-   a faturação total que está registada em 'fprod' */
-double faturacaoTotal(const FatMensalProd fProd, TipoVenda tipo);
-
-/* Devolve o total de vendas anuais de um produto */
-int obterTotalVendasAnuais(const FatAnualProd);
-/* Devolve TRUE se um produto não foi comprado no ano todo. Devolve FALSE c.c. */
-bool naoComprado(const FatAnualProd);
 /* Devolve um conjunto com os produtos que não foram comprados em nenhuma filial */
 ConjuntoProds naoCompradosGlobal(const FaturacaoGlobal);
-/* Devolve um array de conjuntos de produtos, um por filial. Cada conjunto
-   de produtos armazena os códigos de produto não vendidos na respetiva filial. */
+
+/* Devolve um array de conjuntos de produtos, um por filial. Cada conjunto de
+ * produtos armazena os códigos de produto não vendidos na respetiva filial. */
 ConjuntoProds* naoCompradosPorFilial(const FaturacaoGlobal);
+
+/* Liberta a memória alocada para armazenar a faturação global */
+void removeFaturacaoGlobal(FaturacaoGlobal fg);
+
+/* Liberta uma cópia do tipo FatProdMes que
+ * foi devolvida pela função obterFatProdMes()  */
+void removeFatProdMes(FatProdMes fProdMes);
 
 #endif
