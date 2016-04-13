@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "cliente.h"
 #include "produto.h"
 #include "catalogoProds.h"
@@ -116,7 +117,6 @@ int interpretador()
 /* NOTA: Falta completar esta função */
 int interpreta(char linha[])
 {
-	char *tmp;
 	/*long i = strtol(linha, &tmp, 10); */
 	int i = atoi(linha);
 	int r;
@@ -153,7 +153,7 @@ static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[], int tamanh
 	char * caminho;
 	printf("Insira o caminho do ficheiro de %s (Enter para abrir ficheiro padrao):", tipoDeElems);	
 	fgets(buf, tamanhoBuffer, stdin);
-	for(i = 0; buf[i] && isblank(buf[i]); i++)
+	for(i = 0; buf[i] && isspace(buf[i]); i++)
 		;
 	if(buf[i] != '\0' && buf[i] != '\n') 
 		caminho = buf;
@@ -311,10 +311,11 @@ static int query2(CatProds catP)
 	if(catP)
 	{
 		char letra;
+		ConjuntoProds conjP = prodsPorLetra(catP, letra);
 		letra = fgetc(stdin);
 		letra = isupper(letra) ? letra : toupper(letra);
 
-		ConjuntoProds conjP = prodsPorLetra(catP, letra);
+		
 		if(conjP)
 			navega(conjP);
 		else

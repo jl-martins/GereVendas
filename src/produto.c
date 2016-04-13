@@ -41,5 +41,5 @@ char inicioCodigoProduto(Produto prod) {
 }
 
 int comparaCodigosProduto(Produto p1, Produto p2){
-	strcmp(p1->codigoProduto, p2->codigoProduto);
+	return strcmp(p1->codigoProduto, p2->codigoProduto);
 }
