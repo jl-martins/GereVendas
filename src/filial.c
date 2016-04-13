@@ -39,7 +39,7 @@ static int comparaVendaProduto(const void * vp1, const void * vp2);
 static void atualizaVendaProduto(void * vp1, void * vp2);
 
 /* cria filial de vendas anuais */
-struct vendasAnuaisFilial * criaVendasAnuaisFilial(){
+VendasAnuaisFilial criaVendasAnuaisFilial(){
 	int i;
 	struct vendasAnuaisFilial * nova = malloc(sizeof(struct vendasAnuaisFilial));
 	if(nova){
@@ -49,7 +49,7 @@ struct vendasAnuaisFilial * criaVendasAnuaisFilial(){
 	return nova;
 }
 /*
-struct vendasAnuaisFilial * registaNovoCliente(struct vendasAnuaisFilial * vendasAnuais, Cliente cliente){
+VendasAnuaisFilial registaNovoCliente(VendasAnuaisFilial vendasAnuais, Cliente cliente){
 	int posicao;
 	Cliente c = duplicaCliente(cliente);
 	struct comprasAnuaisCliente * comprasDoAno = malloc(sizeof(struct comprasAnuaisCliente));
@@ -59,7 +59,9 @@ struct vendasAnuaisFilial * registaNovoCliente(struct vendasAnuaisFilial * venda
 	insereAVL(vendasAnuais->comprasClientes[posicao], comprasDoAno); 
 	return vendasAnuais;
 }*/
-
+/*
+VendasAnuaisFilial registaVendaNoAno(VendasAnuaisFilial vendasAnuais, Cliente c,Produto p, 
+*/
 /*fim: em edição*/
   
 

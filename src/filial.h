@@ -6,5 +6,5 @@
 #define FILIAL_T
 
 typedef struct filial * Filial;
-
+typedef struct vendasAnuaisFilial * VendasAnuaisFilial;
 #endif

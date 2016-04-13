@@ -3,6 +3,7 @@
  * Tanto a leitura, como a interpretação de comandos e invocação
  * das queries interativas são feitas neste módulo.
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,6 +13,7 @@
 #include "catalogoClientes.h"
 #include "faturacaoGlobal.h"
 #include "filial.h"
+
 #define N_FILIAIS 3
 #define BUF_SIZE 1024
 
@@ -32,6 +34,11 @@ static FaturacaoGlobal faturacaoGlobal = NULL;
 #define CONTINUAR 1
 #define CMD_INVAL 127
 
+/* Valores de retorno das funções de leitura de ficheiros */
+#define LIDO_SUCESSO 0
+#define ERRO_LER 1
+
+/*endereço padrão dos ficheiros */
 #define FCLIENTES "data/Clientes.txt" /* caminho do ficheiro de clientes */
 #define FPRODUTOS "data/Produtos.txt" /* caminho do ficheiro de produtos */
 #define FVENDAS "data/Vendas_1M.txt"     /* caminho do ficheiro de vendas */
@@ -153,19 +160,18 @@ static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[], int tamanh
 	return fp;	
 }
 
-#define LIDO_SUCESSO 0
 int leCatalogoProdutos(){
 	Produto p;
 	FILE * fp;	
 	char buf[BUF_SIZE];
 
 	fp = perguntaAbreFicheiro(FPRODUTOS, buf, MAX_CODIGO_PROD, "produtos");
-	if(fp == NULL) return ERRO;
+	if(fp == NULL) return ERRO_LER;
 	while(fgets(buf, BUF_SIZE, fp)){
 		p = criaProduto(buf);
-		if(p == NULL)return ERRO; 
+		if(p == NULL)return ERRO_LER; 
 		insereProduto(catProds, p); /*inserir tratamento de erros */
-		/*registaProduto(faturacaoGlobal, p);*/
+		registaProduto(faturacaoGlobal, p);
 		removeProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
 	fclose(fp);
@@ -178,11 +184,11 @@ int leCatalogoClientes(){
 	Cliente c;
 
 	fp = perguntaAbreFicheiro(FCLIENTES, buf, MAX_CODIGO_CLIENTE, "clientes");
-	if(fp == NULL) return ERRO;
+	if(fp == NULL) return ERRO_LER;
 
 	while(fgets(buf, BUF_SIZE, fp)){
 		c = criaCliente(buf);
-		if(c == NULL) return ERRO;
+		if(c == NULL) return ERRO_LER;
 		insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
 		/*registaNovoCliente(FILIAL_GLOBAL, c);*/
 		removeCliente(c);
@@ -193,55 +199,103 @@ int leCatalogoClientes(){
 }
 
 
-#define GET (strtok(NULL," "))
+#define GET strtok(NULL," ");
+#define VERIFICA(p) {if ((p) == NULL) return ERRO_LER;}
+
+#define MAX_UNIDADES 200
+#define MAX_PRECO 999.99
+
+/* Dada uma linha com informação da venda, a função processa a informação da venda e, se for válida, regista a compra */
+int insereSeValida(char buf[BUF_SIZE]){
+	Cliente cliente;
+	Produto produto;
+	int unidades, mes, nfilial;
+	double preco;
+	TipoVenda tipoVenda;
+	char * it;
+
+	it = strtok(buf, " ");
+	VERIFICA(it);
+	produto = criaProduto(it);
+
+	it = GET;
+	VERIFICA(it);
+	preco = atof(it);
+
+	it = GET;
+	VERIFICA(it);
+	unidades = atoi(it);
+
+	it = GET;
+	VERIFICA(it);
+	tipoVenda = it[0] == 'P' ? P : N;
+
+	it = GET;
+	VERIFICA(it);
+	cliente = criaCliente(it);
+
+	it = GET;
+	VERIFICA(it);
+	mes = atoi(it);
+
+	it = GET;
+	VERIFICA(it);
+	nfilial = atoi(it);
+
+	if(existeProduto(catProds, produto) && 
+	   existeCliente(catClientes, cliente) &&
+	   unidades > 0 && unidades <= MAX_UNIDADES &&
+	   mes > 0 && mes < 13 &&
+	   preco >= 0 && preco <= 999.99 
+	   && nfilial > 0 && nfilial <= N_FILIAIS)
+	{
+			registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
+			faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes);
+	}
+	return LIDO_SUCESSO;
+}
+
+#undef GET
+#undef VERIFICA
 
 int carregaVendasValidas(){
 	char buf[BUF_SIZE];
-	Cliente c;
-	Produto p;
-	FILE * fp; 
-
-	/* parseVenda */
-	char * codigoProduto, * codigoCliente;
-	double preco;
-	TipoVenda tipoVenda;
-	int mes, nfilial, nUnidades;
-	
+	FILE * fp;
 
 	fp = perguntaAbreFicheiro(FVENDAS, buf, BUF_SIZE, "vendas");
 	if(fp == NULL) return ERRO;
 	
-	while(fgets(buf, BUF_SIZE, fp)){
-		/* ver codigo de tratamento de erros */
-		codigoProduto = strtok(buf, " ");
-		preco = atof(GET);
-		nUnidades = atoi(GET);
-		tipoVenda = GET[0] == 'P' ? P : N;
-		codigoCliente = GET;
-		mes = atoi(GET);
-		nfilial = atoi(GET);
-		
-	}
+	while(fgets(buf, BUF_SIZE, fp))
+		insereSeValida(buf);
+	
 	fclose(fp);
 	return LIDO_SUCESSO;
 }
 
 /* alterar para inserir os caminhos dos ficheiros */
+/* se necessaro, inserir FilialTotal ou guardar informação relativa a todos os meses na filial*/
 static int query1()
 {
+	/* apaga os dados de uma execuçao anterior do programa */
+	/*
+	catProds = apagaCatProds(catProds);
+	catClientes = apagaCatClientes(catClientes);
+	faturacaoGlobal = apagaFatGlobal();
+	for(i = 1; i <= N_FILIAIS; i++)    
+		filiais[i] = apagaFilial(); 
+	*/
+	/*ver verificacao de erros */
 	int resL1, resL2, resL3, i;
 	catProds = criaCatProds();
 	catClientes = criaCatClientes();	
-	/*faturacaoGlobal = criaFaturacaoGlobal();*/
+	faturacaoGlobal = criaFaturacaoGlobal();
 
-
-	for(i = 1; i <= N_FILIAIS; i++)    /* o elemento 0 das filiais contem informação total relatvia Às compras */
-		filiais[i] = criaFilial(); /* de todos os clientes nas filiais, útil para otimizar queries */
+	for(i = 1; i <= N_FILIAIS; i++)    
+		filiais[i] = criaFilial(); 
 		
 	resL1 = leCatalogoProdutos();		
 	resL2 = leCatalogoClientes();
-	/* Le o catalogoClientes  - passar para função separada*/	
-		/* introduzir melhorias para filial total -> muito mais rapido */
+	resL3 = carregaVendasValidas();
 	
 	return 0;
 }
