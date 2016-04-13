@@ -172,8 +172,8 @@ int leCatalogoProdutos(){
 	fp = perguntaAbreFicheiro(FPRODUTOS, buf, "produtos");
 	if(fp == NULL) return ERRO_LER;
 	while(fgets(buf, BUF_SIZE, fp)){
-		tmp = strtok(buf, " \r\n");
-		p = criaProduto(buf);
+		tmp = strtok(buf, "\r\n");
+		p = criaProduto(tmp);
 		if(p == NULL)return ERRO_LER; 
 		insereProduto(catProds, p); /*inserir tratamento de erros */
 		registaProduto(faturacaoGlobal, p);
@@ -193,8 +193,8 @@ int leCatalogoClientes(){
 	if(fp == NULL) return ERRO_LER;
 
 	while(fgets(buf, BUF_SIZE, fp)){
-		tmp = strtok(buf, " \r\n");
-		c = criaCliente(buf);
+		tmp = strtok(buf, "\r\n");
+		c = criaCliente(tmp);
 		if(c == NULL) return ERRO_LER;
 		insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
 		/*registaNovoCliente(FILIAL_GLOBAL, c);*/
@@ -206,7 +206,7 @@ int leCatalogoClientes(){
 }
 
 /* por get e verifica na mesma macro */
-#define GET strtok(NULL," ");
+#define GET strtok(NULL," \r\n");
 #define VERIFICA(p) {if ((p) == NULL) return ERRO_LER;}
 
 #define MAX_UNIDADES 200
@@ -221,7 +221,7 @@ int insereSeValida(char buf[BUF_SIZE]){
 	TipoVenda tipoVenda;
 	char * it;
 
-	it = strtok(buf, " \r\n");
+	it = strtok(buf, " ");
 	VERIFICA(it);
 	produto = criaProduto(it);
 
