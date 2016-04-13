@@ -113,10 +113,14 @@ FaturacaoGlobal criaFaturacaoGlobal()
 	
 	if(fg){
 		fg->todosProdutos = criaAVLgenerica(comparaFatAnualProd, atualizaFatAnualProd);
+		fg->fatMensal[0] = NULL;
 		for(i = 1; i <= N_MESES; i++){
-			fg->fatMensal[i]->totalVendas = 0;
-			fg->fatMensal[i]->totalFaturado = 0;
-			fg->fatMensal[i]->fatProds = criaAVLgenerica(comparaFatProdMes, atualizaFatProdMes);
+			fg->fatMensal[i] = malloc(sizeof(struct fatMes)); /* falta tratar falhas de alocação */
+			if(fg->fatMensal[i]){
+				fg->fatMensal[i]->totalVendas = 0;
+				fg->fatMensal[i]->totalFaturado = 0;
+				fg->fatMensal[i]->fatProds = criaAVLgenerica(comparaFatProdMes, atualizaFatProdMes);
+			}
 		}
 	}
 	return fg; /* se o malloc() falhou, é retornado NULL. Na main decidimos o que fazer */

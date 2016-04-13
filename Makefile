@@ -6,7 +6,9 @@ TARGET_ARCH := -march=native
 # diretorias onde o utilitário 'make' vai procurar pelas dependências e objetivos da makefile
 VPATH = src/ src/programasTestes
 
-all: tests avl.o catalogoProds.o catalogoClientes.o 
+all: $(EXEC)
+
+tmp: avl.o catalogoProds.o catalogoClientes.o faturacaoGlobal.o filial.o 
 
 .PHONY: all doc tests limpar
 
@@ -25,6 +27,8 @@ catalogoProds.o: catalogoProds.c catalogoProds.h avl.h bool.h produto.h
 catalogoClientes.o: catalogoClientes.c catalogoClientes.h avl.h bool.h cliente.h
 	$(COMPILE.c) $< -o src/$@
 faturacaoGlobal.o: faturacaoGlobal.c faturacaoGlobal.h avl.h bool.h produto.h venda.h
+	$(COMPILE.c) $< -o src/$@
+filial.o: filial.c filial.h avl.h venda.h cliente.h produto.h bool.h 
 	$(COMPILE.c) $< -o src/$@
 # fim dos targets temporários
 
