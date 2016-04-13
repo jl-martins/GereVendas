@@ -31,8 +31,9 @@ struct conjProds {
 };
 
 static int compara(const void *, const void *);
-static void* duplica(const void *);
-
+static void* duplica(void *);
+static void liberta(void *);
+static void atualiza(void *, void *);
 /* Funções que manipulam catálogos de produtos */
 
 CatProds criaCatProds() {	
@@ -41,7 +42,7 @@ CatProds criaCatProds() {
 	
 	if(catP)
 		for(i = 0; i < MAX_AVL; ++i)
-			catP->catalogo[i] = criaAVL(compara);
+			catP->catalogo[i] = criaAVL(atualiza, compara, duplica, liberta);
 	return catP;
 }
 
@@ -315,4 +316,19 @@ static int compara(const void* prod1, const void* prod2) {
 	free(codigo2);
 	
 	return r;
+}
+
+static void* duplica(void* prod)
+{
+	return duplicaProduto((Produto) prod);
+}
+
+static void liberta(void* prod)
+{
+	apagaProduto((Produto) prod);
+}
+
+static void atualiza(void* prod1, void* prod2)
+{
+	return;
 }

@@ -20,6 +20,9 @@ struct conjClientes {
 };
 
 static int compara(const void *, const void *);
+static void* duplica(void *);
+static void liberta(void *);
+static void atualiza(void *, void *);
 
 CatClientes criaCatClientes() {
 	int i;
@@ -159,3 +162,17 @@ static int compara(const void *cliente1, const void *cliente2) {
 	return r;
 }
 
+static void* duplica(void * cliente)
+{
+	return duplicaCliente((Cliente) cliente);
+}
+
+static void liberta(void * cliente)
+{
+	apagaCliente((Cliente) cliente);
+}
+
+static void atualiza(void*, void*)
+{
+	return;
+}
