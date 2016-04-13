@@ -31,8 +31,12 @@ void removeCatProds(CatProds);
 ConjuntoProds criaConjuntoProds(int, Produto*);
 /* Liberta a memória alocada para um conjunto de produtos */
 void removeConjuntoProds(ConjuntoProds);
+/* inicializa as vars ligadas á paginação e navegação*/
+ConjuntoProds setCodsPorPag(ConjuntoProds, int);
 /* Devolve um array de strings com todos os códigos de um conjunto de produtos */
 char** obterCodigosP(ConjuntoProds);
+/* Devolve um array de strings com todos os códigos de uma página do conjunto de produtos*/
+char** obterCodigosPPag(ConjuntoProds);
 /* Devolve a cardinalidade de um conjunto de produtos */
 int cardinalidade(ConjuntoProds);
 /* Devolve o número da página atual de um conjunto de produtos */
@@ -42,5 +46,16 @@ int obterIndice(ConjuntoProds);
 /* Dado um catálogo de produtos e uma letra, retorna um conjunto
  * com os produtos cujo código começa pela letra fornecida */
 ConjuntoProds prodsPorLetra(CatProds, char);
+/*Avança 1 página*/
+void nextPage(ConjuntoProds);
+/*Retrocede 1 página */
+void prevPage(ConjuntoProds);
+/*Avança para a ultima página*/
+void lastPage(ConjuntoProds);
+/*Avança para a primeira página*/
+void fstPage(ConjuntoProds);
+/*Avança para uma página passada como argumento*/
+void goToPage(ConjuntoProds, int);
+
 
 #endif
