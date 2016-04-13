@@ -29,9 +29,6 @@ FaturacaoGlobal registaVenda(
 /* Regista um produto na faturação global */
 FaturacaoGlobal registaProduto(FaturacaoGlobal fg, Produto p);
 
-/* Devolve uma estrutura com informção sobre a faturação de um produto num dado mês */
-FatMensalProd obterFatMensalProd(const FaturacaoGlobal fg, const Produto p, int mes);
-
 /* Devolve o total de unidades vendidas num mês */
 int totalVendasMes(const FaturacaoGlobal fg, int mes);
 
@@ -43,6 +40,10 @@ int totalVendasIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
 
 /* Devolve o total faturado num intervalo fechado de meses */
 double totalFatIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
+
+
+/* Devolve uma estrutura com informção sobre a faturação de um produto num dado mês */
+FatMensalProd obterFatMensalProd(const FaturacaoGlobal fg, const Produto p, int mes);
 
 /* Dada a faturação de produto 'fprod' e o tipo de venda 'tipo',
    devolve um array que em cada posição i tem o nº de vendas 

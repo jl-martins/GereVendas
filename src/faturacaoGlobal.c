@@ -74,6 +74,7 @@ struct fatMensalProd{
 /* Funções privadas ao módulo */
 
 static FatAnualProd criaFatAnualProd(Produto p);
+
 static FatMensalProd criaFatMensalProd(
 	Produto p, 
 	int quantidade, 
@@ -81,6 +82,7 @@ static FatMensalProd criaFatMensalProd(
 	TipoVenda tipo, 
 	int filial
 );
+
 static Produto** alocaArrayNaoComprados(int tamanho);
 
 /* Funções utilizadas na criação de AVLs */
@@ -94,7 +96,7 @@ FaturacaoGlobal criaFaturacaoGlobal()
 	int i;
 	FaturacaoGlobal fg = malloc(sizeof(struct fatGlobal));
 	
-	if(fg != NULL){
+	if(fg){
 		fg->todosProdutos = criaAVLgenerica(comparaFatAnualProd, atualizaFatAnualProd);
 		for(i = 1; i <= N_MESES; i++){
 			fg->fatMensal[i]->totalVendas = 0;
@@ -109,9 +111,10 @@ FaturacaoGlobal criaFaturacaoGlobal()
  * anuais com o total de vendas igual a 0 para cada uma das filiais */
 FaturacaoGlobal registaProduto(FaturacaoGlobal fg, Produto p)
 {	
-	FatAnualProd fAnualProd = criaFatAnualProd(p);
+	FatAnualProd fAnualProd;
+	Produto copia = duplicaProduto(p);
 
-	if(fAnualProd != NULL)
+	if(copia && (fAnualProd = criaFatAnualProd(copia)))
 		fg->todosProdutos = insere(fg->todosProdutos, fAnualProd);
 	else /* falha de alocação a criar FatAnualProd */
 		fg = NULL;
@@ -124,8 +127,8 @@ static FatAnualProd criaFatAnualProd(Produto p)
 {
 	FatAnualProd fAnualProd = calloc(1, sizeof(struct fatAnualProd));
 
-	if(fAnualProd != NULL)
-		fAnualProd->prod = p; /* !! discutir se vale a pena guardar uma cópia */
+	if(fAnualProd)
+		fAnualProd->prod = p; /* o produto já foi duplicado na função chamadora */
 	return fAnualProd;
 }
 
@@ -141,16 +144,17 @@ FaturacaoGlobal registaVenda(
 	int mes)
 {
 	double totalFaturado = quantidade * preco_unit;
-	FatMensalProd fatP = criaFatMensalProd(p, quantidade, totalFaturado, tipo, filial);
+	Produto copia = duplicaProduto(p);
+	FatMensalProd fatP;
 
-	if(fatP != NULL){
-		FatMes fatMes = fg->fatMensal[mes];
+	if(copia && (fatP = criaFatMensalProd(copia, quantidade, totalFaturado, tipo, filial))){
+		FatMes fatMes = fg->fatMensal[mes]; 
+			
 		fatMes->fatProds = insere(fatMes->fatProds, (ValorNodo) fatP);
-		/* Atualiza valores totais do mês */
 		fatMes->totalVendas += quantidade;
 		fatMes->totalFaturado += totalFaturado;
 	}
-	else /* falha de alocação ao criar a faturação do produto */
+	else /* houve uma falha de alocação */
 		fg = NULL;
 	return fg;
 }
@@ -166,7 +170,7 @@ static FatMensalProd criaFatMensalProd(
 {
 	FatMensalProd fProd = malloc(sizeof(struct fatMensalProd));
 
-	if(fProd != NULL){
+	if(fProd){
 		int i, j;
 
 		fProd->prod = p;
@@ -231,11 +235,11 @@ int* vendasPorFilial(const FatMensalProd fProd, TipoVenda tipo)
 {	
 	int* copiaVendas;
 
-	if(fProd == NULL) /* o produto foi vendido */
+	if(!fProd) /* o produto não foi vendido */
 		copiaVendas = calloc(N_FILIAIS, sizeof(int));
-	else{
+	else{ /* o produto foi vendido */
 		copiaVendas = malloc(N_FILIAIS * sizeof(int));
-		if(copiaVendas != NULL)
+		if(copiaVendas)
 			copiaVendas = memcpy(copiaVendas, fProd->vendas[tipo], N_FILIAIS * sizeof(int));
 	}
 	return copiaVendas;
@@ -245,7 +249,7 @@ int vendasTotais(const FatMensalProd fProd, TipoVenda tipo)
 {
 	int total = 0;
 
-	if(fProd != NULL){
+	if(fProd){
 		int i;
 
 		for(i = 0; i < N_FILIAIS; ++i)
@@ -258,11 +262,11 @@ double* faturacaoPorFilial(const FatMensalProd fProd, TipoVenda tipo)
 {	
 	double* copiaFat;
 
-	if(fProd == NULL) /* o produto não foi vendido */
+	if(!fProd) /* o produto não foi vendido */
 		copiaFat = calloc(N_FILIAIS, sizeof(int));
 	else{
 		copiaFat = malloc(N_FILIAIS * sizeof(double));
-		if(copiaFat != NULL)
+		if(copiaFat) /* o produto foi vendido */
 			copiaFat = memcpy(copiaFat, fProd->faturacao[tipo], N_FILIAIS * sizeof(double));
 	}	
 	return copiaFat;
@@ -272,7 +276,7 @@ double faturacaoTotal(const FatMensalProd fProd, TipoVenda tipo)
 {
 	double total = 0;
 
-	if(fProd != NULL){
+	if(fProd){
 		int i;
 
 		for(i = 0; i < N_FILIAIS; ++i)
@@ -290,7 +294,7 @@ int obterTotalVendasAnuais(const FatAnualProd fAnualProd)
 {
 	int total = 0;
 
-	if(fAnualProd != NULL){
+	if(fAnualProd){
 		int i;
 
 		for(i = 0; i < N_FILIAIS; ++i)
@@ -318,17 +322,17 @@ ConjuntoProds naoCompradosGlobal(const FaturacaoGlobal fg)
 	total = tamanho(fg->todosProdutos);
 	naoComprados = malloc(total * sizeof(Produto)); /* 1.37MB */
 	
-	if(naoComprados != NULL){
+	if(naoComprados){
 		int i, j;
 		Produto* novoNaoComprados; /* guarda retorno de realloc() para verificação de erros */
 		
 		arrTodosProdutos = (FatAnualProd *) inorder(fg->todosProdutos);
 		for(i = 0, j = 0; i < total; ++i)
 			if(naoComprado(arrTodosProdutos[i]))
-				naoComprados[j++] = arrTodosProdutos[i]->prod; /* !Possibilidade de criar cópia */
+				naoComprados[j++] = duplicaProduto(arrTodosProdutos[i]->prod);
 		
 		novoNaoComprados = realloc(naoComprados, j * sizeof(Produto));
-		if(novoNaoComprados == NULL){ /* falha de realocação */
+		if(!novoNaoComprados){ /* falha de realocação */
 			free(naoComprados);
 			cProds = NULL;
 		}
@@ -351,23 +355,22 @@ ConjuntoProds* naoCompradosPorFilial(const FaturacaoGlobal fg)
 	total = tamanho(fg->todosProdutos);
 	naoComprados = alocaArrayNaoComprados(total);
 
-	if(naoComprados != NULL && cProdsFiliais != NULL){
-		int i, j;
+	if(naoComprados && cProdsFiliais){
+		int i, filial;
 		int inds[N_FILIAIS] = {0}; /* array que na posição j tem o índice da filial j+1 */
 		
 		arrTodosProdutos = (FatAnualProd *) inorder(fg->todosProdutos);
 		for(i = 0; i < total; ++i){ /* itera ao longo das vendas anuais */
 			FatAnualProd fAnualProd = arrTodosProdutos[i];
-			for(j = 0; j < N_FILIAIS; ++j){
-				if(fAnualProd->totalVendas[j] == 0)
-					naoComprados[j][inds[j]++] = fAnualProd->prod;
+			for(filial = 0; filial < N_FILIAIS; ++filial){
+				if(fAnualProd->totalVendas[filial] == 0)
+					naoComprados[filial][inds[filial]++] = duplicaProduto(fAnualProd->prod);
 			}
 		}
-
 		/* não está a ser verificado o valor de retorno do realloc() */
-		for(i = 0; i < N_FILIAIS; ++i){
-			naoComprados[i] = realloc(naoComprados[i], inds[i] * sizeof(Produto));
-			cProdsFiliais[i] = criaConjuntoProds(inds[i], naoComprados[i]);
+		for(filial = 0; filial < N_FILIAIS; ++filial){
+			naoComprados[filial] = realloc(naoComprados[filial], inds[filial] * sizeof(Produto));
+			cProdsFiliais[filial] = criaConjuntoProds(inds[filial], naoComprados[filial]);
 		}
 	}
 	return cProdsFiliais;
@@ -384,7 +387,7 @@ static Produto** alocaArrayNaoComprados(int tamanho)
 		for(i = 0; i < N_FILIAIS; ++i)
 			naoComprados[i] = malloc(tamanho * sizeof(Produto));
 			if(naoComprados[i] == NULL){ 
-				/* falha da alocação */
+				/* !!! falha da alocação */
 			}
 	}
 	return naoComprados;
