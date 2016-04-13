@@ -45,7 +45,7 @@ FatProdMes obterFatProdMes(const FaturacaoGlobal fg, const Produto p, int mes);
 
 /* Recebe a faturação de um produto num mês ('fProdMes') e o tipo de venda
  * ('tipo'). Devolve um array que em cada posição i tem o nº de vendas 
- * do tipo especificado, registadas em 'fProdMes', para a filial i+1. */
+ * do tipo especificado, registadas em 'fProdMes' para a filial i+1. */
 int* vendasPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
 /* Recebe a faturação de um produto num mês ('fProdMes') e o tipo de venda ('tipo'). 
@@ -54,25 +54,25 @@ int vendasTotaisProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
 /* Recebe a faturação de um produto num mês ('fProdMes') e o tipo de venda ('tipo').
  * Devolve um array que em cada posição i tem o total faturado na filial 
- * i+1, com vendas do registadas em 'fProdMes', para o tipo especificado.  */
+ * i+1, com vendas registadas em 'fProdMes', para o tipo especificado.  */
 double* faturacaoPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
 /* Devolve, para a faturação de produto 'fProdMes' e para o tipo de
- * venda tipo', a faturação total que está registada em 'fProdMes' */
-double faturacaoTotalProdMes(const FatProdMes fProdMesMes, TipoVenda tipo);
+ * venda tipo', a faturação total registada em 'fProdMes' */
+double faturacaoTotalProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
 /* Devolve um conjunto com os produtos que não foram comprados em nenhuma filial */
 ConjuntoProds naoCompradosGlobal(const FaturacaoGlobal);
 
-/* Devolve um array de conjuntos de produtos, um por filial. Cada conjunto
- * de produtos armazena os códigos de produto não vendidos na respetiva filial. */
+/* Devolve um array de conjuntos de produtos, um por filial. Cada conjunto de
+ * produtos armazena os códigos de produto não vendidos na respetiva filial. */
 ConjuntoProds* naoCompradosPorFilial(const FaturacaoGlobal);
 
 /* Liberta a memória alocada para armazenar a faturação global */
 void removeFaturacaoGlobal(FaturacaoGlobal fg);
 
-/* Função utilizada para libertar uma cópia do tipo
- * FatProdMes que foi devolvida pela função obterFatProdMes()  */
+/* Liberta uma cópia do tipo FatProdMes que
+ * foi devolvida pela função obterFatProdMes()  */
 void removeFatProdMes(FatProdMes fProdMes);
 
 #endif
