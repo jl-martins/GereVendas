@@ -86,7 +86,6 @@ static FatProdMes criaFatProdMes
 	TipoVenda tipo, 
 	int filial
 );
-
 static Produto** alocaArrayNaoComprados(int tamanho);
 
 /* Funções utilizadas na criação de AVLs */
@@ -94,6 +93,9 @@ static int comparaFatProdMes(const void* , const void* );
 static int comparaFatAnualProd(const void* , const void* );
 static void atualizaFatProdMes(void *, void* );
 static void atualizaFatAnualProd(void* , void* );
+
+/* Funções que permitem obter informações sobre as vendas
+ * anuais de um produto */
 static int obterTotalVendasAnuaisProd(const FatAnualProd);
 static bool naoComprado(const FatAnualProd);
 
@@ -187,7 +189,7 @@ static FatProdMes criaFatProdMes(
 	if(fProdMes){
 		int i, j;
 
-		fProdMes->prod = p;
+		fProdMes->prod = p; /* p já é uma cópia do produto passado para registaVenda() */
 		for(i = 0; i < N_TIPOS_VENDA; ++i){
 			for(j = 0; j < N_FILIAIS; ++j){
 				fProdMes->vendas[i][j] = 0;
@@ -201,14 +203,14 @@ static FatProdMes criaFatProdMes(
 }
 
 /* Devolve informação sobre a faturação de um produto num dado mês */
-FatProdMes obterFatProdMesuto(const FaturacaoGlobal fg, const Produto p, int mes)
+FatProdMes obterFatProdMes(const FaturacaoGlobal fg, const Produto p, int mes)
 {	/* !! assumindo que o mês é válido */
 	return (FatProdMes) procuraAVL(fg->fatMensal[mes]->fatProds, p);
 }
 
 /* Funções usadas na query6 */
 
-/* Devolve o total de vendas de um dado mês */
+/* Devolve o total de vendas registadas num dado mês */
 int totalVendasMes(const FaturacaoGlobal fg, int mes)
 {
 	return fg->fatMensal[mes]->totalVendas;
@@ -220,7 +222,7 @@ double totalFaturadoMes(const FaturacaoGlobal fg, int mes)
 	return fg->fatMensal[mes]->totalFaturado;
 }
 
-/* Devolve o total de vendas num intervalo fechado de meses */
+/* Devolve o total de vendas registadas num intervalo fechado de meses */
 int totalVendasIntervMeses(const FaturacaoGlobal fg, int inicio, int fim)
 {
 	int mes, total = 0;
@@ -245,6 +247,19 @@ double totalFatIntervMeses(const FaturacaoGlobal fg, int inicio, int fim)
 
 /* Funções usadas na query3 */
 
+int vendasTotaisProdMes(const FatProdMes fProdMes, TipoVenda tipo)
+{
+	int total = 0;
+
+	if(fProdMes){
+		int i;
+
+		for(i = 0; i < N_FILIAIS; ++i)
+			total += fProdMes->vendas[tipo][i];
+	}
+	return total;
+}
+
 int* vendasPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo)
 {	
 	int* copiaVendas;
@@ -259,15 +274,15 @@ int* vendasPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo)
 	return copiaVendas;
 }
 
-int vendasTotaisProdMes(const FatProdMes fProdMes, TipoVenda tipo)
+double faturacaoTotalProdMes(const FatProdMes fProdMes, TipoVenda tipo)
 {
-	int total = 0;
+	double total = 0;
 
 	if(fProdMes){
 		int i;
 
 		for(i = 0; i < N_FILIAIS; ++i)
-			total += fProdMes->vendas[tipo][i];
+			total += fProdMes->faturacao[tipo][i];
 	}
 	return total;
 }
@@ -284,19 +299,6 @@ double* faturacaoPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo)
 			copiaFat = memcpy(copiaFat, fProdMes->faturacao[tipo], N_FILIAIS * sizeof(double));
 	}	
 	return copiaFat;
-}
-
-double faturacaoTotalProdMes(const FatProdMes fProdMes, TipoVenda tipo)
-{
-	double total = 0;
-
-	if(fProdMes){
-		int i;
-
-		for(i = 0; i < N_FILIAIS; ++i)
-			total += fProdMes->faturacao[tipo][i];
-	}
-	return total;
 }
 
 /* Fim das funções utilizadas na query3 */
