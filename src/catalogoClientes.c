@@ -30,7 +30,7 @@ CatClientes criaCatClientes() {
 	
 	if(catC) 
 		for(i = 0; i < MAX_AVL; ++i)
-			catC->catalogo[i] = criaAVL(atualiza, compara, duplica, liberta);
+			catC->catalogo[i] = criaAVLgenerica(atualiza, compara, duplica, liberta);
 	return catC;
 }
 
