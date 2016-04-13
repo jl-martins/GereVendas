@@ -1,6 +1,6 @@
 EXEC = gereVendas
 CFLAGS = -Wall -Wextra -Wno-unused-function -Wno-unused-result -ansi -pedantic -O2
-OBJS = $(patsubst(src/%.c, src/%.o, $(wildcard src/*.c)))
+OBJS = $(patsubst src/%.c, src/%.o, $(wildcard src/*.c))
 TARGET_ARCH := -march=native
 
 # diretorias onde o utilitário 'make' vai procurar pelas dependências e objetivos da makefile
@@ -10,10 +10,19 @@ all: $(EXEC)
 
 tmp: avl.o catalogoProds.o catalogoClientes.o faturacaoGlobal.o filial.o 
 
-.PHONY: all doc tests limpar
+.PHONY: all debug leak-check tmp doc tests limpar
 
 $(EXEC): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) $(OUTPUT_OPTION)
+	$(LINK.c) $(OBJS) $(OUTPUT_OPTION)
+
+debug: CFLAGS += -g
+debug: $(EXEC)
+	gdb $(EXEC)
+
+leak-check: CFLAGS += -g
+leak-check: $(EXEC)
+	valgrind --tool=memcheck --leak-check=yes ./$(EXEC)
+
 tests: filtraVendas
 	cd tests; bash runtests.sh t ../src/filtraVendas
 filtraVendas: filtraVendas.c venda.h
@@ -48,6 +57,7 @@ doc: src/*.c
 limpar:
 	$(RM) src/filtraVendas src/*.o src/programasTestes/*.o
 	$(RM) tests/*.res
+	$(RM) gereVendas
 	$(RM) data/VendasValidas.*
 	# descobrir melhor forma de remover os executáveis de src/programasTestes
 	$(RM) src/programasTestes/infoCliente src/programasTestes/vendasFilial src/programasTestes/infoProduto
