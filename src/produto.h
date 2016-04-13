@@ -10,5 +10,6 @@ void removeProduto(Produto p);
 char* obterCodigoProduto(Produto prod);
 char inicioCodigoProduto(Produto prod);
 int comparaCodigosProduto(Produto p1, Produto p2);
+Produto duplicaProduto(Produto p);
 
 #endif

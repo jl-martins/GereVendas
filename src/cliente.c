@@ -2,7 +2,6 @@
 #include <stdlib.h> /* para usar a função malloc() */
 #include <string.h>
 
-
 struct cliente {
 	char codigoCliente[MAX_CODIGO_CLIENTE];
 };
@@ -12,6 +11,13 @@ Cliente criaCliente(char* codigoCliente) {
 	
 	if(novo != NULL)
 		strcpy(novo -> codigoCliente, codigoCliente);
+	return novo;
+}
+
+Cliente duplicaCliente(Cliente c){
+	Cliente novo = malloc(sizeof(struct Cliente));
+	if(novo)
+		strcpy(novo->codigoCliente, c->codigoCliente);
 	return novo;
 }
 
@@ -32,5 +38,5 @@ char inicioCodigoCliente(Cliente c) {
 }
 
 int comparaCodigosCliente(Cliente c1, Cliente c2){
-	return strcmp(c1, c2);
+	return strcmp(c1->codigoCliente, c2->codigoCliente);
 }

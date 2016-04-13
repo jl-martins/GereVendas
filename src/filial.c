@@ -67,7 +67,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 
 	posicao = inicioCodigoCliente(cliente) - 'A';
 	vendaProdAux = malloc(sizeof(struct vendaProduto));
-	vendaProdAux->produto = produto;
+	vendaProdAux->produto = duplica(produto);
 	vendaProdAux->vendas = unidades;
 	vendaProdAux->faturacao = preco * unidades;
 	vendaProdAux->modoP = tipoVenda == P;
@@ -75,7 +75,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 
 	/* procura se existe cliente */	
 	ccliente = calloc(1, sizeof(struct comprasCliente));
-	ccliente->cliente = cliente;
+	ccliente->cliente = duplicaCliente(cliente);
 	naAVL = procuraAVL(filial->comprasClientes[posicao], ccliente);
 	
 	if(naAVL == NULL){
@@ -91,6 +91,10 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	}	
 	return filial;		
 }
+/*
+Filial registaNovoCliente(Filial filial, Cliente c){
+	registaCompra(c	
+}*/
 
 static ComprasCliente procuraClienteNasVendas(Cliente cliente, Filial filial){
 	int posicao;

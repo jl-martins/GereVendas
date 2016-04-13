@@ -13,7 +13,9 @@
 
 static CatalogoClientes catClientes = NULL;
 static CatalogoProds catProds = NULL;
-static Filial filiais[N_FILIAIS+1] = {};
+static Filial filiais[N_FILIAIS+1] = {}; /* a cada elemento de indice i do vetor faz corresponder a filial i. o indice 0 contem dados relativos ao total das filiais
+de forma a melhorar o desempenho das queries */
+#define FILIAL_GLOBAL filiais[0]
 static FaturacaoGlobal faturacaoGlobal = NULL;
 
 #define N_QUERIES 12
@@ -31,7 +33,6 @@ static FaturacaoGlobal faturacaoGlobal = NULL;
 #define FCLIENTES "data/Clientes.txt" /* caminho do ficheiro de clientes */
 #define FPRODUTOS "data/Produtos.txt" /* caminho do ficheiro de produtos */
 #define FVENDAS "data/Vendas_1M.txt"     /* caminho do ficheiro de vendas */
-#define FVENDAS_VAL "data/VendasValidas.txt" /* caminho do ficheiro com as vendas válidas */
 
 int interpretador();
 int interpreta(char linha[]);
@@ -133,6 +134,21 @@ static void opcaoInvalida(char opcao[])
 	fprintf(stderr, "A opção '%s' é inválida\n\n", opcao);
 }
 
+static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[BUF_SIZE], char * tipoDeElems){
+	int i;
+	FILE * fp;
+	printf("Insira o caminho do ficheiro de %s (Enter para abrir ficheiro padrao):", tipoDeElems);	
+	fgets(buf, BUF_SIZE, stdin);
+	for(i = 0; buf[i] && isblank(buf[i]); i++)
+		;
+	if(buf[i] != '\0' && buf[i] != '\n') 
+		caminho = buf;
+	else caminho = ficheiroPadrao; 	
+	fp = fopen(caminho, "r");
+	if(fp == NULL) fprintf(stderr, "Nao foi possivel abrir o ficheiro %s\n", caminho);
+	return fp;	
+}
+
 /* alterar para inserir os caminhos dos ficheiros */
 static int query1()
 {
@@ -140,7 +156,7 @@ static int query1()
 	char * caminho;
 	Cliente c;
 	Produto p;
-	File * fp; 
+	FILE * fp; 
 
 	catalogoProdutos = criaCatProds();
 	catalogoClientes = criaCatClientes();	
@@ -148,42 +164,42 @@ static int query1()
 	for(i = 0; i <= N_FILIAIS; i++)    /* o elemento 0 das filiais contem informação total relatvia Às compras */
 		filiais[i] = criaFilial(); /* de todos os clientes nas filiais, útil para otimizar queries */
 	
-	/* Le o catalogoProdutos */	
-	printf("Insira o caminho do ficheiro de Produtos (Enter para abrir padrão):");	
-	fgets(buf, BUF_SIZE, stdin);
-	if(buf[0] != '\n') 
-		caminho = buf;
-	else caminho = FPRODUTOS; 	
-	fp = fopen(caminho, "r");
-	/* fazer macro abertoSucesso que só prossegue a leitura se o ficheiro foi aberto com sucesso */
-	if(fp == NULL) {
-		
-		return /*...*/;
-	}
-	while(fgets(buf, BUF_SIZE, fp) != 0){
+	/* Le o catalogoProdutos  - passar para função separada*/	
+	fp = perguntaAbreFicheiro(FPRODUTOS, buf, "produtos");
+	if(fp == NULL) return ERRO;
+
+	while(fgets(buf, BUF_SIZE, fp)){
 		p = criaProduto(buf);
-		if(p == NULL) /*...*/;
+		if(p == NULL)return ERRO; 
 		insereProduto(catP, p);			 	
+		registaProduto(faturacaoGlobal, p);	
+		limpaProduto(p);
 	}
-	
 	fclose(fp);
 	
-	/* Le o catalogoClientes */
-	fp = fopen(ficheiroClientes, "r");
-	if(fp == NULL) return /*...*/;
-	while(fgets(buf, BUF_SIZE, fp) != 0){
+	/* Le o catalogoClientes  - passar para função separada*/	
+	fp = perguntaAbreFicheiro(FCLIENTES, buf, "clientes");
+	if(fp == NULL) return ERRO;
+
+	while(fgets(buf, BUF_SIZE, fp)){
 		c = criaCliente(buf);
-		if(p == NULL) /*...*/;
-		insereCliente(catC, c);
+		if(p == NULL) return ERRO;
+		insereCliente(catC, c); /*mudar nome para ficar evidente que insere num catalogo */
+		registaNovoCliente(FILIAL_GLOBAL, c);
+		limpaCliente(c);
 	}
 	fclose(fp);
 
 	/* introduzir melhorias para filial total -> muito mais rapido */
-	fp = fopen(ficheiroVendas, "r");	
-	if(fp == NULL) return /*...*/;
-	while(fgets(buf, BUF_SIZE, fp) != 0){
+	
+	/* Le o ficheiro de vendas e carrega as estruturas -> passar para função separada*/	
+	fp = perguntaAbreFicheiro(FVENDAS, buf, "vendas");
+	if(fp == NULL) return ERRO;
+	
+	while(fgets(buf, BUF_SIZE, fp)){
 			
 	}
+	fclose(fp);
 	return 0;
 }
 

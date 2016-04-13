@@ -9,16 +9,15 @@ struct produto {
 Produto criaProduto(char* codigoProduto) {
 	Produto novo = malloc(sizeof(struct produto));
 	
-	if(novo != NULL)
-		strcpy(novo -> codigoProduto, codigoProduto);
+	if(novo)
+		strcpy(novo->codigoProduto, codigoProduto);
 	return novo;
 }
 
 Produto duplicaProduto(Produto p){
-	Produto novo = malloc(sizeof(struct Produto));
-	if(novo == null)
-		;
-	else strcpy(novo->codigoProduto, p->codigoProduto);
+	Produto novo = malloc(sizeof(struct produto));
+	if(novo)
+		strcpy(novo->codigoProduto, p->codigoProduto);
 	return novo;
 }
 
@@ -29,7 +28,7 @@ void removeProduto(Produto p) {
 char* obterCodigoProduto(Produto prod){
 	char* copiaCodigo = malloc(MAX_CODIGO_PROD * sizeof(char));
 	
-	if(copiaCodigo != NULL)
+	if(copiaCodigo)
 		strcpy(copiaCodigo, prod->codigoProduto);
 	return copiaCodigo;
 }

@@ -10,5 +10,6 @@ char* obterCodigoCliente(Cliente c);
 /* Devolve a 1a letra do codigo de um cliente */
 char inicioCodigoCliente(Cliente c);
 int comparaCodigosCliente(Cliente c1, Cliente c2);
+Cliente duplicaCliente(Cliente c){
 
 #endif
