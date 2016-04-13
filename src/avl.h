@@ -3,6 +3,7 @@
 
 #include "bool.h"
 
+
 typedef struct TCD_AVL* AVL;  
 typedef void* ValorNodo;
 

@@ -17,7 +17,7 @@ void apagaCatClientes(CatClientes);
 
 /* Funções que manipulam conjuntos de clientes */
 ConjClientes criaConjClientes(int, Cliente*);
-void removeConjClientes(ConjClientes);
+void apagaConjClientes(ConjClientes);
 char** obterCodigosClientes(ConjClientes);
 int numeroClientes(ConjClientes);
 int obterPagConjClientes(ConjClientes conjuntoC);

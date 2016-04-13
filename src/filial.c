@@ -91,8 +91,8 @@ Filial apagaFilial(Filial filial){
 		for(i = 0; i < 26; i++){
 			apagaAVL(filial->clientesOrdenados[i]);
 		}
+		free(filial);
 	}
-	free(filial);
 	return NULL;
 }
 

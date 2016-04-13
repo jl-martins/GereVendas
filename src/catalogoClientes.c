@@ -89,12 +89,12 @@ ConjClientes criaConjClientes(int total, Cliente* clientes) {
 	return conjuntoC;
 }
 
-void removeConjClientes(ConjClientes conjuntoC) {
+void apagaConjClientes(ConjClientes conjuntoC) {
 	int i, total;
 
 	total = conjuntoC->total;
 	for(i = 0; i < total; ++i)
-		removeCliente(conjuntoC->clientes[i]);
+		apagaCliente(conjuntoC->clientes[i]);
 }
 
 /* Em casos de sucesso, a função 'obterCodigosC' devolve um array de strings 
@@ -172,7 +172,7 @@ static void liberta(void * cliente)
 	apagaCliente((Cliente) cliente);
 }
 
-static void atualiza(void*, void*)
+static void atualiza(void* x, void* y)
 {
 	return;
 }

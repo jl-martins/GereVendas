@@ -175,7 +175,7 @@ int leCatalogoProdutos(){
 		if(p == NULL)return ERRO_LER; 
 		insereProduto(catProds, p); /*inserir tratamento de erros */
 		registaProduto(faturacaoGlobal, p);
-		removeProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
+		apagaProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
 	fclose(fp);
 	return LIDO_SUCESSO;
@@ -194,7 +194,7 @@ int leCatalogoClientes(){
 		if(c == NULL) return ERRO_LER;
 		insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
 		/*registaNovoCliente(FILIAL_GLOBAL, c);*/
-		removeCliente(c);
+		apagaCliente(c);
 	}
 	fclose(fp);
 
@@ -282,15 +282,15 @@ int carregaVendasValidas(){
 static int query1()
 {
 	/* apaga os dados de uma execuçao anterior do programa */
-	/*
-	catProds = apagaCatProds(catProds);
-	catClientes = apagaCatClientes(catClientes);
-	faturacaoGlobal = apagaFatGlobal();
-	for(i = 1; i <= N_FILIAIS; i++)    
-		filiais[i] = apagaFilial(); 
-	*/
-	/*ver verificacao de erros */
 	int resL1, resL2, resL3, i;
+	/*catProds = apagaCatProds(catProds);*/
+	/*catClientes = apagaCatClientes(catClientes);*/
+	/*faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
+	
+	for(i = 1; i <= N_FILIAIS; i++)    
+		filiais[i] = apagaFilial(filiais[i]); */
+	/*ver verificacao de erros */
+	
 	catProds = criaCatProds();
 	catClientes = criaCatClientes();	
 	faturacaoGlobal = criaFaturacaoGlobal();
@@ -320,7 +320,7 @@ static int query2(CatProds catP)
 		else
 			err = 1;
 
-		removeConjuntoProds(conjP);
+		apagaConjuntoProds(conjP);
 	}
 	return err;
 }

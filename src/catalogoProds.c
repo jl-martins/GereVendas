@@ -42,7 +42,7 @@ CatProds criaCatProds() {
 	
 	if(catP)
 		for(i = 0; i < MAX_AVL; ++i)
-			catP->catalogo[i] = criaAVL(atualiza, compara, duplica, liberta);
+			catP->catalogo[i] = criaAVLgenerica(atualiza, compara, duplica, liberta);
 	return catP;
 }
 
@@ -123,12 +123,12 @@ ConjuntoProds setCodsPorPag(ConjuntoProds conjP, int nmr)
 	return conjP;
 }
 
-void removeConjuntoProds(ConjuntoProds conjuntoP) {
+void apagaConjuntoProds(ConjuntoProds conjuntoP) {
 	int i, total;
 
 	total = conjuntoP->total;
 	for(i = 0; i < total; ++i)
-		removeProduto(conjuntoP->prods[i]);
+		apagaProduto(conjuntoP->prods[i]);
 }
 
 /* Em casos de sucesso, a função 'obterCodigosP' devolve um array de strings 

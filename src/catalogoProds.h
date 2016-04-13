@@ -22,7 +22,7 @@ int totalProdutos(CatProds);
  * cujo código começa pela letra especificada */
 int totalProdutosLetra(CatProds, char);
 /* Liberta a memória alocada para um catálogo de produtos */
-void removeCatProds(CatProds);
+void apagaCatProds(CatProds);
 
 /* Funções sobre ConjuntoProds */
 
