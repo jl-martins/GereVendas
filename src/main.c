@@ -68,7 +68,8 @@ Query queries[] = {NULL, query1, query2, query3, query4, query5, query6, query7,
 
 /* Opções do interpretador de comandos */
 /* A opção de sair deve ser a última apresentada mas deve ter código 0 */
-static const char* opcoes[N_OPCOES] = {
+static const char* opcoes[] = {
+		NULL,
 		"Ler ficheiros",
 		"Listar produtos começados por uma letra (maiúscula)",
 		"Apresentar vendas e faturação totais de um produto, num dado mês",
@@ -110,9 +111,9 @@ int interpreta(char linha[])
 	int i = atoi(linha);
 	int r;
 
-	if(/* *tmp == '\0' && */ i > 0 && i < N_OPCOES){ /* o utilizador introduziu um comando válido */
+	if(/* *tmp == '\0' && */ i > 0 && i <= N_OPCOES){ /* o utilizador introduziu um comando válido */
 		queries[i]();			
-		r = i == N_QUERIES? SAIR : CONTINUAR; /* se for inserida a ultima opção, o programa deve sair */
+		r = i == N_OPCOES? SAIR : CONTINUAR; /* se for inserida a ultima opção, o programa deve sair */
 	}else{
 		opcaoInvalida(linha);
 		r = CMD_INVAL;
@@ -126,7 +127,7 @@ static void imprimeOpcoes(const char *opcoes[N_OPCOES])
 	int i;
 
 	puts("Opções:\n");
-	for(i = 1; i < N_OPCOES; ++i)
+	for(i = 1; i <= N_OPCOES; ++i)
 		printf("%2d) %s\n", i, opcoes[i]);
 }
 
@@ -156,16 +157,15 @@ static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[], int tamanh
 int leCatalogoProdutos(){
 	Produto p;
 	FILE * fp;	
-	char buf[MAX_CODIGO_PROD];
+	char buf[BUF_SIZE];
 
 	fp = perguntaAbreFicheiro(FPRODUTOS, buf, MAX_CODIGO_PROD, "produtos");
 	if(fp == NULL) return ERRO;
-
 	while(fgets(buf, BUF_SIZE, fp)){
 		p = criaProduto(buf);
 		if(p == NULL)return ERRO; 
 		insereProduto(catProds, p); /*inserir tratamento de erros */
-		registaProduto(faturacaoGlobal, p);	
+		/*registaProduto(faturacaoGlobal, p);*/
 		removeProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
 	fclose(fp);
@@ -232,6 +232,8 @@ static int query1()
 	int resL1, resL2, resL3, i;
 	catProds = criaCatProds();
 	catClientes = criaCatClientes();	
+	/*faturacaoGlobal = criaFaturacaoGlobal();*/
+
 
 	for(i = 1; i <= N_FILIAIS; i++)    /* o elemento 0 das filiais contem informação total relatvia Às compras */
 		filiais[i] = criaFilial(); /* de todos os clientes nas filiais, útil para otimizar queries */
