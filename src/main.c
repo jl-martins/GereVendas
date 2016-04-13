@@ -4,18 +4,20 @@
  * das queries interativas são feitas neste módulo.
  */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "cliente.h"
+#include "produto.h"
 #include "catalogoProds.h"
 #include "catalogoClientes.h"
 #include "faturacaoGlobal.h"
 #include "filial.h"
-#include "cliente.h"
-#include "produto.h"
+#define N_FILIAIS 3
+#define BUF_SIZE 1024
 
-static CatalogoClientes catClientes = NULL;
-static CatalogoProds catProds = NULL;
-static Filial filiais[N_FILIAIS+1] = {}; /* a cada elemento de indice i do vetor faz corresponder a filial i. o indice 0 contem dados relativos ao total das filiais
-de forma a melhorar o desempenho das queries */
-#define FILIAL_GLOBAL filiais[0]
+static CatClientes catClientes = NULL;
+static CatProds catProds = NULL;
+static Filial filiais[N_FILIAIS+1] = {}; /* a cada elemento de indice i do vetor faz corresponder a filial i. */
 static FaturacaoGlobal faturacaoGlobal = NULL;
 
 #define N_QUERIES 12
@@ -37,7 +39,7 @@ static FaturacaoGlobal faturacaoGlobal = NULL;
 int interpretador();
 int interpreta(char linha[]);
 
-static void imprimeOpcoes(char *opcoes[N_OPCOES]);
+static void imprimeOpcoes(const char *opcoes[N_OPCOES]);
 
 /* Apresentação de mensagens de erro */
 static void opcaoInvalida(char opcao[]);
@@ -57,17 +59,16 @@ static int query9();
 static int query10();
 static int query11();
 static int query12();
-
-Query queries[] = {sair, query1, query2, query3, query4, query5, query6, query7, query8,
-		     query9, query10, query11, query12};
-
 /* Função invocada imediatamente antes de sair */
-static int sair( /* faltam os args */ );
+static int sair();
+
+Query queries[] = {NULL, query1, query2, query3, query4, query5, query6, query7, query8,
+		     query9, query10, query11, query12, sair};
+
 
 /* Opções do interpretador de comandos */
 /* A opção de sair deve ser a última apresentada mas deve ter código 0 */
 static const char* opcoes[N_OPCOES] = {
-		"Sair",
 		"Ler ficheiros",
 		"Listar produtos começados por uma letra (maiúscula)",
 		"Apresentar vendas e faturação totais de um produto, num dado mês",
@@ -79,7 +80,8 @@ static const char* opcoes[N_OPCOES] = {
 		"Listar (decrescentemente) os produtos mais comprados por um cliente num dado mês",
 		"Criar lista com os N produtos mais vendidos do ano",
 		"Determinar códigos dos 3 produtos em que um cliente gastou mais dinheiro",
-		"Listar clientes que não compraram e produtos não vendidos"
+		"Listar clientes que não compraram e produtos não vendidos",
+		"Sair"
 };
 
 int main()
@@ -104,12 +106,13 @@ int interpretador()
 int interpreta(char linha[])
 {
 	char *tmp;
-	long i = strtol(linha, &tmp, 10); 
+	/*long i = strtol(linha, &tmp, 10); */
+	int i = atoi(linha);
 	int r;
 
-	if(*tmp == '\0' && i >= 0 && i <= N_QUERIES){ /* o utilizador introduziu um comando válido */
+	if(/* *tmp == '\0' && */ i > 0 && i < N_OPCOES){ /* o utilizador introduziu um comando válido */
 		queries[i]();			
-		r = i ? CONTINUAR : SAIR; /* se for inserida a opção 0, o programa deve sair */
+		r = i == N_QUERIES? SAIR : CONTINUAR; /* se for inserida a ultima opção, o programa deve sair */
 	}else{
 		opcaoInvalida(linha);
 		r = CMD_INVAL;
@@ -118,14 +121,13 @@ int interpreta(char linha[])
 }
 
 /* Imprime as opções do GereVendas */
-static void imprimeOpcoes(char *opcoes[N_OPCOES])
+static void imprimeOpcoes(const char *opcoes[N_OPCOES])
 {
 	int i;
 
 	puts("Opções:\n");
-	for(i = 1; i <= N_OPCOES; ++i)
+	for(i = 1; i < N_OPCOES; ++i)
 		printf("%2d) %s\n", i, opcoes[i]);
-	printf(" 0) %s\n", opcoes[0]);
 }
 
 /* Mensagem de opção inválida */
@@ -162,7 +164,7 @@ int leCatalogoProdutos(){
 	while(fgets(buf, BUF_SIZE, fp)){
 		p = criaProduto(buf);
 		if(p == NULL)return ERRO; 
-		insereProduto(catP, p); /*inserir tratamento de erros */
+		insereProduto(catProds, p); /*inserir tratamento de erros */
 		registaProduto(faturacaoGlobal, p);	
 		removeProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
@@ -180,8 +182,8 @@ int leCatalogoClientes(){
 
 	while(fgets(buf, BUF_SIZE, fp)){
 		c = criaCliente(buf);
-		if(p == NULL) return ERRO;
-		insereCliente(catC, c); /*mudar nome para ficar evidente que insere num catalogo */
+		if(c == NULL) return ERRO;
+		insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
 		/*registaNovoCliente(FILIAL_GLOBAL, c);*/
 		removeCliente(c);
 	}
@@ -203,7 +205,7 @@ int carregaVendasValidas(){
 	char * codigoProduto, * codigoCliente;
 	double preco;
 	TipoVenda tipoVenda;
-	int mes, nfilial;
+	int mes, nfilial, nUnidades;
 	
 
 	fp = perguntaAbreFicheiro(FVENDAS, buf, BUF_SIZE, "vendas");
@@ -211,10 +213,10 @@ int carregaVendasValidas(){
 	
 	while(fgets(buf, BUF_SIZE, fp)){
 		/* ver codigo de tratamento de erros */
-		codigoProduto = strtok(linha, " ");
+		codigoProduto = strtok(buf, " ");
 		preco = atof(GET);
 		nUnidades = atoi(GET);
-		tipoCompra = GET[0] == 'P' ? P : N;
+		tipoVenda = GET[0] == 'P' ? P : N;
 		codigoCliente = GET;
 		mes = atoi(GET);
 		nfilial = atoi(GET);
@@ -227,9 +229,9 @@ int carregaVendasValidas(){
 /* alterar para inserir os caminhos dos ficheiros */
 static int query1()
 {
-	int resL1, resL2, resL3;
-	catalogoProdutos = criaCatProds();
-	catalogoClientes = criaCatClientes();	
+	int resL1, resL2, resL3, i;
+	catProds = criaCatProds();
+	catClientes = criaCatClientes();	
 
 	for(i = 1; i <= N_FILIAIS; i++)    /* o elemento 0 das filiais contem informação total relatvia Às compras */
 		filiais[i] = criaFilial(); /* de todos os clientes nas filiais, útil para otimizar queries */

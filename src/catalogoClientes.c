@@ -20,7 +20,6 @@ struct conjClientes {
 };
 
 static int compara(const void *, const void *);
-static void* duplica(const void *);
 
 CatClientes criaCatClientes() {
 	int i;
@@ -28,7 +27,7 @@ CatClientes criaCatClientes() {
 	
 	if(catC) 
 		for(i = 0; i < MAX_AVL; ++i)
-			catC->catalogo[i] = criaAVL(compara, duplica);
+			catC->catalogo[i] = criaAVL(compara);
 	return catC;
 }
 
@@ -42,8 +41,7 @@ CatClientes insereCliente(CatClientes catC, Cliente c)
 bool existeCliente(CatClientes catC, Cliente c)
 {
 	bool existe = FALSE;
-
-	if(catC != NULL){
+	if(catC){
 		int i = calculaPos(c);
 		existe = existeAVL(catC->catalogo[i], c);
 	}
@@ -52,7 +50,7 @@ bool existeCliente(CatClientes catC, Cliente c)
 
 int totalClientesLetra(CatClientes catC, char l)
 {
-	int i = isalpha(l) ? toupper(l) - 'A' : -1;
+	int i = isupper(l) ? l - 'A' : -1;
 	return (i == -1) ? 0 : tamanho(catC->catalogo[i]);
 }
 
@@ -70,7 +68,7 @@ void removeCatClientes(CatClientes catC)
 {
 	int i;
 	for(i = 0; i < MAX_AVL; ++i)
-		apagaAVL(catC->catalogo[i]);
+/*		apagaAVL(catC->catalogo[i]);*/
 	free(catC); 
 }
 
@@ -99,13 +97,13 @@ void removeConjClientes(ConjClientes conjuntoC) {
 /* Em casos de sucesso, a função 'obterCodigosC' devolve um array de strings 
  * ordenado crescentemente, com os códigos de produtos de um conjunto de produtos. 
  * Se ocorrer um erro, é devolvido NULL */
-char** obterCodigosC(ConjClientes conjuntoC) {
+char** obterCodigosClientes(ConjClientes conjuntoC) {
 	int total = conjuntoC->total;
 	char** codigos = malloc(total * sizeof(char *));
 	
-	if(codigos != NULL){
+	if(codigos){
 		int i = 0;
-		char* codigoC;
+		char * codigoC;
 		
 		for(i = 0; i < total; ++i){
 			codigoC = obterCodigoCliente(conjuntoC->clientes[i]);
@@ -122,22 +120,22 @@ char** obterCodigosC(ConjClientes conjuntoC) {
 	return codigos;
 }
 
-int cardinalidade(ConjClientes conjuntoC) {
+int numeroClientes(ConjClientes conjuntoC) {
 	return conjuntoC->total;
 }
 
-int obterPag(ConjClientes conjuntoC) {
+int obterPagConjClientes(ConjClientes conjuntoC) {
 	return conjuntoC->pag;
 }
 
-int obterIndice(ConjClientes conjuntoC) {
+int obterIndiceConjClientes(ConjClientes conjuntoC) {
 	return conjuntoC->i;
 }
 
 ConjClientes clientesPorLetra(CatClientes catC, char l) {	
 	ConjClientes conjuntoC = NULL;
 
-	if(isupper(l)){ 
+	if(isupper(l)){/*tratamento de erros */ 
 		int i = l - 'A'; /* índice da avl a consultar */
 		int total = tamanho(catC->catalogo[i]);
 		Cliente* clientes = (Cliente*) inorder(catC->catalogo[i]);;

@@ -18,10 +18,10 @@ void removeCatClientes(CatClientes);
 /* Funções que manipulam conjuntos de clientes */
 ConjClientes criaConjClientes(int, Cliente*);
 void removeConjClientes(ConjClientes);
-char** obterCodigosC(ConjClientes);
-int cardinalidade(ConjClientes);
-int obterPag(ConjClientes conjuntoC);
-int obterIndice(ConjClientes);
+char** obterCodigosClientes(ConjClientes);
+int numeroClientes(ConjClientes);
+int obterPagConjClientes(ConjClientes conjuntoC);
+int obterIndiceConjClientes(ConjClientes);
 ConjClientes clientesPorLetra(CatClientes, char);
 
 #endif

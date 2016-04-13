@@ -55,7 +55,7 @@ void lastPage(ConjuntoProds);
 /*Avança para a primeira página*/
 void fstPage(ConjuntoProds);
 /*Avança para uma página passada como argumento*/
-void goToPage(ConjuntoProds, int);
+int goToPage(ConjuntoProds, int);
 
 
 #endif

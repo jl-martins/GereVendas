@@ -48,7 +48,7 @@ struct vendasAnuaisFilial * criaVendasAnuaisFilial(){
 	}
 	return nova;
 }
-
+/*
 struct vendasAnuaisFilial * registaNovoCliente(struct vendasAnuaisFilial * vendasAnuais, Cliente cliente){
 	int posicao;
 	Cliente c = duplicaCliente(cliente);
@@ -58,7 +58,7 @@ struct vendasAnuaisFilial * registaNovoCliente(struct vendasAnuaisFilial * venda
 	posicao = inicioCodigoCliente(cliente) - 'A';
 	insereAVL(vendasAnuais->comprasClientes[posicao], comprasDoAno); 
 	return vendasAnuais;
-}
+}*/
 
 /*fim: em edição*/
   

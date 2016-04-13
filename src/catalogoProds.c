@@ -83,7 +83,7 @@ void removeCatProds(CatProds catP) {
 	int i;
 
 	for(i = 0; i < MAX_AVL; ++i)
-		apagaAVL(catP->catalogo[i]);
+		/*apagaAVL(catP->catalogo[i]);*/
 	free(catP);
 }
 

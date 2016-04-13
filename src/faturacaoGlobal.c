@@ -497,13 +497,13 @@ void removeFaturacaoGlobal(FaturacaoGlobal fg)
 
 	for(i = 0; i < N_MESES + 1; ++i)
 		removeFatMes(fg->fatMensal[i]);
-	removeAVL(fg->todosProdutos); /* discutir se vale a pena fazer a função removeTodosProdutos() */
+	/*removeAVL(fg->todosProdutos);*/ /* discutir se vale a pena fazer a função removeTodosProdutos() */
 }
 
 /* Liberta a memória alocada para armazenar informação sobre a faturação de um mês */
 static void removeFatMes(FatMes fMes)
 {
-	removeAVL(fMes->fatProds);
+	/*removeAVL(fMes->fatProds);*/
 	free(fMes);
 }
 
