@@ -14,11 +14,12 @@ typedef void (*LibertarNodo) (void *);
 typedef bool (*Predicado) (const void *);
 
 /* Cria uma AVL vazia, que vai utilizar a função de comparação 'compara' e
- * a função de duplicação 'duplica'. As funções de comparação de duplicação
- * são obrigatórias. O utilizador também pode passar uma função de atualização
- * e de libertação de nodos. Se não for fornecida uma função de atualização,
- * a AVL criada admite repetições. Se não for passada uma função de libertação
- * de nodos, a AVL criada utiliza a função free() para libertar cada nodo. */
+ * A função de comparação é obrigatória. As restantes funções são opcionais.
+ * Se não for fornecida uma função de atualização, a AVL criada admite repetições.
+ * Se não for passada uma função de libertação de nodos, a AVL criada utiliza a 
+ * função free() para libertar cada nodo. Se o utilizador não passar uma função
+ * de duplicação, não é criada uma cópia aquando da inserção de um valor na AVL
+ * e as funções de inorder() e procuraAVL() devolvem o conteúdo da própria AVL.  */
 AVL criaAVLgenerica(Atualizador atualiza, Comparador compara, Duplicador duplica, LibertarNodo liberta);
 
 /* Insere uma cópia de um valor 'val' na AVL 'arvore' */
@@ -43,7 +44,8 @@ ValorNodo procuraAVL(const AVL arv, ValorNodo val);
 /* Testa se um valor existe num AVL */
 bool existeAVL(const AVL arv, ValorNodo val);
 
-/* cria uma AVL que permite repetições e usa free() para libertar cada nodo */
-#define criaAVL(comp, duplica) (criaAVLgenerica(NULL, comp, duplica, NULL))
+/* cria uma AVL que permite repetições, que não copia os seus elementos
+ * em operações como procuraAVL() e inorder() e usa free() para libertar cada nodo */
+#define criaAVL(comp) (criaAVLgenerica(NULL, comp, NULL, NULL))
 
 #endif

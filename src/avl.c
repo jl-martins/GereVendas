@@ -57,12 +57,12 @@ static void inorderAux(const AVL_NODO* arv, ValorNodo* res, Duplicador duplica);
 /* Remove os nodos de uma AVL ( função auxiliar de apagaAVL() ) */
 static void apagaNodos(AVL_NODO* raiz, LibertarNodo liberta);
 
-/* ver o que fazer quando falha */
+/* Devolve NULL quando a alocação falha */
 AVL criaAVLgenerica(Atualizador atualiza, Comparador compara, Duplicador duplica, LibertarNodo liberta)
 {
 	AVL nova = NULL;
-	/* só é criada uma AVL se tivermos uma função de comparação de duplicação de nodos */
-	if(compara && duplica){
+	/* só é criada uma AVL se tivermos uma função de comparação de nodos */
+	if(compara){
 		nova = malloc(sizeof(TCD_AVL));
 		if(nova){
 			nova->raiz = NULL;
@@ -98,7 +98,7 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Atualizador atualiza,
 	
 	if(raiz == NULL){
 		ret = raiz = malloc(sizeof(AVL_NODO)); /* não estamos a verificar o retorno deste malloc() */
-		raiz->valor = duplica(val);	/* duplicação do valor a inserir */
+		raiz->valor = (duplica != NULL) ? duplica(val) : val;
 		raiz->esquerda = raiz->direita = NULL;
 		raiz->fatorBalanco = EQ;
 		*modoInsercao = INSERIU_CRESCEU;
@@ -237,7 +237,7 @@ static AVL_NODO* rodaDireita(AVL_NODO* raiz)
 {
 	AVL_NODO* aux;
 	
-	assert(raiz != NULL && raiz->esquerda);
+	assert(raiz != NULL && raiz->esquerda != NULL);
 
 	aux = raiz->esquerda;
 	raiz->esquerda = aux->direita;
@@ -267,7 +267,7 @@ ValorNodo procuraAVL(const AVL arv, ValorNodo val)
 			nodoAtual = nodoAtual->direita;
 		else{
 			/* ver código de tratamento de erros */
-			res = arv->duplica(nodoAtual->valor);
+			res = (arv->duplica != NULL) ? arv->duplica(val) : val;
 			break; /* encontramos o valor procurado */
 		}
 	}
@@ -336,7 +336,7 @@ static void inorderAux(const AVL_NODO* raiz, ValorNodo* res, Duplicador duplica)
 
 	if(raiz){
 		inorderAux(raiz->esquerda, res, duplica);
-		res[i++] = duplica(raiz->valor);
+		res[i++] = (duplica != NULL) ? duplica(raiz->valor) : raiz->valor;
 		inorderAux(raiz->direita, res, duplica);
 	}
 }
