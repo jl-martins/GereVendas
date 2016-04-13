@@ -7,9 +7,8 @@ typedef struct cliente* Cliente;
 Cliente criaCliente(char* codigoCliente);
 void removeCliente(Cliente c);
 char* obterCodigoCliente(Cliente c);
-/* Devolve a 1a letra do codigo de um cliente */
-char inicioCodigoCliente(Cliente c);
+char inicioCodigoCliente(Cliente c);  /* Devolve a 1a letra do codigo de um cliente */
 int comparaCodigosCliente(Cliente c1, Cliente c2);
-Cliente duplicaCliente(Cliente c){
+Cliente duplicaCliente(Cliente c);
 
 #endif
