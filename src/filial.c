@@ -68,7 +68,7 @@ static ComprasDoProduto duplicaComprasDoProduto(ComprasDoProduto cdp){
 	novo->faturacao = cdp->faturacao;
 	novo->modoP = cdp->modoP;
 	novo->modoN = cdp->modoN;
-
+	return novo;
 }
 
 Filial criaFilial(){
@@ -77,7 +77,7 @@ Filial criaFilial(){
 
 	if(nova != NULL)
 		for(i = 0; i < 26; i++)		
-			nova->clientesOrdenados[i] = criaAVLgenerica(NULL, comparaComprasPorCliente, NULL, (LibertarNodo) apagaComprasPorCliente);/*nao devia passar função de atualização??*/
+			nova->clientesOrdenados[i] = criaAVLgenerica((Atualizador) NULL, (Comparador) comparaComprasPorCliente, (Duplicador) NULL, (LibertarNodo) apagaComprasPorCliente);/*nao devia passar função de atualização??*/
 	/*else	
 		;  ver tratamento de erros */
 	return nova;
@@ -112,12 +112,12 @@ static ComprasDoProduto criaComprasDoProduto(Produto produto, int unidades, doub
 Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes, 
 		     TipoVenda tipoVenda, int unidades, double preco)
 {
-	if(filial == NULL) return NULL;
 	ComprasPorCliente ccliente;
 	int posicao, i;
 	ComprasPorCliente naAVL;
 	ComprasDoProduto comprasAux;
 
+	if(filial == NULL) return NULL;
 	posicao = inicioCodigoCliente(cliente) - 'A';
 	comprasAux = criaComprasDoProduto(produto, unidades, preco, tipoVenda);
 
@@ -129,7 +129,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	if(naAVL == NULL){
 		/* inicializar os campos */
 		for(i = 1; i < 13; i++)
-			ccliente->comprasPorMes[i] = criaAVLgenerica(atualizaComprasDoProduto, comparaComprasDoProduto, duplicaComprasDoProduto, apagaComprasDoProduto);
+			ccliente->comprasPorMes[i] = criaAVLgenerica((Atualizador) atualizaComprasDoProduto, (Comparador) comparaComprasDoProduto, (Duplicador) duplicaComprasDoProduto, (LibertarNodo) apagaComprasDoProduto);
 		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[mes], comprasAux);
 		filial->clientesOrdenados[posicao] = insere(filial->clientesOrdenados[posicao], ccliente);
 	}
