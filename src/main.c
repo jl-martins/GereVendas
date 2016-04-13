@@ -46,6 +46,9 @@ static FaturacaoGlobal faturacaoGlobal = NULL;
 int interpretador();
 int interpreta(char linha[]);
 
+void apresentaPag(ConjuntoProds);
+void navega(ConjuntoProds);
+
 static void imprimeOpcoes(const char *opcoes[N_OPCOES]);
 
 /* Apresentação de mensagens de erro */
@@ -302,9 +305,24 @@ static int query1()
 	return 0;
 }
 
-static int query2( /* faltam os args */)
+static int query2(CatProds catP)
 {
-	return 0;
+	int err = 0;
+	if(catP)
+	{
+		char letra;
+		letra = fgetc(stdin);
+		letra = isupper(letra) ? letra : toupper(letra);
+
+		ConjuntoProds conjP = prodsPorLetra(catP, letra);
+		if(conjP)
+			navega(conjP);
+		else
+			err = 1;
+
+		removeConjuntoProds(conjP);
+	}
+	return err;
 }
 
 static int query3( /* faltam os args */)
@@ -368,4 +386,67 @@ static void erroNaoLeuFich()
 {
 	fputs("Erro: Ainda não leu os ficheiros de dados\n"
 		  "Introduza '1' e prima ENTER para o fazer\n", stderr);
+}
+
+#define MAXBUF 8
+#define NEXT 1
+#define PREV 2
+#define GOTO 3
+#define FST 4
+#define LST 5
+
+void navega(ConjuntoProds conj)
+{
+	int exit = 0;
+	int err = 0;
+	char linha[MAXBUF]; int op;
+
+	while(!exit)
+	{
+		/*Ver se está em windows ou linux*/
+		if(system("clear") == -1)
+			system("cls");
+		printf("Column1    Column2    Column3    Column4\n");
+		apresentaPag(conj);
+		if(err){ printf("Erro: Página inexistente!\n"); err = 0; }
+		printf("(%d/%d): NEXT(1) | PREV(2) | GOTO(3) | FIRST(4) | LAST(5) | SAIR(0)\n", obterPag(conj), obterMaxPag(conj));
+		
+		fgets(linha, MAXBUF, stdin);
+		op = atoi(linha);
+
+		switch(op)
+		{
+			case NEXT: nextPage(conj); break;
+			case PREV: prevPage(conj); break;
+			case GOTO: 
+				fgets(linha, MAXBUF, stdin);
+				op = atoi(linha);
+				err = goToPage(conj, op);
+				break;
+			case FST: fstPage(conj); break;
+			case LST: lastPage(conj); break;
+			case SAIR: exit = 1;
+		}
+	}
+}
+
+void apresentaPag(ConjuntoProds conjP)
+{
+	char** conj = obterCodigosPPag(conjP);
+	int i = 0;
+	int f = obterIndiceFinal(conjP) - obterIndice(conjP);
+
+	while(i < f)
+	{
+		if(i < f && conj[i]) printf("%7s", conj[i++]);	
+		if(i < f && conj[i]) printf("%11s", conj[i++]);
+		if(i < f && conj[i]) printf("%11s", conj[i++]);
+		if(i < f && conj[i]) printf("%11s", conj[i++]);
+		printf("\n");
+	}
+	
+	for(i = 0; i < f; i++)
+		free(conj[i]);
+	
+	free(conj); /*?acho que é preciso?*/
 }

@@ -7,6 +7,7 @@
 /* número de AVLs usadas no catálogo */
 #define MAX_AVL 26
 #define calculaPos(p) ((inicioCodigoProduto((p))) - 'A')
+#define CODIGOS_POR_PAG 20
 
 struct catProds {
 	AVL catalogo[MAX_AVL];
@@ -97,7 +98,7 @@ ConjuntoProds criaConjuntoProds(int total, Produto* prods) {
 		conjuntoP->prods = prods;
 		conjuntoP->pag = 1;
 		conjuntoP->i = 0;
-		
+		conjuntoP = setCodsPorPag(conjuntoP, CODIGOS_POR_PAG);
 	}
 	return conjuntoP;
 }
@@ -203,6 +204,10 @@ int obterMaxPag(ConjuntoProds conjuntoP) {
 
 int obterIndice(ConjuntoProds conjuntoP) {
 	return conjuntoP->i;
+}
+
+int obterIndiceFinal(ConjuntoProds conjuntoP) {
+	return conjuntoP->f;
 }
 
 void nextPage(ConjuntoProds conj)
