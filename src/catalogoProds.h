@@ -48,6 +48,11 @@ int obterIndice(ConjuntoProds);
 /* Dado um catálogo de produtos e uma letra, retorna um conjunto
  * com os produtos cujo código começa pela letra fornecida */
 ConjuntoProds prodsPorLetra(CatProds, char);
+
+/* Devolve o número da última página */
+int obterMaxPag(ConjuntoProds conjuntoP);
+/* Devolve o índice do final de uma página */
+int obterIndiceFinal(ConjuntoProds conjuntoP);
 /*Avança 1 página*/
 void nextPage(ConjuntoProds);
 /*Retrocede 1 página */
