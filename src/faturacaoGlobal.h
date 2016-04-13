@@ -7,10 +7,6 @@
 
 /* faturação global do ano */
 typedef struct fatGlobal* FaturacaoGlobal;
-/* guarda informação relativa à faturação anual de um produto */
-typedef struct fatAnualProd* FatAnualProd;
-/* guarda informação relativa à faturação de um mês */
-typedef struct fatMes* FatMes;
 /* guarda informação sobre a faturação de um produto num dado mês */
 typedef struct fatMensalProd* FatMensalProd;
 
@@ -41,7 +37,6 @@ int totalVendasIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
 /* Devolve o total faturado num intervalo fechado de meses */
 double totalFatIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
 
-
 /* Devolve uma estrutura com informção sobre a faturação de um produto num dado mês */
 FatMensalProd obterFatMensalProd(const FaturacaoGlobal fg, const Produto p, int mes);
 
@@ -63,10 +58,6 @@ double* faturacaoPorFilial(const FatMensalProd fprod, TipoVenda tipo);
    a faturação total que está registada em 'fprod' */
 double faturacaoTotal(const FatMensalProd fProd, TipoVenda tipo);
 
-/* Devolve o total de vendas anuais de um produto */
-int obterTotalVendasAnuais(const FatAnualProd);
-/* Devolve TRUE se um produto não foi comprado no ano todo. Devolve FALSE c.c. */
-bool naoComprado(const FatAnualProd);
 /* Devolve um conjunto com os produtos que não foram comprados em nenhuma filial */
 ConjuntoProds naoCompradosGlobal(const FaturacaoGlobal);
 /* Devolve um array de conjuntos de produtos, um por filial. Cada conjunto

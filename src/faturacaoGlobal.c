@@ -38,6 +38,11 @@
 	|______________________________|
 */
 
+/* guarda informação relativa à faturação anual de um produto */
+typedef struct fatAnualProd* FatAnualProd;
+/* guarda informação relativa à faturação de um mês */
+typedef struct fatMes* FatMes;
+
 /* Faturação global */
 struct fatGlobal{
 	/* referencia todos os produtos (mesmo os não vendidos). Permite saber qual
@@ -90,6 +95,8 @@ static int comparaFatMensalProd(const void* , const void* );
 static int comparaFatAnualProd(const void* , const void* );
 static void atualizaFatMensalProd(void *, void* );
 static void atualizaFatAnualProd(void* , void* );
+static int obterTotalVendasAnuais(const FatAnualProd);
+static bool naoComprado(const FatAnualProd);
 
 FaturacaoGlobal criaFaturacaoGlobal()
 {
@@ -290,7 +297,7 @@ double faturacaoTotal(const FatMensalProd fProd, TipoVenda tipo)
 /* Início das funções usadas na query4 */
 
 /* Devolve o número total de vendas anuais de um produto */
-int obterTotalVendasAnuais(const FatAnualProd fAnualProd)
+static int obterTotalVendasAnuais(const FatAnualProd fAnualProd)
 {
 	int total = 0;
 
@@ -304,7 +311,7 @@ int obterTotalVendasAnuais(const FatAnualProd fAnualProd)
 }
 
 /* Indica se um produto não teve vendas anuais */
-bool naoComprado(const FatAnualProd fAnualProd)
+static bool naoComprado(const FatAnualProd fAnualProd)
 {	
 	return obterTotalVendasAnuais(fAnualProd) == 0;
 }
