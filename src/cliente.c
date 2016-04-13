@@ -21,7 +21,7 @@ Cliente duplicaCliente(Cliente c){
 	return novo;
 }
 
-void removeCliente(Cliente c) {
+void apagaCliente(Cliente c) {
 	free(c);
 }
 

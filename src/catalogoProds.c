@@ -79,7 +79,7 @@ int totalProdutos(CatProds catP) {
 	return total;
 }
 
-void removeCatProds(CatProds catP) {
+void apagaCatProds(CatProds catP) {
 	int i;
 
 	for(i = 0; i < MAX_AVL; ++i)

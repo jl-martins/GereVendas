@@ -64,7 +64,7 @@ int totalClientes(CatClientes catC)
 	return total;
 }
 
-void removeCatClientes(CatClientes catC)
+void apagaCatClientes(CatClientes catC)
 {
 	int i;
 	for(i = 0; i < MAX_AVL; ++i)

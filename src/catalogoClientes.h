@@ -13,7 +13,7 @@ CatClientes insereCliente(CatClientes, Cliente);
 bool existeCliente(CatClientes, Cliente);
 int totalClientes(CatClientes);
 int totalClientesLetra(CatClientes, char);
-void removeCatClientes(CatClientes);
+void apagaCatClientes(CatClientes);
 
 /* Funções que manipulam conjuntos de clientes */
 ConjClientes criaConjClientes(int, Cliente*);

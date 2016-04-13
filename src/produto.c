@@ -21,7 +21,7 @@ Produto duplicaProduto(Produto p){
 	return novo;
 }
 
-void removeProduto(Produto p) {
+void apagaProduto(Produto p) {
 	free(p);
 }
 

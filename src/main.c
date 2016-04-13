@@ -198,7 +198,7 @@ int leCatalogoClientes(){
 	return LIDO_SUCESSO;
 }
 
-
+/* por get e verifica na mesma macro */
 #define GET strtok(NULL," ");
 #define VERIFICA(p) {if ((p) == NULL) return ERRO_LER;}
 
@@ -252,6 +252,8 @@ int insereSeValida(char buf[BUF_SIZE]){
 			registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
 			faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes);
 	}
+	apagaCliente(cliente);
+	apagaProduto(produto);
 	return LIDO_SUCESSO;
 }
 
