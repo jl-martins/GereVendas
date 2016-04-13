@@ -16,8 +16,7 @@ FaturacaoGlobal criaFaturacaoGlobal();
 FaturacaoGlobal registaProduto(FaturacaoGlobal fg, Produto p);
 
 /* Regista uma venda na faturação global */
-FaturacaoGlobal registaVenda
-(
+FaturacaoGlobal registaVenda(
 	FaturacaoGlobal fg,
 	Produto p,
 	double precoUnit,
@@ -69,10 +68,10 @@ ConjuntoProds naoCompradosGlobal(const FaturacaoGlobal);
 ConjuntoProds* naoCompradosPorFilial(const FaturacaoGlobal);
 
 /* Liberta a memória alocada para armazenar a faturação global */
-void removeFaturacaoGlobal(FaturacaoGlobal fg);
+void apagaFaturacaoGlobal(FaturacaoGlobal fg);
 
 /* Liberta uma cópia do tipo FatProdMes que
- * foi devolvida pela função obterFatProdMes()  */
-void removeFatProdMes(FatProdMes fProdMes);
+ * é devolvida pela função obterFatProdMes()  */
+void apagaFatProdMes(FatProdMes fProdMes);
 
 #endif
