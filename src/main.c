@@ -20,7 +20,7 @@
 
 static CatClientes catClientes = NULL;
 static CatProds catProds = NULL;
-static Filial filiais[N_FILIAIS+1] = {}; /* a cada elemento de indice i do vetor faz corresponder a filial i. */
+static Filial filiais[N_FILIAIS+1] = {NULL}; /* a cada elemento de indice i do vetor faz corresponder a filial i. */
 static FaturacaoGlobal faturacaoGlobal = NULL;
 
 #define N_QUERIES 12
@@ -168,7 +168,7 @@ int leCatalogoProdutos(){
 	FILE * fp;	
 	char buf[BUF_SIZE];
 
-	fp = perguntaAbreFicheiro(FPRODUTOS, buf, MAX_CODIGO_PROD, "produtos");
+	fp = perguntaAbreFicheiro(FPRODUTOS, buf, BUF_SIZE, "produtos");
 	if(fp == NULL) return ERRO_LER;
 	while(fgets(buf, BUF_SIZE, fp)){
 		p = criaProduto(buf);
@@ -183,10 +183,10 @@ int leCatalogoProdutos(){
 
 int leCatalogoClientes(){
 	FILE * fp;	
-	char buf[MAX_CODIGO_CLIENTE];
+	char buf[BUF_SIZE];
 	Cliente c;
 
-	fp = perguntaAbreFicheiro(FCLIENTES, buf, MAX_CODIGO_CLIENTE, "clientes");
+	fp = perguntaAbreFicheiro(FCLIENTES, buf, BUF_SIZE, "clientes");
 	if(fp == NULL) return ERRO_LER;
 
 	while(fgets(buf, BUF_SIZE, fp)){
@@ -308,12 +308,14 @@ static int query1()
 static int query2(CatProds catP)
 {
 	int err = 0;
+	ConjuntoProds conjP;
 	if(catP)
 	{
 		char letra;
-		ConjuntoProds conjP = prodsPorLetra(catP, letra);
+		
 		letra = fgetc(stdin);
 		letra = isupper(letra) ? letra : toupper(letra);
+		conjP = prodsPorLetra(catP, letra);
 
 		
 		if(conjP)

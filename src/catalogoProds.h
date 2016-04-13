@@ -24,6 +24,8 @@ int totalProdutosLetra(CatProds, char);
 /* Liberta a memória alocada para um catálogo de produtos */
 void apagaCatProds(CatProds);
 
+void apagaConjuntoProds(ConjuntoProds conjP);
+
 /* Funções sobre ConjuntoProds */
 
 /* Recebe o número total de produtos e um array de produtos
