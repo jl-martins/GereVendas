@@ -1,3 +1,4 @@
+/* Necessario fazer free de tudo para limpar completamente da memoria, estruturas compeltamente encapsuladas*/
 /* Garantir que os tipos são opacos para preservar encapsulamento */
 /* Nao libertar memoria dos campos das avls e dos tipos devolvidos a nao ser por funções da api */
 #include "avl.h"

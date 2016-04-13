@@ -1,12 +1,11 @@
 #include <stdlib.h>
 #include "filial.h"
+#include "venda.h"
 #include "avl.h"
 
 typedef AVL AVL_VendaProd;
 typedef AVL AVL_ComprasCliente;
-
-/*temporario*/
-typedef enum tipoVenda {N = 0, P} TipoVenda;
+typedef AVL AVL_ComprasAnuaisCliente;
 
 struct filial{
 	AVL_ComprasCliente comprasClientes[26];	
@@ -24,7 +23,45 @@ typedef struct vendaProduto {
 	bool modoP, modoN;
 } *VendaProduto;
 
-static int somaUnidadesMes(AVL_VendaProd arv);  
+/* guarda informação relativa às compras dos clientes ao longo de todo o ano */
+struct vendasAnuaisFilial{
+	AVL_ComprasAnuaisCliente comprasClientes[26];
+};
+
+struct comprasAnuaisCliente{
+	Cliente cliente;
+	AVL_VendaProd comprasAno;
+};
+
+static int somaUnidadesMes(AVL_VendaProd arv);
+static int comparaComprasCliente(const void * cc1, const void * cc2);
+static int comparaVendaProduto(const void * vp1, const void * vp2);
+static void atualizaVendaProduto(void * vp1, void * vp2);
+
+/* cria filial de vendas anuais */
+struct vendasAnuaisFilial * criaVendasAnuaisFilial(){
+	int i;
+	struct vendasAnuaisFilial * nova = malloc(sizeof(struct vendasAnuaisFilial));
+	if(nova){
+		for(i = 0; i < 26; i++) 
+			nova->comprasClientes[i] = criaAVL(comparaComprasCliente);
+	}
+	return nova;
+}
+
+struct vendasAnuaisFilial * registaNovoCliente(struct vendasAnuaisFilial * vendasAnuais, Cliente cliente){
+	int posicao;
+	Cliente c = duplicaCliente(cliente);
+	struct comprasAnuaisCliente * comprasDoAno = malloc(sizeof(struct comprasAnuaisCliente));
+	comprasDoAno->cliente = c;
+	comprasDoAno->comprasAno = criaAVLgenerica(comparaVendaProduto, atualizaVendaProduto);	
+	posicao = inicioCodigoCliente(cliente) - 'A';
+	insereAVL(vendasAnuais->comprasClientes[posicao], comprasDoAno); 
+	return vendasAnuais;
+}
+
+/*fim: em edição*/
+  
 
 static int comparaComprasCliente(const void * cc1, const void * cc2){
 	return comparaCodigosCliente(((ComprasCliente) cc1)->cliente, ((ComprasCliente) cc2)->cliente);		
@@ -51,7 +88,7 @@ Filial criaFilial(){
 
 	if(nova != NULL)
 		for(i = 0; i < 26; i++)		
-			nova->comprasClientes[i] = criaAVL(comparaComprasCliente);
+			nova->comprasClientes[i] = criaAVL(comparaComprasCliente);/*nao devia passar função de atualização??*/
 	/*else	
 		;  ver tratamento de erros */
 	return nova;
@@ -60,6 +97,7 @@ Filial criaFilial(){
 Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes, 
 		     TipoVenda tipoVenda, int unidades, double preco)
 {
+	if(filial == NULL) return NULL;
 	ComprasCliente ccliente;
 	int posicao, i;
 	ComprasCliente naAVL;
@@ -67,7 +105,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 
 	posicao = inicioCodigoCliente(cliente) - 'A';
 	vendaProdAux = malloc(sizeof(struct vendaProduto));
-	vendaProdAux->produto = duplica(produto);
+	vendaProdAux->produto = duplicaProduto(produto);
 	vendaProdAux->vendas = unidades;
 	vendaProdAux->faturacao = preco * unidades;
 	vendaProdAux->modoP = tipoVenda == P;
@@ -91,10 +129,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	}	
 	return filial;		
 }
-/*
-Filial registaNovoCliente(Filial filial, Cliente c){
-	registaCompra(c	
-}*/
+
 
 static ComprasCliente procuraClienteNasVendas(Cliente cliente, Filial filial){
 	int posicao;

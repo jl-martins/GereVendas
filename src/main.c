@@ -134,11 +134,12 @@ static void opcaoInvalida(char opcao[])
 	fprintf(stderr, "A opção '%s' é inválida\n\n", opcao);
 }
 
-static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[BUF_SIZE], char * tipoDeElems){
+static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[], int tamanhoBuffer, char * tipoDeElems){
 	int i;
 	FILE * fp;
+	char * caminho;
 	printf("Insira o caminho do ficheiro de %s (Enter para abrir ficheiro padrao):", tipoDeElems);	
-	fgets(buf, BUF_SIZE, stdin);
+	fgets(buf, tamanhoBuffer, stdin);
 	for(i = 0; buf[i] && isblank(buf[i]); i++)
 		;
 	if(buf[i] != '\0' && buf[i] != '\n') 
@@ -149,57 +150,95 @@ static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[BUF_SIZE], ch
 	return fp;	
 }
 
-/* alterar para inserir os caminhos dos ficheiros */
-static int query1()
-{
-	char buf[BUF_SIZE];
-	char * caminho;
-	Cliente c;
+#define LIDO_SUCESSO 0
+int leCatalogoProdutos(){
 	Produto p;
-	FILE * fp; 
+	FILE * fp;	
+	char buf[MAX_CODIGO_PROD];
 
-	catalogoProdutos = criaCatProds();
-	catalogoClientes = criaCatClientes();	
-
-	for(i = 0; i <= N_FILIAIS; i++)    /* o elemento 0 das filiais contem informação total relatvia Às compras */
-		filiais[i] = criaFilial(); /* de todos os clientes nas filiais, útil para otimizar queries */
-	
-	/* Le o catalogoProdutos  - passar para função separada*/	
-	fp = perguntaAbreFicheiro(FPRODUTOS, buf, "produtos");
+	fp = perguntaAbreFicheiro(FPRODUTOS, buf, MAX_CODIGO_PROD, "produtos");
 	if(fp == NULL) return ERRO;
 
 	while(fgets(buf, BUF_SIZE, fp)){
 		p = criaProduto(buf);
 		if(p == NULL)return ERRO; 
-		insereProduto(catP, p);			 	
+		insereProduto(catP, p); /*inserir tratamento de erros */
 		registaProduto(faturacaoGlobal, p);	
-		limpaProduto(p);
+		removeProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
 	fclose(fp);
-	
-	/* Le o catalogoClientes  - passar para função separada*/	
-	fp = perguntaAbreFicheiro(FCLIENTES, buf, "clientes");
+	return LIDO_SUCESSO;
+}
+
+int leCatalogoClientes(){
+	FILE * fp;	
+	char buf[MAX_CODIGO_CLIENTE];
+	Cliente c;
+
+	fp = perguntaAbreFicheiro(FCLIENTES, buf, MAX_CODIGO_CLIENTE, "clientes");
 	if(fp == NULL) return ERRO;
 
 	while(fgets(buf, BUF_SIZE, fp)){
 		c = criaCliente(buf);
 		if(p == NULL) return ERRO;
 		insereCliente(catC, c); /*mudar nome para ficar evidente que insere num catalogo */
-		registaNovoCliente(FILIAL_GLOBAL, c);
-		limpaCliente(c);
+		/*registaNovoCliente(FILIAL_GLOBAL, c);*/
+		removeCliente(c);
 	}
 	fclose(fp);
 
-	/* introduzir melhorias para filial total -> muito mais rapido */
+	return LIDO_SUCESSO;
+}
+
+
+#define GET (strtok(NULL," "))
+
+int carregaVendasValidas(){
+	char buf[BUF_SIZE];
+	Cliente c;
+	Produto p;
+	FILE * fp; 
+
+	/* parseVenda */
+	char * codigoProduto, * codigoCliente;
+	double preco;
+	TipoVenda tipoVenda;
+	int mes, nfilial;
 	
-	/* Le o ficheiro de vendas e carrega as estruturas -> passar para função separada*/	
-	fp = perguntaAbreFicheiro(FVENDAS, buf, "vendas");
+
+	fp = perguntaAbreFicheiro(FVENDAS, buf, BUF_SIZE, "vendas");
 	if(fp == NULL) return ERRO;
 	
 	while(fgets(buf, BUF_SIZE, fp)){
-			
+		/* ver codigo de tratamento de erros */
+		codigoProduto = strtok(linha, " ");
+		preco = atof(GET);
+		nUnidades = atoi(GET);
+		tipoCompra = GET[0] == 'P' ? P : N;
+		codigoCliente = GET;
+		mes = atoi(GET);
+		nfilial = atoi(GET);
+		
 	}
 	fclose(fp);
+	return LIDO_SUCESSO;
+}
+
+/* alterar para inserir os caminhos dos ficheiros */
+static int query1()
+{
+	int resL1, resL2, resL3;
+	catalogoProdutos = criaCatProds();
+	catalogoClientes = criaCatClientes();	
+
+	for(i = 1; i <= N_FILIAIS; i++)    /* o elemento 0 das filiais contem informação total relatvia Às compras */
+		filiais[i] = criaFilial(); /* de todos os clientes nas filiais, útil para otimizar queries */
+		
+	resL1 = leCatalogoProdutos();		
+	resL2 = leCatalogoClientes();
+	/* Le o catalogoClientes  - passar para função separada*/	
+		/* introduzir melhorias para filial total -> muito mais rapido */
+	
 	return 0;
 }
 
