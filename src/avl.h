@@ -24,8 +24,8 @@ AVL criaAVLgenerica(Atualizador atualiza, Comparador compara, Duplicador duplica
 /* Insere uma cópia de um valor 'val' na AVL 'arvore' */
 AVL insere(AVL arvore, ValorNodo val);
 
-/* Remove uma AVL (i.e.: liberta toda a memória alocada para a mesma) */
-void removeAVL(AVL arvore);
+/* Apaga uma AVL (i.e.: liberta toda a memória alocada para a mesma) */
+void apagaAVL(AVL arvore);
 
 /* Devolve o número de nodos de uma AVL */
 int tamanho(const AVL arvore);

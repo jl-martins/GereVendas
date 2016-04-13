@@ -54,8 +54,8 @@ static AVL_NODO* rodaEsquerda(AVL_NODO* raiz);
 static AVL_NODO* rodaDireita(AVL_NODO* raiz);
 static int alturaAux(const AVL_NODO* raiz);
 static void inorderAux(const AVL_NODO* arv, ValorNodo* res, Duplicador duplica);
-/* Remove os nodos de uma AVL ( função auxiliar de removeAVL() ) */
-static void removeNodos(AVL_NODO* raiz, LibertarNodo liberta);
+/* Remove os nodos de uma AVL ( função auxiliar de apagaAVL() ) */
+static void apagaNodos(AVL_NODO* raiz, LibertarNodo liberta);
 
 /* ver o que fazer quando falha */
 AVL criaAVLgenerica(Atualizador atualiza, Comparador compara, Duplicador duplica, LibertarNodo liberta)
@@ -373,18 +373,18 @@ static int alturaAux(const AVL_NODO* raiz)
 	return res;
 }
 
-void removeAVL(AVL arvore)
+void apagaAVL(AVL arvore)
 {	
 	if(arvore != NULL){
-		removeNodos(arvore->raiz, arvore->liberta);
+		apagaNodos(arvore->raiz, arvore->liberta);
 		free(arvore);
 	}
 }
 
-/* Remove os nodos de uma AVL. Se o apontador para a função
+/* Apaga os nodos de uma AVL. Se o apontador para a função
  * de libertação for diferente de NULL, esta é utilizada para
  * libertar cada nodo. Se não, é utilizada a função free(). */
-static void removeNodos(AVL_NODO* raiz, LibertarNodo liberta)
+static void apagaNodos(AVL_NODO* raiz, LibertarNodo liberta)
 {
 	if(raiz != NULL){
 		AVL_NODO* esq = raiz->esquerda;
@@ -395,7 +395,7 @@ static void removeNodos(AVL_NODO* raiz, LibertarNodo liberta)
 		else
 			free(raiz);
 
-		removeNodos(esq, liberta);
-		removeNodos(dir, liberta);
+		apagaNodos(esq, liberta);
+		apagaNodos(dir, liberta);
 	}
 }
