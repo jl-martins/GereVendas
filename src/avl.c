@@ -43,6 +43,8 @@ typedef struct TCD_AVL {
 } TCD_AVL;
 
 /* Protótipos das funções privadas ao ficheiro */
+
+/* !! partir assinaturas grandes em várias linhas */
 static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Atualizador atualiza, Comparador compara, Duplicador duplica, int* modo);
 static AVL_NODO* insereEsquerda(AVL_NODO* raiz, ValorNodo val, Atualizador atualiza, Comparador compara, Duplicador duplica, int* modo);
 static AVL_NODO* insereDireita(AVL_NODO* raiz, ValorNodo val, Atualizador atualiza, Comparador compara, Duplicador duplica, int * modo);
@@ -52,6 +54,8 @@ static AVL_NODO* rodaEsquerda(AVL_NODO* raiz);
 static AVL_NODO* rodaDireita(AVL_NODO* raiz);
 static int alturaAux(const AVL_NODO* raiz);
 static void inorderAux(const AVL_NODO* arv, ValorNodo* res, Duplicador duplica);
+/* Remove os nodos de uma AVL ( função auxiliar de removeAVL() ) */
+static void removeNodos(AVL_NODO* raiz, LibertarNodo liberta);
 
 /* ver o que fazer quando falha */
 AVL criaAVLgenerica(Atualizador atualiza, Comparador compara, Duplicador duplica, LibertarNodo liberta)
@@ -369,3 +373,29 @@ static int alturaAux(const AVL_NODO* raiz)
 	return res;
 }
 
+void removeAVL(AVL arvore)
+{	
+	if(arvore != NULL){
+		removeNodos(arvore->raiz, arvore->liberta);
+		free(arvore);
+	}
+}
+
+/* Remove os nodos de uma AVL. Se o apontador para a função
+ * de libertação for diferente de NULL, esta é utilizada para
+ * libertar cada nodo. Se não, é utilizada a função free(). */
+static void removeNodos(AVL_NODO* raiz, LibertarNodo liberta)
+{
+	if(raiz != NULL){
+		AVL_NODO* esq = raiz->esquerda;
+		AVL_NODO* dir = raiz->direita;
+
+		if(liberta != NULL)
+			liberta(raiz);
+		else
+			free(raiz);
+
+		removeNodos(esq, liberta);
+		removeNodos(dir, liberta);
+	}
+}

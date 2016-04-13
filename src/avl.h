@@ -18,14 +18,14 @@ typedef bool (*Predicado) (const void *);
  * são obrigatórias. O utilizador também pode passar uma função de atualização
  * e de libertação de nodos. Se não for fornecida uma função de atualização,
  * a AVL criada admite repetições. Se não for passada uma função de libertação
- * de nodos, a AVL criada utilizada a função free() para libertar cada nodo. */
+ * de nodos, a AVL criada utiliza a função free() para libertar cada nodo. */
 AVL criaAVLgenerica(Atualizador atualiza, Comparador compara, Duplicador duplica, LibertarNodo liberta);
 
 /* Insere uma cópia de um valor 'val' na AVL 'arvore' */
 AVL insere(AVL arvore, ValorNodo val);
 
 /* Remove uma AVL (i.e.: liberta toda a memória alocada para a mesma) */
-AVL removeAVL(AVL arvore);
+void removeAVL(AVL arvore);
 
 /* Devolve o número de nodos de uma AVL */
 int tamanho(const AVL arvore);
