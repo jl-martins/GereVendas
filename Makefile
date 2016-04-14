@@ -8,7 +8,7 @@ VPATH = src/ src/programasTestes
 
 all: $(EXEC)
 
-tmp: avl.o catalogoProds.o catalogoClientes.o faturacaoGlobal.o filial.o 
+tmp: avl.o catalogoProds.o catalogoClientes.o faturacaoGlobal.o filial.o LStrings.o
 
 .PHONY: all debug leak-check tmp doc tests limpar
 
@@ -39,6 +39,9 @@ faturacaoGlobal.o: faturacaoGlobal.c faturacaoGlobal.h avl.h bool.h produto.h ve
 	$(COMPILE.c) $< -o src/$@
 filial.o: filial.c filial.h avl.h venda.h cliente.h produto.h bool.h 
 	$(COMPILE.c) $< -o src/$@
+LStrings.o: LStrings.c LStrings.h
+	$(COMPILE.c) $< -o src/$@
+
 # fim dos targets temporários
 
 # executáveis para validar a leitura dos dados
