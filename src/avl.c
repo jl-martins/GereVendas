@@ -281,10 +281,12 @@ bool existeAVL(const AVL arv, ValorNodo val)
 
 	if(res != NULL){
 		existe = TRUE;
-		if(arv->liberta)
-			arv->liberta(res);
-		else
-			free(res);
+		if(arv->duplica){
+			if(arv->liberta)
+				arv->liberta(res);
+			else
+				free(res);
+		}
 	}
 	else
 		existe = FALSE;

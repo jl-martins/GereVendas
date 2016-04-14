@@ -145,13 +145,16 @@ static void opcaoInvalida(char opcao[])
 static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[BUF_SIZE], char * tipoDeElems){
 	FILE * fp;
 	char * caminho;
+
 	printf("Insira o caminho do ficheiro de %s (Enter para abrir ficheiro padrao):", tipoDeElems);	
 	fgets(buf, BUF_SIZE, stdin);
 	caminho = strtok(buf, "\r\n");
+
 	if (caminho) for(; *caminho && isspace(*caminho); caminho++) 
 		;
 	if(caminho == NULL || *caminho == '\0') 
 		caminho = ficheiroPadrao;
+
 	fp = fopen(caminho, "r");
 	if(fp == NULL) fprintf(stderr, "Nao foi possivel abrir o ficheiro %s\n", caminho);
 	else printf("Ficheiro lido: %s\n", caminho);
@@ -248,15 +251,15 @@ int insereSeValida(char buf[BUF_SIZE]){
 	VERIFICA(it);
 	nfilial = atoi(it);
 
-	if(existeProduto(catProds, produto) && 
-	   existeCliente(catClientes, cliente) &&
+	if(/*existeProduto(catProds, produto) && // a dar erro
+	   existeCliente(catClientes, cliente) && */ // a dar erro
 	   unidades > 0 && unidades <= MAX_UNIDADES &&
 	   mes > 0 && mes < 13 &&
 	   preco >= 0 && preco <= 999.99 
 	   && nfilial > 0 && nfilial <= N_FILIAIS)
 	{
-			registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
-			faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes);
+		/*      registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco); */ //a dar erro
+		/*	faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes)*/ //a dar erro;
 			quantos = 1;
 	}
 	apagaCliente(cliente);
