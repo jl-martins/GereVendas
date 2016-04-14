@@ -333,6 +333,7 @@ static int query2()
 		else
 			erro = 1;
 	}
+
 	return erro;
 }
 

@@ -115,7 +115,7 @@ ConjuntoProds setCodsPorPag(ConjuntoProds conjP, int nmr)
 						: conjP->total/nmr;
 
 		/* TODO: rever isto */
-		if(conjP->mod && conjP->total <= nmr)
+		if(conjP->total <= nmr)
 			conjP->f = conjP->total;
 		else
 			conjP->f = nmr;
@@ -180,7 +180,7 @@ char** obterCodigosPPag(ConjuntoProds conjP) {
 			codigoP = obterCodigoProduto(conjP->prods[i]);
 			if(codigoP == NULL)
 				break; /* se houve uma falha de alocação, saimos do ciclo */
-			codigos[conjP->f - i] = codigoP;
+			codigos[conjP->f - (conjP->f - i)] = codigoP;
 		}
 		if(i < conjP->f){ /* tratamento de falhas de alocação */
 			for(i = i-1; i >= conjP->i; --i)
