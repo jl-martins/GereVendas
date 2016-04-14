@@ -182,8 +182,8 @@ char** obterCodigosPPag(ConjuntoProds conjP) {
 				break; /* se houve uma falha de alocação, saimos do ciclo */
 			codigos[conjP->f - i] = codigoP;
 		}
-		if(i < total){ /* tratamento de falhas de alocação */
-			for(i = i-1; i >= 0; --i)
+		if(i < conjP->f){ /* tratamento de falhas de alocação */
+			for(i = i-1; i >= conjP->i; --i)
 				free(codigos[i]);
 			codigos = NULL;
 		}
