@@ -171,14 +171,15 @@ int leCatalogoProdutos(){
 	fp = perguntaAbreFicheiro(FPRODUTOS, buf, "produtos");
 	if(fp == NULL) return ERRO;
 	while(fgets(buf, BUF_SIZE, fp)){
-		tmp = strtok(buf, "\r\n");
+		tmp = strtok(buf, "\n");
 		p = criaProduto(tmp);
 		if(p == NULL)return ERRO; 
 		quantos++;
-		insereProduto(catProds, p); /*inserir tratamento de erros */
+		catProds = insereProduto(catProds, p); /*inserir tratamento de erros */
 		registaProduto(faturacaoGlobal, p);
 		apagaProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
+	printf("%d\n", totalProdutos(catProds));
 	fclose(fp);
 	return quantos;
 }
@@ -202,6 +203,8 @@ int leCatalogoClientes(){
 		/*registaNovoCliente(FILIAL_GLOBAL, c);*/
 		apagaCliente(c);
 	}
+	
+	printf("%d\n", totalClientes(catClientes));
 	fclose(fp);
 
 	return quantos;
@@ -250,16 +253,17 @@ int insereSeValida(char buf[BUF_SIZE]){
 	it = GET;
 	VERIFICA(it);
 	nfilial = atoi(it);
-
-	if(/*existeProduto(catProds, produto) && // a dar erro
-	   existeCliente(catClientes, cliente) && */ // a dar erro
+	
+	if(existeProduto(catProds, produto) && 
+	   existeCliente(catClientes, cliente) /* &&  
 	   unidades > 0 && unidades <= MAX_UNIDADES &&
 	   mes > 0 && mes < 13 &&
 	   preco >= 0 && preco <= 999.99 
-	   && nfilial > 0 && nfilial <= N_FILIAIS)
+	   && nfilial > 0 && nfilial <= N_FILIAIS*/ )
+
 	{
-		/*      registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco); */ //a dar erro
-		/*	faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes)*/ //a dar erro;
+		/*      registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco); */ 
+		/*	faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes)*/ 
 			quantos = 1;
 	}
 	apagaCliente(cliente);
@@ -293,12 +297,16 @@ static int query1()
 {
 	/* apaga os dados de uma execuçao anterior do programa */
 	int resL1, resL2, resL3, i;
-	/*catProds = apagaCatProds(catProds);*/
-	/*catClientes = apagaCatClientes(catClientes);*/
-	/*faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
-	
+	/*	
+	apagaCatProds(catProds);
+	apagaCatClientes(catClientes);
+	apagaFaturacaoGlobal(faturacaoGlobal);
+	*/
+	/*		
 	for(i = 1; i <= N_FILIAIS; i++)    
-		filiais[i] = apagaFilial(filiais[i]); */
+		filiais[i] = apagaFilial(filiais[i]); 
+
+	*/
 	/*ver verificacao de erros */
 	
 	catProds = criaCatProds();

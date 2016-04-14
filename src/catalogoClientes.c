@@ -70,9 +70,11 @@ int totalClientes(CatClientes catC)
 void apagaCatClientes(CatClientes catC)
 {
 	int i;
-	for(i = 0; i < MAX_AVL; ++i)
-/*		apagaAVL(catC->catalogo[i]);*/
-	free(catC); 
+	if(catC){
+		for(i = 0; i < MAX_AVL; ++i)
+	/*		apagaAVL(catC->catalogo[i]);*/
+		free(catC); 
+	}
 }
 
 /* Funções que manipulam conjuntos de clientes */

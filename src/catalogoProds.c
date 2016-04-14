@@ -83,6 +83,11 @@ int totalProdutos(CatProds catP) {
 
 void apagaCatProds(CatProds catP) {
 	int i;
+ 	if(catP){
+ 		for(i = 0; i < MAX_AVL; ++i)
+ 			/*apagaAVL(catP->catalogo[i]);*/
+ 		free(catP);
+ 	}
 
 	for(i = 0; i < MAX_AVL; ++i)
 		/*apagaAVL(catP->catalogo[i]);*/
