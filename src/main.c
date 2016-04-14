@@ -38,6 +38,8 @@ static FaturacaoGlobal faturacaoGlobal = NULL;
 /* Valores de retorno das funções de leitura de ficheiros */
 #define LIDO_SUCESSO 0
 #define ERRO_LER 1
+#define VENDA_VALIDA 2
+#define VENDA_INVALIDA 3
 
 /*endereço padrão dos ficheiros */
 #define FCLIENTES "data/Clientes.txt" /* caminho do ficheiro de clientes */
@@ -160,6 +162,7 @@ static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[BUF_SIZE], ch
 	else caminho = ficheiroPadrao; 	
 	fp = fopen(caminho, "r");
 	if(fp == NULL) fprintf(stderr, "Nao foi possivel abrir o ficheiro %s\n", caminho);
+	else printf("Ficheiro lido: %s\n", caminho);
 	return fp;	
 }
 
@@ -216,7 +219,7 @@ int leCatalogoClientes(){
 int insereSeValida(char buf[BUF_SIZE]){
 	Cliente cliente;
 	Produto produto;
-	int unidades, mes, nfilial;
+	int unidades, mes, nfilial,  valida = VENDA_INVALIDA;
 	double preco;
 	TipoVenda tipoVenda;
 	char * it;
@@ -258,10 +261,11 @@ int insereSeValida(char buf[BUF_SIZE]){
 	{
 			registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
 			faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes);
+			valida = VENDA_VALIDA;
 	}
 	apagaCliente(cliente);
 	apagaProduto(produto);
-	return LIDO_SUCESSO;
+	return valida;
 }
 
 #undef GET
@@ -270,14 +274,17 @@ int insereSeValida(char buf[BUF_SIZE]){
 int carregaVendasValidas(){
 	char buf[BUF_SIZE];
 	FILE * fp;
+	int valida, validadas = 0;
 
 	fp = perguntaAbreFicheiro(FVENDAS, buf, "vendas");
 	if(fp == NULL) return ERRO;
 	
-	while(fgets(buf, BUF_SIZE, fp))
-		insereSeValida(buf);
+	while(fgets(buf, BUF_SIZE, fp)){
+		if(insereSeValida(buf) == VENDA_VALIDA) validadas++;
+	}
 	
 	fclose(fp);
+	printf("Vendas Validadas: %d\n", validadas);
 	return LIDO_SUCESSO;
 }
 
