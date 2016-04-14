@@ -143,16 +143,15 @@ static void opcaoInvalida(char opcao[])
 }
 
 static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[BUF_SIZE], char * tipoDeElems){
-	int i;
 	FILE * fp;
 	char * caminho;
 	printf("Insira o caminho do ficheiro de %s (Enter para abrir ficheiro padrao):", tipoDeElems);	
 	fgets(buf, BUF_SIZE, stdin);
-	for(i = 0; buf[i] && isspace(buf[i]); i++)
+	caminho = strtok(buf, "\r\n");
+	if (caminho) for(; *caminho && isspace(*caminho); caminho++) 
 		;
-	if(buf[i] != '\0' && buf[i] != '\n') 
-		caminho = buf;
-	else caminho = ficheiroPadrao; 	
+	if(caminho == NULL || *caminho == '\0') 
+		caminho = ficheiroPadrao;
 	fp = fopen(caminho, "r");
 	if(fp == NULL) fprintf(stderr, "Nao foi possivel abrir o ficheiro %s\n", caminho);
 	else printf("Ficheiro lido: %s\n", caminho);
@@ -271,17 +270,17 @@ int insereSeValida(char buf[BUF_SIZE]){
 int carregaVendasValidas(){
 	char buf[BUF_SIZE];
 	FILE * fp;
-	int valida, validadas = 0;
+	int validas = 0;
 
 	fp = perguntaAbreFicheiro(FVENDAS, buf, "vendas");
 	if(fp == NULL) return ERRO;
 	
 	while(fgets(buf, BUF_SIZE, fp)){
-		validadas += insereSeValida(buf);
+		validas += insereSeValida(buf);
 	}
 	
 	fclose(fp);
-	printf("Vendas Validadas: %d\n", validadas);
+	printf("Vendas Validas: %d\n", validas);
 	return 1; /* mudar valor */
 }
 
@@ -323,7 +322,8 @@ static int query2()
 		ConjuntoProds conjP;
 
 		printf("Introduza a 1ª letra dos códigos de produto que pretende consultar: ");
-		letra = toupper(getchar());
+		scanf("%c", &letra);
+		/*letra = toupper(getchar());*/
 		conjP = prodsPorLetra(catProds, letra);
 
 		if(conjP){
