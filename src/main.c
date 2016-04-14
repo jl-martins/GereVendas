@@ -35,12 +35,6 @@ static FaturacaoGlobal faturacaoGlobal = NULL;
 #define CONTINUAR 1
 #define CMD_INVAL 127
 
-/* Valores de retorno das funções de leitura de ficheiros */
-#define LIDO_SUCESSO 0
-#define ERRO_LER 1
-#define VENDA_VALIDA 2
-#define VENDA_INVALIDA 3
-
 /*endereço padrão dos ficheiros */
 #define FCLIENTES "data/Clientes.txt" /* caminho do ficheiro de clientes */
 #define FPRODUTOS "data/Produtos.txt" /* caminho do ficheiro de produtos */
@@ -119,11 +113,10 @@ int interpretador()
 /* NOTA: Falta completar esta função */
 int interpreta(char linha[])
 {
-	/*long i = strtol(linha, &tmp, 10); */
 	int i = atoi(linha);
 	int r;
 
-	if(/* *tmp == '\0' && */ i > 0 && i <= N_OPCOES){ /* o utilizador introduziu um comando válido */
+	if(i > 0 && i <= N_OPCOES){ /* o utilizador introduziu um comando válido */
 		queries[i]();			
 		r = i == N_OPCOES? SAIR : CONTINUAR; /* se for inserida a ultima opção, o programa deve sair */
 	}else{
@@ -171,19 +164,21 @@ int leCatalogoProdutos(){
 	FILE * fp;	
 	char buf[BUF_SIZE];
 	char * tmp;
+	int quantos = 0;
 
 	fp = perguntaAbreFicheiro(FPRODUTOS, buf, "produtos");
-	if(fp == NULL) return ERRO_LER;
+	if(fp == NULL) return ERRO;
 	while(fgets(buf, BUF_SIZE, fp)){
 		tmp = strtok(buf, "\r\n");
 		p = criaProduto(tmp);
-		if(p == NULL)return ERRO_LER; 
+		if(p == NULL)return ERRO; 
+		quantos++;
 		insereProduto(catProds, p); /*inserir tratamento de erros */
 		registaProduto(faturacaoGlobal, p);
 		apagaProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
 	fclose(fp);
-	return LIDO_SUCESSO;
+	return quantos;
 }
 
 int leCatalogoClientes(){
@@ -191,26 +186,28 @@ int leCatalogoClientes(){
 	char buf[BUF_SIZE];
 	Cliente c;
 	char * tmp;
+	int quantos = 0;
 
 	fp = perguntaAbreFicheiro(FCLIENTES, buf, "clientes");
-	if(fp == NULL) return ERRO_LER;
+	if(fp == NULL) return ERRO;
 
 	while(fgets(buf, BUF_SIZE, fp)){
 		tmp = strtok(buf, "\r\n");
 		c = criaCliente(tmp);
-		if(c == NULL) return ERRO_LER;
+		if(c == NULL) return ERRO;
+		quantos++;
 		insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
 		/*registaNovoCliente(FILIAL_GLOBAL, c);*/
 		apagaCliente(c);
 	}
 	fclose(fp);
 
-	return LIDO_SUCESSO;
+	return quantos;
 }
 
 /* por get e verifica na mesma macro */
 #define GET strtok(NULL," \r\n");
-#define VERIFICA(p) {if ((p) == NULL) return ERRO_LER;}
+#define VERIFICA(p) {if ((p) == NULL) return ERRO;}
 
 #define MAX_UNIDADES 200
 #define MAX_PRECO 999.99
@@ -219,7 +216,7 @@ int leCatalogoClientes(){
 int insereSeValida(char buf[BUF_SIZE]){
 	Cliente cliente;
 	Produto produto;
-	int unidades, mes, nfilial,  valida = VENDA_INVALIDA;
+	int unidades, mes, nfilial,  quantos = 0;
 	double preco;
 	TipoVenda tipoVenda;
 	char * it;
@@ -261,11 +258,11 @@ int insereSeValida(char buf[BUF_SIZE]){
 	{
 			registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
 			faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes);
-			valida = VENDA_VALIDA;
+			quantos = 1;
 	}
 	apagaCliente(cliente);
 	apagaProduto(produto);
-	return valida;
+	return quantos;
 }
 
 #undef GET
@@ -280,12 +277,12 @@ int carregaVendasValidas(){
 	if(fp == NULL) return ERRO;
 	
 	while(fgets(buf, BUF_SIZE, fp)){
-		if(insereSeValida(buf) == VENDA_VALIDA) validadas++;
+		validadas += insereSeValida(buf);
 	}
 	
 	fclose(fp);
 	printf("Vendas Validadas: %d\n", validadas);
-	return LIDO_SUCESSO;
+	return 1; /* mudar valor */
 }
 
 /* alterar para inserir os caminhos dos ficheiros */
