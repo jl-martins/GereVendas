@@ -447,15 +447,18 @@ void apresentaPag(ConjuntoProds conjP)
 	int i = 0;
 	int f = obterIndiceFinal(conjP) - obterIndice(conjP);
 
-	while(i < f)
+	if(conj)
 	{
-		if(i < f && conj[i]) printf("%7s", conj[i++]);	
-		if(i < f && conj[i]) printf("%11s", conj[i++]);
-		if(i < f && conj[i]) printf("%11s", conj[i++]);
-		if(i < f && conj[i]) printf("%11s", conj[i++]);
-		printf("\n");
+		while(i < f)
+		{
+			if(i < f && conj[i]) printf("%7s", conj[i++]);	
+			if(i < f && conj[i]) printf("%11s", conj[i++]);
+			if(i < f && conj[i]) printf("%11s", conj[i++]);
+			if(i < f && conj[i]) printf("%11s", conj[i++]);
+			printf("\n");
+		}
 	}
-	
+
 	for(i = 0; i < f; i++)
 		free(conj[i]);
 	
