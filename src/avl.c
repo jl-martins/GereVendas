@@ -262,9 +262,9 @@ ValorNodo procuraAVL(const AVL arv, ValorNodo val)
 		rCompara = arv->compara(nodoAtual->valor, val);
 		
 		if(rCompara < 0) /* procura na subárvore esquerda */
-			nodoAtual = nodoAtual->esquerda;
-		else if(rCompara > 0) /* procura na subárvore direita */
 			nodoAtual = nodoAtual->direita;
+		else if(rCompara > 0) /* procura na subárvore direita */
+			nodoAtual = nodoAtual->esquerda;
 		else{
 			/* ver código de tratamento de erros */
 			res = (arv->duplica != NULL) ? arv->duplica(val) : val;

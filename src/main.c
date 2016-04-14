@@ -171,7 +171,7 @@ int leCatalogoProdutos(){
 	fp = perguntaAbreFicheiro(FPRODUTOS, buf, "produtos");
 	if(fp == NULL) return ERRO;
 	while(fgets(buf, BUF_SIZE, fp)){
-		tmp = strtok(buf, "\n");
+		tmp = strtok(buf, "\r\n");
 		p = criaProduto(tmp);
 		if(p == NULL)return ERRO; 
 		quantos++;
@@ -179,7 +179,7 @@ int leCatalogoProdutos(){
 		registaProduto(faturacaoGlobal, p);
 		apagaProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
-	printf("%d\n", totalProdutos(catProds));
+	printf("Produtos Lidos: %d\n", totalProdutos(catProds));
 	fclose(fp);
 	return quantos;
 }
@@ -204,7 +204,7 @@ int leCatalogoClientes(){
 		apagaCliente(c);
 	}
 	
-	printf("%d\n", totalClientes(catClientes));
+	printf("Clientes Lidos: %d\n", totalClientes(catClientes));
 	fclose(fp);
 
 	return quantos;
@@ -254,16 +254,17 @@ int insereSeValida(char buf[BUF_SIZE]){
 	VERIFICA(it);
 	nfilial = atoi(it);
 	
+			
 	if(existeProduto(catProds, produto) && 
-	   existeCliente(catClientes, cliente) /* &&  
+	   existeCliente(catClientes, cliente)  &&  
 	   unidades > 0 && unidades <= MAX_UNIDADES &&
 	   mes > 0 && mes < 13 &&
 	   preco >= 0 && preco <= 999.99 
-	   && nfilial > 0 && nfilial <= N_FILIAIS*/ )
+	   && nfilial > 0 && nfilial <= N_FILIAIS)
 
 	{
-		/*      registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco); */ 
-		/*	faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes)*/ 
+	/*		registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);  */
+	/*		faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;*/
 			quantos = 1;
 	}
 	apagaCliente(cliente);
@@ -288,7 +289,7 @@ int carregaVendasValidas(){
 	
 	fclose(fp);
 	printf("Vendas Validas: %d\n", validas);
-	return 1; /* mudar valor */
+	return 0; /* mudar valor */
 }
 
 /* alterar para inserir os caminhos dos ficheiros */
