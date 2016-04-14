@@ -307,15 +307,11 @@ ConjuntoProds prodsPorLetra(CatProds catP, char l) {
 /* Funções static passadas para criar AVLs */
 
 /* Função de comparação entre dois elementos do tipo Produto */
-static int compara(const void* prod1, const void* prod2) {	
-	char* codigo1 = obterCodigoProduto((Produto) prod1);
-	char* codigo2 = obterCodigoProduto((Produto) prod2);
-	int r = strcmp(codigo1, codigo2);
-
-	free(codigo1);
-	free(codigo2);
+static int compara(const void* p1, const void* p2) {	
+	Produto prod1 = p1;
+	Produto prod2 = p2;
 	
-	return r;
+	return comparaCodigosProduto(p1, p2);
 }
 
 static void* duplica(void* prod)
