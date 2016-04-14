@@ -309,26 +309,27 @@ static int query1()
 	return 0;
 }
 
-static int query2(CatProds catP)
+static int query2()
 {
-	int err = 0;
-	ConjuntoProds conjP;
-	if(catP)
+	int erro = 0;
+
+	if(catProds)
 	{
 		char letra;
-		letra = fgetc(stdin);
-		letra = isupper(letra) ? letra : toupper(letra);
-		conjP = prodsPorLetra(catP, letra);
+		ConjuntoProds conjP;
 
-		
-		if(conjP)
+		printf("Introduza a 1ª letra dos códigos de produto que pretende consultar: ");
+		letra = toupper(getchar());
+		conjP = prodsPorLetra(catProds, letra);
+
+		if(conjP){
 			navega(conjP);
+			apagaConjuntoProds(conjP);
+		}
 		else
-			err = 1;
-
-		apagaConjuntoProds(conjP);
+			erro = 1;
 	}
-	return err;
+	return erro;
 }
 
 static int query3( /* faltam os args */)
