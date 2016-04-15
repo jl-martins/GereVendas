@@ -54,7 +54,8 @@ LStrings criaLStrings(int total, char* strings[])
 void apagaLStrings(LStrings lStr)
 {	
 	if(lStr != NULL){
-		apagaArray((void**) lStr->strings, lStr->total, free);
+		if(lStr->strings != NULL)
+			apagaArray((void**) lStr->strings, lStr->total, free);
 		free(lStr);
 	}
 }
