@@ -108,6 +108,8 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Atualizador atualiza,
 	else if(atualiza != NULL && comparacao == 0){
 		*modoInsercao = ATUALIZOU;
 		atualiza(raiz, val);
+	
+		printf("a atualizar");
 		ret = raiz;
 	}
 	else 
@@ -178,12 +180,22 @@ static AVL_NODO* equilibraEsquerda(AVL_NODO* raiz)
 				raiz->direita->fatorBalanco = EQ;
 				break;
 			case ESQ:
+				/* teste debug 
 				raiz->direita->fatorBalanco = EQ;
 				raiz->esquerda->fatorBalanco = ESQ;
 				break;
-			case DIR:
+				*/
 				raiz->direita->fatorBalanco = DIR;
 				raiz->esquerda->fatorBalanco = EQ;
+				break;
+			case DIR:
+				/*
+				raiz->direita->fatorBalanco = DIR;
+				raiz->esquerda->fatorBalanco = EQ;
+				break;
+				*/
+				raiz->direita->fatorBalanco = EQ;
+				raiz->esquerda->fatorBalanco = ESQ;
 				break;
 		}
 		raiz->fatorBalanco = EQ;
@@ -224,7 +236,8 @@ static AVL_NODO* rodaEsquerda(AVL_NODO* raiz)
 {
 	AVL_NODO *aux;
 
-	/*assert(raiz != NULL && raiz->direita != NULL);*/
+	assert(raiz != NULL);
+	assert(raiz->direita != NULL);
 
 	aux = raiz->direita;
 	raiz->direita = aux->esquerda;

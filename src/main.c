@@ -263,8 +263,8 @@ int insereSeValida(char buf[BUF_SIZE]){
 	   && nfilial > 0 && nfilial <= N_FILIAIS)
 
 	{
-		registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);  
-		/*faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;*/
+		registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);  	
+/*		faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;*/
 		quantos = 1;
 	}
 	apagaCliente(cliente);

@@ -36,6 +36,7 @@ static int somaUnidadesMes(AVL_ComprasPorCliente arv);
 static int comparaComprasPorCliente(const void * cc1, const void * cc2);
 static int comparaComprasDoProduto(const void * vp1, const void * vp2);
 static void atualizaComprasDoProduto(void * vp1, void * vp2);
+static ComprasDoProduto apagaComprasDoProduto(ComprasDoProduto cdp);
  
 static int comparaComprasPorCliente(const void * cc1, const void * cc2){
 	return comparaCodigosCliente(((ComprasPorCliente) cc1)->cliente, ((ComprasPorCliente) cc2)->cliente);		
@@ -54,7 +55,7 @@ static void atualizaComprasDoProduto(void * c1, void * c2){
 	/* definir isto no bool.h*/
 	compraProd1->modoP = compraProd2->modoP ? compraProd2->modoP : compraProd1->modoP;	
 	compraProd1->modoN = compraProd2->modoN ? compraProd2->modoN : compraProd1->modoN;
-	free(compraProd2);
+	/*apagaComprasDoProduto(compraProd2);*/
 }
 
 static ComprasPorCliente apagaComprasPorCliente(ComprasPorCliente cpc){
@@ -92,7 +93,6 @@ Filial criaFilial(){
 		for(i = 0; i < 26; i++){		
 			/* definir função de comparação */
 			nova->clientesOrdenados[i] = criaAVLgenerica((Atualizador) NULL, (Comparador) comparaComprasPorCliente, (Duplicador) NULL, (LibertarNodo) apagaComprasPorCliente);/*nao devia passar função de atualização??*/
-			if(nova->clientesOrdenados[i] == NULL) DEBUG("falha na criacao de filiais\n");
 		}
 	/*else	
 		;  ver tratamento de erros */
@@ -145,16 +145,11 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 
 	if(naAVL == NULL){
 		/* inicializar os campos */
-		DEBUG("naAVL NULL: Antes do loop\n");
 		for(i = 1; i < 13; i++){
 			ccliente->comprasPorMes[i] = criaAVLgenerica((Atualizador) atualizaComprasDoProduto, (Comparador) comparaComprasDoProduto, (Duplicador) duplicaComprasDoProduto, (LibertarNodo) apagaComprasDoProduto);
 		}
-		DEBUG("naAVL NULL: atr1\n");
 		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[mes], comprasAux);
-		DEBUG("naAVL NULL: atr2\n");
-		printf("%p\n",filial->clientesOrdenados[posicao]); 
 		filial->clientesOrdenados[posicao] = insere(filial->clientesOrdenados[posicao], ccliente);
-		/*free(ccliente);*/ /*ver como limpar compras clientes*/
 	}
 	else{
 	/*
