@@ -14,6 +14,7 @@
 #include "catalogoClientes.h"
 #include "faturacaoGlobal.h"
 #include "filial.h"
+#include "LStrings.h"
 
 #define N_FILIAIS 3
 #define BUF_SIZE 1024
@@ -40,11 +41,20 @@ static FaturacaoGlobal faturacaoGlobal = NULL;
 #define FPRODUTOS "data/Produtos.txt" /* caminho do ficheiro de produtos */
 #define FVENDAS "data/Vendas_1M.txt"     /* caminho do ficheiro de vendas */
 
+/* Macros utilizadas na navegação e leitura de dados */
+#define FLUSH_STDIN() {int c; while((c = getchar()) != '\n' && c != EOF);}
+#define ENTER_PARA_CONTINUAR() printf("Prima ENTER para continuar: "); getchar()
+#define IMPRIME_OPCOES_NAVEGA() \
+	printf("1) Pag. Seguinte | 2) Pag. ant. | 3) Selec. pag. | 4) Prim. pag. | 5) Ult. pag. | 6) Info. | 7) Sair\n")
+#define MSG_ERRO(msg) {fputs(msg, stderr); ENTER_PARA_CONTINUAR();}
+#define LE_INT_BUFF 16
+
 int interpretador();
 int interpreta(char linha[]);
 
-void apresentaPag(ConjuntoProds);
-void navega(ConjuntoProds);
+/* Funções de navegação exportadas */
+void navegaVarios(LStrings lStrArr[], int tamanho);
+void navega(LStrings lStr);
 
 static void imprimeOpcoes(const char *opcoes[N_OPCOES]);
 
@@ -72,6 +82,21 @@ static int sair();
 Query queries[] = {NULL, query1, query2, query3, query4, query5, query6, query7, query8,
 		     query9, query10, query11, query12, sair};
 
+typedef void (*opcaoNavega) (LStrings);
+
+static int leInt();
+static void perguntaPag(LStrings lStr);
+static void imprimeInformacaoLStrings(int total, int numTotalPags);
+static void apresentaPag(Pagina pag);
+
+opcaoNavega opsNavega[] = {
+	NULL,
+	proxPag,
+	pagAnt,
+	perguntaPag,
+	primPag,
+	ultimaPag
+};
 
 /* Opções do interpretador de comandos */
 /* A opção de sair deve ser a última apresentada mas deve ter código 0 */
@@ -140,6 +165,101 @@ static void imprimeOpcoes(const char *opcoes[N_OPCOES])
 static void opcaoInvalida(char opcao[])
 {
 	fprintf(stderr, "A opção '%s' é inválida\n\n", opcao);
+}
+
+/* Dado um array de LStrings, permite ao utilizador 
+ * escolher em qual LStrings pretende navegar. */
+void navegaVarios(LStrings lStrArr[], int tamanho)
+{	
+	int i;
+	bool sair = FALSE;
+
+	do{
+		printf("Existem resultados para %d filiais.\n", tamanho);
+		printf("Introduza o número da filial que pretende"
+			   "ou %d se pretender sair: ", tamanho + 1);
+		i = leInt();
+		if(i > 0 && i <= tamanho) /* a indexação começa em 1 */
+			navega(lStrArr[i]);
+		else if(i == (tamanho + 1))
+			sair = TRUE;
+		else
+			MSG_ERRO("Opção inválida\n");
+	} while(sair == FALSE);
+}
+
+/* Função para navegar numa LStrings */
+void navega(LStrings lStr)
+{
+	Pagina pag; /* página atual */
+	int opcao;
+	int total, numTotalPags; /* total - número total de entradas na LStrings */
+	bool sair = FALSE;
+
+	total = obterTotal(lStr);
+	numTotalPags = obterNumTotalPags(lStr);
+	imprimeInformacaoLStrings(total, numTotalPags);
+	do{
+		system("clear");
+		
+		pag = obterPag(lStr); /* lê a página atual */
+		apresentaPag(pag);
+		IMPRIME_OPCOES_NAVEGA();
+		printf("(%d/%d): ", obterNumPag(lStr), numTotalPags);
+		
+		opcao = leInt();
+		if(opcao >= 1 && opcao <= 5)
+			opsNavega[opcao](lStr);
+		else if(opcao == 6)
+			imprimeInformacaoLStrings(total, numTotalPags);
+		else if(opcao == 7)
+			sair = TRUE;
+		else
+			MSG_ERRO("Opção inválida\n")
+	} while(sair == FALSE);
+}
+
+/* Apresenta uma página */
+static void apresentaPag(Pagina pag)
+{	
+	char* linha;
+
+	while((linha = obterLinha(pag)) != NULL)
+		puts(linha);
+}
+
+/* Pergunta ao utilizador para que página pretende ir e avança para
+ * a página especificada, se esta for válida. */
+static void perguntaPag(LStrings lStr)
+{
+	int pag;
+
+	printf("Para que página pretende ir? ");
+	pag = leInt();
+
+	if(pag <= 0 || pag > obterNumTotalPags(lStr))
+		MSG_ERRO("A página que introduziu é inválida\n")
+	else
+		irParaPag(pag, lStr);
+}
+
+/* Imprime o número de entradas, o total de páginas e o número de entras/página */
+static void imprimeInformacaoLStrings(int total, int numTotalPags)
+{	
+	system("clear");
+	printf("Número de entradas: %d\nTotal de páginas: %d\nEntradas por página: %d\n\n",
+			total, numTotalPags, STRINGS_POR_PAG);
+	ENTER_PARA_CONTINUAR();
+}
+
+/* Lê um valor inteiro */
+static int leInt()
+{
+	char buffer[LE_INT_BUFF];
+
+	fgets(buffer, LE_INT_BUFF, stdin);
+	/* FLUSH_STDIN() */ /* falar com o professor sobre usar uma função que dá logo um inteiro */
+	return atoi(buffer);
 }
 
 static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[BUF_SIZE], char * tipoDeElems){
@@ -332,21 +452,20 @@ static int query2()
 	if(catProds)
 	{
 		char letra;
-		ConjuntoProds conjP;
+		LStrings lProdsLetra;
 
 		printf("Introduza a 1ª letra dos códigos de produto que pretende consultar: ");
 		scanf("%c", &letra);
 		/*letra = toupper(getchar());*/
-		conjP = prodsPorLetra(catProds, letra);
+		lProdsLetra = prodsPorLetra(catProds, letra);
 
-		if(conjP){
-			navega(conjP);
-			apagaConjuntoProds(conjP);
+		if(lProdsLetra){
+			navega(lProdsLetra);
+			apagaLStrings(lProdsLetra);
 		}
 		else
 			erro = 1;
 	}
-
 	return erro;
 }
 
@@ -412,14 +531,15 @@ static void erroNaoLeuFich()
 	fputs("Erro: Ainda não leu os ficheiros de dados\n"
 		  "Introduza '1' e prima ENTER para o fazer\n", stderr);
 }
-
+/*
 #define MAXBUF 8
 #define NEXT 1
 #define PREV 2
 #define GOTO 3
 #define FST 4
 #define LST 5
-
+*/
+/*
 void navega(ConjuntoProds conj)
 {
 	int exit = 0;
@@ -428,7 +548,6 @@ void navega(ConjuntoProds conj)
 
 	while(!exit)
 	{
-		/*Ver se está em windows ou linux*/
 		if(system("clear") == -1)
 			system("cls");
 		printf("Column1    Column2    Column3    Column4\n");
@@ -476,5 +595,6 @@ void apresentaPag(ConjuntoProds conjP)
 	for(i = 0; i < f; i++)
 		free(conj[i]);
 	
-	free(conj); /*?acho que é preciso?*/
+	free(conj);
 }
+*/

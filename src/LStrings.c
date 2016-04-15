@@ -1,4 +1,6 @@
 #include "LStrings.h"
+#include "memUtils.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,12 +12,10 @@ struct lStrings{
 };
 
 struct pagina{
-	int indice;
+	int total; /* total de strings na página */
 	char** strings;
+	int indice; /* índice da próxima string a devolver com obterPagina() */
 };
-
-/* Liberta a memória alocada para armazenar um array de Strings */
-static void apagaArrStrings(char* arrStr[], int numStr);
 
 /* Cria uma lista de Strings */
 LStrings criaLStrings(int total, char* strings[])
@@ -43,6 +43,7 @@ LStrings criaLStrings(int total, char* strings[])
 		}
 		strcpy(lStr->strings[i], strings[i]);
 	}
+	/* só chegamos aqui se não houve falhas de alocação */
 	lStr->total = total;
 	lStr->pag = 1;
 	lStr->indice = 0;
@@ -53,20 +54,8 @@ LStrings criaLStrings(int total, char* strings[])
 void apagaLStrings(LStrings lStr)
 {	
 	if(lStr != NULL){
-		apagaArrStrings(lStr->strings, lStr->total);
+		apagaArray((void**) lStr->strings, lStr->total, free);
 		free(lStr);
-	}
-}
-
-/* Liberta a memória alocada para um array de Strings */
-static void apagaArrStrings(char* arrStr[], int numStr)
-{	
-	if(arrStr != NULL){
-		int i;
-
-		for(i = 0; i < numStr; ++i)
-			free(arrStr[i]);
-		free(arrStr);
 	}
 }
 
@@ -95,13 +84,14 @@ Pagina obterPag(LStrings lStr)
 		pag->strings[j] = malloc((len + 1) * sizeof(char));
 
 		if(pag->strings[j] == NULL){ /* falha a alocar pag->strings[j] */
-			apagaArrStrings(pag->strings, j);
+			apagaArray((void**) pag->strings, j, free);
 			free(pag);
 			return NULL;
 		}
 		strcpy(pag->strings[j++], lStr->strings[i++]);
 	}
 	/* chegamos aqui quando não houve falhas de alocação */
+	pag->total = j;
 	pag->indice = 0;
 	return pag;
 }
@@ -110,7 +100,7 @@ Pagina obterPag(LStrings lStr)
 void apagaPag(Pagina pag)
 {	
 	if(pag != NULL){
-		apagaArrStrings(pag->strings, STRINGS_POR_PAG);
+		apagaArray((void**) pag->strings, STRINGS_POR_PAG, free);
 		free(pag);
 	}
 }
@@ -124,7 +114,7 @@ char* obterLinha(Pagina pag)
 {
 	char* linha = NULL;
 
-	if(pag != NULL && pag->indice < STRINGS_POR_PAG){
+	if(pag != NULL && pag->indice < pag->total){
 		int i = pag->indice;
 		int len = strlen(pag->strings[i]);
 
@@ -154,8 +144,9 @@ int obterNumTotalPags(LStrings lStr)
 {
 	int total = lStr->total;
 	int resto = total%STRINGS_POR_PAG;
+	int res = (total/STRINGS_POR_PAG) + ((resto != 0) ? 1 : 0);
 
-	return total/STRINGS_POR_PAG + (resto != 0) ? 1 : 0;
+	return res;
 }
 
 /** 

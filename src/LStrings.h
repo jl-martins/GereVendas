@@ -17,6 +17,8 @@ void apagaLStrings(LStrings l);
 /* Devolve a página atual de uma LStrings ou NULL, em caso de erro. */
 Pagina obterPag(LStrings l);
 
+/* Devolve a próxima linha de uma página */
+char* obterLinha(Pagina pag);
 /* Liberta a memória alocada para uma página */
 void apagaPag(Pagina pag);
 

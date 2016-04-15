@@ -2,7 +2,8 @@
 #define FATURACAO_H
 
 #include "bool.h"
-#include "catalogoProds.h" /* inclui tipos 'Produto' e 'CatalogoProds' */
+#include "LStrings.h" /* listas de strings navegáveis */
+#include "produto.h"
 #include "venda.h" /* importa 'TipoVenda' */
 
 /* faturação global do ano */
@@ -61,11 +62,14 @@ double faturacaoTotalProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 double* faturacaoPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
 /* Devolve um conjunto com os produtos que não foram comprados em nenhuma filial */
-ConjuntoProds naoCompradosGlobal(const FaturacaoGlobal);
+LStrings naoCompradosGlobal(const FaturacaoGlobal);
 
 /* Devolve um array de conjuntos de produtos, um por filial. Cada conjunto de
  * produtos armazena os códigos de produto não vendidos na respetiva filial. */
-ConjuntoProds* naoCompradosPorFilial(const FaturacaoGlobal);
+LStrings* naoCompradosPorFilial(const FaturacaoGlobal);
+
+/* Devolve uma lista de strings com os códigos dos N produtos mais vendidos */
+LStrings obterNmaisVendidos(int N, FaturacaoGlobal fg);
 
 /* Liberta a memória alocada para armazenar a faturação global */
 void apagaFaturacaoGlobal(FaturacaoGlobal fg);

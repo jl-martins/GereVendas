@@ -1,7 +1,7 @@
 #ifndef PRODUTO_T 
 #define PRODUTO_T 
 
-#define MAX_CODIGO_PROD 8
+#define MAX_CODIGO_PROD 16
 
 typedef struct produto* Produto;
 
