@@ -146,13 +146,13 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	if(naAVL == NULL){
 		/* inicializar os campos */
 		for(i = 1; i < 13; i++){
-			ccliente->comprasPorMes[i] = criaAVLgenerica((Atualizador) atualizaComprasDoProduto, (Comparador) comparaComprasDoProduto, (Duplicador) duplicaComprasDoProduto, (LibertarNodo) apagaComprasDoProduto);
+			ccliente->comprasPorMes[i] = criaAVLgenerica(atualizaComprasDoProduto, (Comparador) comparaComprasDoProduto, (Duplicador) duplicaComprasDoProduto, (LibertarNodo) apagaComprasDoProduto);
 		}
 		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[mes], comprasAux);
 		filial->clientesOrdenados[posicao] = insere(filial->clientesOrdenados[posicao], ccliente);
 	}
 	else{
-	
+		printf("Cliente: %s\n", naAVL->cliente);	
 		printf("ERRO AQUI \n");
 		free(ccliente);
 		insere(naAVL->comprasPorMes[mes], comprasAux);  /*nota: a funçao de atualização deve fazer o free no caso de atualizar */
