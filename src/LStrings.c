@@ -44,9 +44,8 @@ LStrings criaLStrings(int total, char* strings[])
 		strcpy(lStr->strings[i], strings[i]);
 	}
 	/* só chegamos aqui se não houve falhas de alocação */
-	lStr->total = total;
-	lStr->pag = 1;
-	lStr->indice = 0;
+	lStr->total = total; lStr->pag = 1; lStr->indice = 0;
+	
 	return lStr;
 }
 
@@ -65,21 +64,28 @@ void apagaLStrings(LStrings lStr)
 /* Devolve a página atual de uma LStrings ou NULL, em caso de erro. */
 Pagina obterPag(LStrings lStr)
 {
-	int i, j, fimPag; /* fimPag - fim da página atual (ou início da próxima) */
+	int i, j, fimPag; /* fimPag - fim da página atual da LStrings */
 	Pagina pag = malloc(sizeof(struct pagina));
 
 	if(pag == NULL)
 		return NULL;
+
+	i = lStr->indice;
+	if(i + STRINGS_POR_PAG >= lStr->total){ /* estamos na última página da LStrings */
+		pag->strings = malloc((lStr->total - i) * sizeof(char *));
+		fimPag = lStr->total;
+	}
+	else{
+		pag->strings = malloc(STRINGS_POR_PAG * sizeof(char *));
+		fimPag = i + STRINGS_POR_PAG;
+	}
 	
-	pag->strings = malloc(STRINGS_POR_PAG * sizeof(char *));
 	if(pag->strings == NULL){ /* falha de alocação do array de strings da 'struct pagina' */
 		free(pag);
 		return NULL;
 	}
-	i = lStr->indice;
-	fimPag = (i + STRINGS_POR_PAG >= lStr->total) ? (lStr->total) : (i + STRINGS_POR_PAG);
+
 	j = 0; /* j - índice do array de strings da 'struct pagina' */
-	
 	while(i < fimPag){
 		int len = strlen(lStr->strings[i]);
 		pag->strings[j] = malloc((len + 1) * sizeof(char));
@@ -92,8 +98,7 @@ Pagina obterPag(LStrings lStr)
 		strcpy(pag->strings[j++], lStr->strings[i++]);
 	}
 	/* chegamos aqui quando não houve falhas de alocação */
-	pag->total = j;
-	pag->indice = 0;
+	pag->indice = 0; pag->total = j;
 	return pag;
 }
 
@@ -101,7 +106,7 @@ Pagina obterPag(LStrings lStr)
 void apagaPag(Pagina pag)
 {	
 	if(pag != NULL){
-		apagaArray((void**) pag->strings, STRINGS_POR_PAG, free);
+		apagaArray((void**) pag->strings, pag->total, free);
 		free(pag);
 	}
 }

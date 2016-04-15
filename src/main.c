@@ -45,7 +45,7 @@ static FaturacaoGlobal faturacaoGlobal = NULL;
 #define FLUSH_STDIN() {int c; while((c = getchar()) != '\n' && c != EOF);}
 #define ENTER_PARA_CONTINUAR() printf("Prima ENTER para continuar: "); getchar()
 #define IMPRIME_OPCOES_NAVEGA() \
-	printf("1) Pag. Seguinte | 2) Pag. ant. | 3) Selec. pag. | 4) Prim. pag. | 5) Ult. pag. | 6) Info. | 7) Sair\n")
+	printf("1) Pag. seg. | 2) Pag. ant. | 3) Selec. pag. | 4) Prim. pag. | 5) Ult. pag. | 6) Info. | 7) Sair\n")
 #define MSG_ERRO(msg) {fputs(msg, stderr); ENTER_PARA_CONTINUAR();}
 #define LE_INT_BUFF 16
 
@@ -188,19 +188,26 @@ void navegaVarios(LStrings lStrArr[], int tamanho)
 	} while(sair == FALSE);
 }
 
+/* Definição do comando de limpar o ecrã com base no sistema operativo */
+#ifdef _WIN32
+	#define CLEAR "cls"
+#else
+	#define CLEAR "clear"
+#endif
+
 /* Função para navegar numa LStrings */
 void navega(LStrings lStr)
 {
-	Pagina pag; /* página atual */
+	Pagina pag;
 	int opcao;
-	int total, numTotalPags; /* total - número total de entradas na LStrings */
+	int total, numTotalPags; 
 	bool sair = FALSE;
 
-	total = obterTotal(lStr);
+	total = obterTotal(lStr); /* número total de entradas na LStrings */
 	numTotalPags = obterNumTotalPags(lStr);
 	imprimeInformacaoLStrings(total, numTotalPags);
 	do{
-		system("clear");
+		system(CLEAR);
 		
 		pag = obterPag(lStr); /* lê a página atual */
 		apresentaPag(pag);
@@ -224,8 +231,10 @@ static void apresentaPag(Pagina pag)
 {	
 	char* linha;
 
-	while((linha = obterLinha(pag)) != NULL)
+	while((linha = obterLinha(pag)) != NULL){
 		puts(linha);
+		free(linha); /* obterLinha() devolve uma cópia da linha guardada em pag */
+	}
 }
 
 /* Pergunta ao utilizador para que página pretende ir e avança para
@@ -246,7 +255,7 @@ static void perguntaPag(LStrings lStr)
 /* Imprime o número de entradas, o total de páginas e o número de entras/página */
 static void imprimeInformacaoLStrings(int total, int numTotalPags)
 {	
-	system("clear");
+	system(CLEAR);
 	printf("Número de entradas: %d\nTotal de páginas: %d\nEntradas por página: %d\n\n",
 			total, numTotalPags, STRINGS_POR_PAG);
 	ENTER_PARA_CONTINUAR();
@@ -258,7 +267,7 @@ static int leInt()
 	char buffer[LE_INT_BUFF];
 
 	fgets(buffer, LE_INT_BUFF, stdin);
-	/* FLUSH_STDIN() */ /* falar com o professor sobre usar uma função que dá logo um inteiro */
+	fflush(stdin);
 	return atoi(buffer);
 }
 
