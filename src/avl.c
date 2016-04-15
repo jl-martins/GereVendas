@@ -80,10 +80,9 @@ AVL insere(AVL arvore, ValorNodo val)
 {
 	int modoInsercao;
 	
-	assert(arvore != NULL && val != NULL); /* pré-condição para inserir na AVL */
-	/* bug: se a AVL for atualizado, o tamanho não deve aumentar */
-	/* ver o que fazer se nao der para inserir */
-	
+	assert(arvore != NULL); /* pré-condição para inserir na AVL */
+	assert(val != NULL); /* pré-condição para inserir na AVL */
+
 	arvore->raiz = insereNodo(arvore->raiz, val, arvore->atualiza, arvore->compara, arvore->duplica, &modoInsercao);	
 	if(modoInsercao != ATUALIZOU)
 		arvore->tamanho++;
@@ -224,7 +223,7 @@ static AVL_NODO* rodaEsquerda(AVL_NODO* raiz)
 {
 	AVL_NODO *aux;
 
-	assert(raiz != NULL && raiz->direita != NULL);
+	/*assert(raiz != NULL && raiz->direita != NULL);*/
 
 	aux = raiz->direita;
 	raiz->direita = aux->esquerda;
@@ -237,7 +236,7 @@ static AVL_NODO* rodaDireita(AVL_NODO* raiz)
 {
 	AVL_NODO* aux;
 	
-	assert(raiz != NULL && raiz->esquerda != NULL);
+	/* assert(raiz != NULL && raiz->esquerda != NULL);*/
 
 	aux = raiz->esquerda;
 	raiz->esquerda = aux->direita;

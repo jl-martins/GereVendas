@@ -1,3 +1,12 @@
+#define DEBUG_MODE 1
+
+#if DEBUG_MODE
+	#include <stdio.h>
+	#define DEBUG(x) printf(X); 
+#else
+	#define DEBUG(X)
+#endif
+
 #include <stdlib.h>
 #include "filial.h"
 
@@ -12,6 +21,7 @@ struct filial{
 
 typedef struct comprasPorCliente {
 	Cliente cliente;
+	/* usar o indice 0 como info de todo o ano */
 	AVL_ComprasDoProduto comprasPorMes[13]; 
 } * ComprasPorCliente;
 
@@ -37,7 +47,7 @@ static int comparaComprasDoProduto(const void * vp1, const void * vp2){
 
 static void atualizaComprasDoProduto(void * c1, void * c2){
 	ComprasDoProduto compraProd1 = c1,
-		             compraProd2 = c2;
+		         compraProd2 = c2;
 
 	compraProd1->unidades += compraProd2->unidades;
 	compraProd1->faturacao += compraProd2->faturacao;
@@ -57,13 +67,14 @@ static ComprasPorCliente apagaComprasPorCliente(ComprasPorCliente cpc){
 }
 
 static ComprasDoProduto apagaComprasDoProduto(ComprasDoProduto cdp){
+	apagaProduto(cdp->produto);
 	free(cdp);
 	return NULL;
 }
 
 static ComprasDoProduto duplicaComprasDoProduto(ComprasDoProduto cdp){
 	ComprasDoProduto novo = malloc(sizeof(struct comprasDoProduto));
-	novo->produto = cdp->produto;
+	novo->produto = duplicaProduto(cdp->produto);
 	novo->unidades = cdp->unidades;
 	novo->faturacao = cdp->faturacao;
 	novo->modoP = cdp->modoP;
@@ -77,6 +88,7 @@ Filial criaFilial(){
 
 	if(nova != NULL)
 		for(i = 0; i < 26; i++)		
+			/* definir função de comparação */
 			nova->clientesOrdenados[i] = criaAVLgenerica((Atualizador) NULL, (Comparador) comparaComprasPorCliente, (Duplicador) NULL, (LibertarNodo) apagaComprasPorCliente);/*nao devia passar função de atualização??*/
 	/*else	
 		;  ver tratamento de erros */
@@ -114,28 +126,32 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 {
 	ComprasPorCliente ccliente;
 	int posicao, i;
+	/* substituir por naFilial */
 	ComprasPorCliente naAVL;
 	ComprasDoProduto comprasAux;
 
 	if(filial == NULL) return NULL;
 	posicao = inicioCodigoCliente(cliente) - 'A';
 	comprasAux = criaComprasDoProduto(produto, unidades, preco, tipoVenda);
-
+	
 	/* procura se existe cliente */	
 	ccliente = calloc(1, sizeof(struct comprasPorCliente));
 	ccliente->cliente = duplicaCliente(cliente);
 	naAVL = procuraAVL(filial->clientesOrdenados[posicao], ccliente);
-	
+
 	if(naAVL == NULL){
 		/* inicializar os campos */
 		for(i = 1; i < 13; i++)
 			ccliente->comprasPorMes[i] = criaAVLgenerica((Atualizador) atualizaComprasDoProduto, (Comparador) comparaComprasDoProduto, (Duplicador) duplicaComprasDoProduto, (LibertarNodo) apagaComprasDoProduto);
 		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[mes], comprasAux);
 		filial->clientesOrdenados[posicao] = insere(filial->clientesOrdenados[posicao], ccliente);
+		/*free(ccliente);*/ /*ver como limpar compras clientes*/
 	}
 	else{
+	/*
+		printf("ERRO AQUI \n");
 		free(ccliente);
-		insere(naAVL->comprasPorMes[mes], comprasAux); /*nota: a funçao de atualização deve fazer o free no caso de atualizar */
+		insere(naAVL->comprasPorMes[mes], comprasAux); */ /*nota: a funçao de atualização deve fazer o free no caso de atualizar */
 	}	
 	return filial;		
 }

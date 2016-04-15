@@ -263,8 +263,8 @@ int insereSeValida(char buf[BUF_SIZE]){
 	   && nfilial > 0 && nfilial <= N_FILIAIS)
 
 	{
-	/*		registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);  */
-	/*		faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;*/
+	/*				registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);  */
+			faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;
 			quantos = 1;
 	}
 	apagaCliente(cliente);
@@ -314,6 +314,7 @@ static int query1()
 	catClientes = criaCatClientes();	
 	faturacaoGlobal = criaFaturacaoGlobal();
 
+	/* alocar espaço no 0 para a globlal */
 	for(i = 1; i <= N_FILIAIS; i++)    
 		filiais[i] = criaFilial(); 
 		
