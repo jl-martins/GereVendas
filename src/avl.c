@@ -4,6 +4,7 @@
 #include "avl.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h> /*apagar linha!!!*/
 
 /* Casos Possíveis de evolução das árvores */
 /* A árvore mudou de tamanho devido a uma inserção de um nodo novo e a altura aumentou */

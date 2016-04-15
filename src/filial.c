@@ -2,7 +2,7 @@
 
 #if DEBUG_MODE
 	#include <stdio.h>
-	#define DEBUG(x) printf(X); 
+	#define DEBUG(X) printf(X); 
 #else
 	#define DEBUG(X)
 #endif
@@ -82,14 +82,18 @@ static ComprasDoProduto duplicaComprasDoProduto(ComprasDoProduto cdp){
 	return novo;
 }
 
+
+/* verificada */
 Filial criaFilial(){
 	int i;
 	Filial nova = malloc(sizeof(struct filial));		
 
 	if(nova != NULL)
-		for(i = 0; i < 26; i++)		
+		for(i = 0; i < 26; i++){		
 			/* definir função de comparação */
 			nova->clientesOrdenados[i] = criaAVLgenerica((Atualizador) NULL, (Comparador) comparaComprasPorCliente, (Duplicador) NULL, (LibertarNodo) apagaComprasPorCliente);/*nao devia passar função de atualização??*/
+			if(nova->clientesOrdenados[i] == NULL) DEBUG("falha na criacao de filiais\n");
+		}
 	/*else	
 		;  ver tratamento de erros */
 	return nova;
@@ -141,9 +145,14 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 
 	if(naAVL == NULL){
 		/* inicializar os campos */
-		for(i = 1; i < 13; i++)
+		DEBUG("naAVL NULL: Antes do loop\n");
+		for(i = 1; i < 13; i++){
 			ccliente->comprasPorMes[i] = criaAVLgenerica((Atualizador) atualizaComprasDoProduto, (Comparador) comparaComprasDoProduto, (Duplicador) duplicaComprasDoProduto, (LibertarNodo) apagaComprasDoProduto);
+		}
+		DEBUG("naAVL NULL: atr1\n");
 		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[mes], comprasAux);
+		DEBUG("naAVL NULL: atr2\n");
+		printf("%p\n",filial->clientesOrdenados[posicao]); 
 		filial->clientesOrdenados[posicao] = insere(filial->clientesOrdenados[posicao], ccliente);
 		/*free(ccliente);*/ /*ver como limpar compras clientes*/
 	}
