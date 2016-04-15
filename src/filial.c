@@ -152,10 +152,10 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 		filial->clientesOrdenados[posicao] = insere(filial->clientesOrdenados[posicao], ccliente);
 	}
 	else{
-	/*
+	
 		printf("ERRO AQUI \n");
 		free(ccliente);
-		insere(naAVL->comprasPorMes[mes], comprasAux); */ /*nota: a funçao de atualização deve fazer o free no caso de atualizar */
+		insere(naAVL->comprasPorMes[mes], comprasAux);  /*nota: a funçao de atualização deve fazer o free no caso de atualizar */
 	}	
 	return filial;		
 }
