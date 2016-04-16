@@ -224,6 +224,7 @@ void navega(LStrings lStr)
 		else
 			MSG_ERRO("Opção inválida\n")
 	} while(sair == FALSE);
+	system(CLEAR);
 }
 
 /* Apresenta uma página */
@@ -392,8 +393,8 @@ int insereSeValida(char buf[BUF_SIZE]){
 	   && nfilial > 0 && nfilial <= N_FILIAIS)
 
 	{
-		registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);  	
-/*		faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;*/
+		filiais[nfilial] = registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
+		faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;
 		quantos = 1;
 	}
 	apagaCliente(cliente);

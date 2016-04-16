@@ -4,7 +4,6 @@
 #include "avl.h"
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h> /*apagar linha!!!*/
 
 /* Casos Possíveis de evolução das árvores */
 /* A árvore mudou de tamanho devido a uma inserção de um nodo novo e a altura aumentou */
@@ -54,7 +53,7 @@ static AVL_NODO* equilibraDireita(AVL_NODO* raiz);
 static AVL_NODO* rodaEsquerda(AVL_NODO* raiz);
 static AVL_NODO* rodaDireita(AVL_NODO* raiz);
 static int alturaAux(const AVL_NODO* raiz);
-static void inorderAux(const AVL_NODO* arv, ValorNodo* res, Duplicador duplica);
+static int inorderAux(const AVL_NODO* arv, int i, ValorNodo* res, Duplicador duplica);
 /* Remove os nodos de uma AVL ( função auxiliar de apagaAVL() ) */
 static void apagaNodos(AVL_NODO* raiz, LibertarNodo liberta);
 
@@ -109,7 +108,7 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Atualizador atualiza,
 		*modoInsercao = ATUALIZOU;
 		atualiza(raiz, val);
 	
-		printf("a atualizar");
+		/* printf("a atualizar"); */
 		ret = raiz;
 	}
 	else 
@@ -340,20 +339,19 @@ ValorNodo* inorder(const AVL arv)
 		res = malloc(arv->tamanho * sizeof(ValorNodo));
 		
 		if(res != NULL) /* ver se inorderAux não é "programação com balde" */
-			inorderAux(arv->raiz, res, arv->duplica);
+			inorderAux(arv->raiz, 0, res, arv->duplica);
 	}
 	return res;
 }
 
-static void inorderAux(const AVL_NODO* raiz, ValorNodo* res, Duplicador duplica)
+static int inorderAux(const AVL_NODO* raiz, int i, ValorNodo* res, Duplicador duplica)
 {	
-	static int i = 0;
-
 	if(raiz){
-		inorderAux(raiz->esquerda, res, duplica);
-		res[i++] = (duplica != NULL) ? duplica(raiz->valor) : raiz->valor;
-		inorderAux(raiz->direita, res, duplica);
+		i = inorderAux(raiz->esquerda, i, res, duplica);
+		res[i] = (duplica != NULL) ? duplica(raiz->valor) : raiz->valor;
+		i = inorderAux(raiz->direita, i+1, res, duplica);
 	}
+	return i;
 }
 
 /**

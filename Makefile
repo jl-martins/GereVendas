@@ -1,7 +1,7 @@
 EXEC = gereVendas
 CFLAGS = -Wall -Wextra -Wno-unused-function -Wno-unused-result -ansi -pedantic -O2
 OBJS = $(patsubst src/%.c, src/%.o, $(wildcard src/*.c))
-TARGET_ARCH := -march=native
+#TARGET_ARCH := -march=native
 
 # diretorias onde o utilitário 'make' vai procurar pelas dependências e objetivos da makefile
 VPATH = src/ src/programasTestes
@@ -15,11 +15,11 @@ tmp: avl.o catalogoProds.o catalogoClientes.o faturacaoGlobal.o filial.o LString
 $(EXEC): $(OBJS)
 	$(LINK.c) $(OBJS) $(OUTPUT_OPTION)
 
-debug: CFLAGS += -g
+debug: CFLAGS = -O0 -g
 debug: $(EXEC)
-	gdb $(EXEC)
+	gdb ./$(EXEC)
 
-leak-check: CFLAGS += -g
+leak-check: CFLAGS = -O0 -g
 leak-check: $(EXEC)
 	valgrind --tool=memcheck --leak-check=yes ./$(EXEC)
 

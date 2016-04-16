@@ -594,7 +594,7 @@ static void atualizaFatProdMes(void* p1, void* p2)
 			atual->faturacao[i][j] += adicional->faturacao[i][j];
 		}
 	}
-	apagaFatProdMes(adicional);
+	/* apagaFatProdMes(adicional); */
 }
 
 static void atualizaFatAnualProd(void* p1, void* p2)
@@ -605,7 +605,7 @@ static void atualizaFatAnualProd(void* p1, void* p2)
 
 	for(i = 1; i <= N_FILIAIS; ++i)
 		atual->totalVendas[i] += adicional->totalVendas[i];
-	apagaFatAnualProd((void *) adicional);
+	/* apagaFatAnualProd((void *) adicional); */
 }
 /* Fim das funções de atualização dos nodos das AVLs */
 

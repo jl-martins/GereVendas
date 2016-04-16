@@ -16,7 +16,7 @@ struct catProds {
 
 /* Funções passadas para criaAVLgenerica() */
 static int compara(const void *, const void *);
-static void* duplica(void *);
+static ValorNodo duplica(void *);
 static void liberta(void *);
 static void atualiza(void *, void *);
 
@@ -100,9 +100,10 @@ LStrings prodsPorLetra(CatProds catP, char l) {
 		
 		arrCods	= malloc(total * sizeof(char *));
 		if(arrCods == NULL){ /* falha de alocação */
-			/* apagaArray((void**) prods, total, liberta); */ /* passar copias */
+			apagaArray((void**) prods, total, liberta);
 			return NULL;
 		}
+
 		for(i = 0; i < total; ++i){
 			char* copia = obterCodigoProduto(prods[i]);
 
@@ -114,7 +115,7 @@ LStrings prodsPorLetra(CatProds catP, char l) {
 			arrCods[i] = copia;
 		}
 		lProdsPorLetra = criaLStrings(total, arrCods);
-		/* apagaArray((void**) prods, total, liberta); */
+		apagaArray((void**) prods, total, liberta);
 		apagaArray((void**) arrCods, i, free); 
 	}
 	return lProdsPorLetra;
@@ -128,9 +129,9 @@ static int compara(const void* p1, const void* p2)
 	return comparaCodigosProduto((Produto) p1, (Produto) p2);
 }
 
-static void* duplica(void* prod)
+static ValorNodo duplica(void* prod)
 {
-	return duplicaProduto((Produto) prod);
+	return (ValorNodo) duplicaProduto((Produto) prod);
 }
 
 static void liberta(void* prod)
