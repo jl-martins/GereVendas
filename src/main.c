@@ -330,7 +330,7 @@ int leCatalogoClientes(){
 		if(c == NULL) return ERRO;
 		quantos++;
 		insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
-		/*registaNovoCliente(FILIAL_GLOBAL, c);*/
+		/* registaNovoCliente(FILIAL_GLOBAL, c); */
 		apagaCliente(c);
 	}
 	
@@ -393,7 +393,7 @@ int insereSeValida(char buf[BUF_SIZE]){
 	   && nfilial > 0 && nfilial <= N_FILIAIS)
 
 	{
-		filiais[nfilial] = registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
+		/* filiais[nfilial] = registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco); */
 		faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;
 		quantos = 1;
 	}

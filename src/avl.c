@@ -106,7 +106,7 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, ValorNodo val, Atualizador atualiza,
 		ret = insereEsquerda(raiz, val, atualiza, compara, duplica, modoInsercao);
 	else if(atualiza != NULL && comparacao == 0){
 		*modoInsercao = ATUALIZOU;
-		atualiza(raiz, val);
+		atualiza(raiz->valor, val);
 	
 		/* printf("a atualizar"); */
 		ret = raiz;
