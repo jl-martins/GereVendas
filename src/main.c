@@ -42,10 +42,9 @@ static FaturacaoGlobal faturacaoGlobal = NULL;
 #define FVENDAS "data/Vendas_1M.txt"     /* caminho do ficheiro de vendas */
 
 /* Macros utilizadas na navegação e leitura de dados */
-#define FLUSH_STDIN() {int c; while((c = getchar()) != '\n' && c != EOF);}
 #define ENTER_PARA_CONTINUAR() printf("Prima ENTER para continuar: "); getchar()
 #define IMPRIME_OPCOES_NAVEGA() \
-	printf("1) Pag. seg. | 2) Pag. ant. | 3) Selec. pag. | 4) Prim. pag. | 5) Ult. pag. | 6) Info. | 7) Sair\n")
+	printf("1) Pag. ant. | 2) Pag. seg. | 3) Selec. pag. | 4) Prim. pag. | 5) Ult. pag. | 6) Info. | 7) Sair\n")
 #define MSG_ERRO(msg) {fputs(msg, stderr); ENTER_PARA_CONTINUAR();}
 #define LE_INT_BUFF 16
 
@@ -89,10 +88,10 @@ static void perguntaPag(LStrings lStr);
 static void imprimeInformacaoLStrings(int total, int numTotalPags);
 static void apresentaPag(Pagina pag);
 
-opcaoNavega opsNavega[] = {
+static opcaoNavega opsNavega[] = {
 	NULL,
-	proxPag,
 	pagAnt,
+	proxPag,
 	perguntaPag,
 	primPag,
 	ultimaPag
@@ -123,6 +122,13 @@ int main()
 	return r;
 }
 
+/* Definição do comando de limpar o ecrã com base no sistema operativo */
+#ifdef _WIN32
+	#define CLEAR "cls"
+#else
+	#define CLEAR "clear"
+#endif
+
 int interpretador()
 {
 	int r = CONTINUAR;
@@ -132,19 +138,20 @@ int interpretador()
 		imprimeOpcoes(opcoes);
 		r = (fgets(linha, MAXLINHA, stdin) == NULL) ? SAIR : interpreta(linha); /* se falhar deve-se sair? */
 	}while(r == CONTINUAR || r == CMD_INVAL); /* enquanto não houver erro ou ordem para sair */
+	
 	return r;
 }
 
-/* NOTA: Falta completar esta função */
 int interpreta(char linha[])
 {
-	int i = atoi(linha);
 	int r;
+	int i = atoi(linha);
 
 	if(i > 0 && i <= N_OPCOES){ /* o utilizador introduziu um comando válido */
-		queries[i]();			
+		queries[i]();
 		r = i == N_OPCOES? SAIR : CONTINUAR; /* se for inserida a ultima opção, o programa deve sair */
-	}else{
+	}
+	else{
 		opcaoInvalida(linha);
 		r = CMD_INVAL;
 	}
@@ -159,11 +166,12 @@ static void imprimeOpcoes(const char *opcoes[N_OPCOES])
 	puts("Opções:\n");
 	for(i = 1; i <= N_OPCOES; ++i)
 		printf("%2d) %s\n", i, opcoes[i]);
+	printf("\n>>> ");
 }
 
 /* Mensagem de opção inválida */
 static void opcaoInvalida(char opcao[])
-{
+{	/* vamos ter que fazer strtok(opcao, "\r\n") de opcao[] porque esta vem com '\n' */
 	fprintf(stderr, "A opção '%s' é inválida\n\n", opcao);
 }
 
@@ -177,7 +185,7 @@ void navegaVarios(LStrings lStrArr[], int tamanho)
 	do{
 		printf("Existem resultados para %d filiais.\n", tamanho);
 		printf("Introduza o número da filial que pretende"
-			   "ou %d se pretender sair: ", tamanho + 1);
+			   "ou %d se pretender sair\n\n>>> ", tamanho + 1);
 		i = leInt();
 		if(i > 0 && i <= tamanho) /* a indexação começa em 1 */
 			navega(lStrArr[i]);
@@ -187,13 +195,6 @@ void navegaVarios(LStrings lStrArr[], int tamanho)
 			MSG_ERRO("Opção inválida\n");
 	} while(sair == FALSE);
 }
-
-/* Definição do comando de limpar o ecrã com base no sistema operativo */
-#ifdef _WIN32
-	#define CLEAR "cls"
-#else
-	#define CLEAR "clear"
-#endif
 
 /* Função para navegar numa LStrings */
 void navega(LStrings lStr)
@@ -393,7 +394,7 @@ int insereSeValida(char buf[BUF_SIZE]){
 	   && nfilial > 0 && nfilial <= N_FILIAIS)
 
 	{
-		/* filiais[nfilial] = registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco); */
+		filiais[nfilial] = registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
 		faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;
 		quantos = 1;
 	}

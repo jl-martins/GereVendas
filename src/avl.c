@@ -80,8 +80,8 @@ AVL insere(AVL arvore, ValorNodo val)
 {
 	int modoInsercao;
 	
-	assert(arvore != NULL); /* pré-condição para inserir na AVL */
-	assert(val != NULL); /* pré-condição para inserir na AVL */
+	/* assert(arvore != NULL); */ /* pré-condição para inserir na AVL */
+	/* assert(val != NULL); */ /* pré-condição para inserir na AVL */
 
 	arvore->raiz = insereNodo(arvore->raiz, val, arvore->atualiza, arvore->compara, arvore->duplica, &modoInsercao);	
 	if(modoInsercao != ATUALIZOU)
@@ -249,7 +249,7 @@ static AVL_NODO* rodaDireita(AVL_NODO* raiz)
 {
 	AVL_NODO* aux;
 	
-	/* assert(raiz != NULL && raiz->esquerda != NULL);*/
+	assert(raiz != NULL && raiz->esquerda != NULL);
 
 	aux = raiz->esquerda;
 	raiz->esquerda = aux->direita;

@@ -111,6 +111,123 @@ static int comparaVendasAnuais(const void* v1, const void* v2);
 static void apagaFatMensalInterv(FatMes fMes[], int inicio, int fim);
 static void apagaFatMes(FatMes fMes);
 
+/* Função de comparação passada para qsort() para se obter o array
+ * ordenado decrescentemente pelo total de vendas anuais dos produtos */
+static int comparaVendasAnuais(const void* v1, const void* v2)
+{	
+	int totalVendas1 = obterTotalVendasAnuaisProd((FatAnualProd) v1);
+	int totalVendas2 = obterTotalVendasAnuaisProd((FatAnualProd) v2);
+	/* trocar a posição dos termos da subtração permite que qsort ordene
+	 * os produtos por ordem decrescente do total de vendas anuais */
+	return totalVendas2 - totalVendas1;
+}
+
+/* Funções de comparaçõa usadas nas AVLs */
+static int comparaFatProdMes(const void* p1, const void* p2)
+{	
+	return comparaCodigosProduto( ((FatProdMes) p1)->prod, 
+		                          ((FatProdMes) p2)->prod );
+}
+
+static int comparaFatAnualProd(const void* p1, const void* p2)
+{
+	return comparaCodigosProduto( ((FatAnualProd) p1)->prod, 
+		                          ((FatAnualProd) p2)->prod );
+}
+/* Fim das funções de comparação usadas nas AVLs */
+
+/* Funções de atualização dos nodos das AVLs utilizadas neste módulo */
+static void atualizaFatProdMes(void* p1, void* p2)
+{	
+	int i, j;
+	FatProdMes atual = p1;
+	FatProdMes adicional = p2;
+
+	for(i = 0; i < N_TIPOS_VENDA; ++i){
+		for(j = 1; j <= N_FILIAIS; ++j){
+			atual->vendas[i][j] += adicional->vendas[i][j];
+			atual->faturacao[i][j] += adicional->faturacao[i][j];
+		}
+	}
+	/* apagaFatProdMes(adicional); */
+}
+
+static void atualizaFatAnualProd(void* p1, void* p2)
+{	
+	int i;
+	FatAnualProd atual = p1;
+	FatAnualProd adicional = p2;
+
+	for(i = 1; i <= N_FILIAIS; ++i)
+		atual->totalVendas[i] += adicional->totalVendas[i];
+	/* apagaFatAnualProd((void *) adicional); */
+}
+/* Fim das funções de atualização dos nodos das AVLs */
+
+/* Funções de duplicação dos nodos das AVLs utilizadas neste módulo */
+static ValorNodo duplicaFatAnualProd(void* p)
+{	
+	int i;
+	FatAnualProd original = p;
+	FatAnualProd novo = malloc(sizeof(struct fatAnualProd));
+
+	if(novo == NULL) /* falha a alocar a struct fatAnualProd */
+		return NULL;
+
+	novo->prod = duplicaProduto(original->prod);
+	if(novo->prod == NULL){ /* falha a duplicar o produto */
+		free(novo);
+		return NULL;
+	}
+	for(i = 1; i <= N_FILIAIS; ++i)
+		novo->totalVendas[i] = original->totalVendas[i];
+	return (ValorNodo) novo;
+}
+
+static ValorNodo duplicaFatProdMes(void* p){
+	int i, j;
+	FatProdMes original = p;
+	FatProdMes novo = malloc(sizeof(struct fatProdMes));
+
+	if(novo == NULL) /* falha a alocar a struct fatProdMes */
+		return NULL;
+
+	novo->prod = duplicaProduto(original->prod);
+	if(novo->prod == NULL){ /* falha a duplicar o produto */
+		free(novo);
+		return NULL;
+	}
+
+	for(i = 0; i < N_TIPOS_VENDA; ++i){
+		for(j = 1; j <= N_FILIAIS; ++j){
+			novo->vendas[i][j] = original->vendas[i][j];
+			novo->faturacao[i][j] = original->faturacao[i][j];
+		}
+	}
+	return (ValorNodo) novo;
+}
+
+/* Funções de libertação de nodos das AVLs */
+static void apagaNodoFatProdMes(void* p)
+{
+	if(p != NULL){
+		FatProdMes fProdMes = p;
+
+		apagaProduto(fProdMes->prod);
+		free(fProdMes);
+	}
+}
+
+static void apagaFatAnualProd(void* p)
+{	
+	if(p != NULL){
+		FatAnualProd fAnualProd = p;
+
+		apagaProduto(fAnualProd->prod);
+		free(fAnualProd);
+	}
+}
+
 FaturacaoGlobal criaFaturacaoGlobal()
 {
 	int i;
@@ -554,124 +671,4 @@ LStrings obterNmaisVendidos(int N, FaturacaoGlobal fg)
 	apagaArray((void**) arrTodosProdutos, total, apagaFatAnualProd);
 	apagaArray((void**) infoNmaisVend, N, free);
 	return lStr;
-}
-
-/* Função de comparação passada para qsort() para se obter o array
- * ordenado decrescentemente pelo total de vendas anuais dos produtos */
-static int comparaVendasAnuais(const void* v1, const void* v2)
-{	
-	int totalVendas1 = obterTotalVendasAnuaisProd((FatAnualProd) v1);
-	int totalVendas2 = obterTotalVendasAnuaisProd((FatAnualProd) v2);
-	/* trocar a posição dos termos da subtração permite que qsort ordene
-	 * os produtos por ordem decrescente do total de vendas anuais */
-	return totalVendas2 - totalVendas1;
-}
-
-/* Funções de comparaçõa usadas nas AVLs */
-static int comparaFatProdMes(const void* p1, const void* p2)
-{	
-	return comparaCodigosProduto( ((FatProdMes) p1)->prod, 
-		                          ((FatProdMes) p2)->prod );
-}
-
-static int comparaFatAnualProd(const void* p1, const void* p2)
-{
-	return comparaCodigosProduto( ((FatAnualProd) p1)->prod, 
-		                          ((FatAnualProd) p2)->prod );
-}
-/* Fim das funções de comparação usadas nas AVLs */
-
-/* Funções de atualização dos nodos das AVLs utilizadas neste módulo */
-static void atualizaFatProdMes(void* p1, void* p2)
-{	
-	int i, j;
-	FatProdMes atual = p1;
-	FatProdMes adicional = p2;
-
-	for(i = 0; i < N_TIPOS_VENDA; ++i){
-		for(j = 1; j <= N_FILIAIS; ++j){
-			atual->vendas[i][j] += adicional->vendas[i][j];
-			atual->faturacao[i][j] += adicional->faturacao[i][j];
-		}
-	}
-	/* apagaFatProdMes(adicional); */
-}
-
-static void atualizaFatAnualProd(void* p1, void* p2)
-{	
-	int i;
-	FatAnualProd atual = p1;
-	FatAnualProd adicional = p2;
-
-	for(i = 1; i <= N_FILIAIS; ++i)
-		atual->totalVendas[i] += adicional->totalVendas[i];
-	/* apagaFatAnualProd((void *) adicional); */
-}
-/* Fim das funções de atualização dos nodos das AVLs */
-
-/* Funções de duplicação dos nodos das AVLs utilizadas neste módulo */
-static ValorNodo duplicaFatAnualProd(void* p)
-{	
-	int i;
-	FatAnualProd original = p;
-	FatAnualProd novo = malloc(sizeof(struct fatAnualProd));
-
-	if(novo == NULL) /* falha a alocar a struct fatAnualProd */
-		return NULL;
-
-	novo->prod = duplicaProduto(original->prod);
-	if(novo->prod == NULL){ /* falha a duplicar o produto */
-		free(novo);
-		return NULL;
-	}
-	for(i = 1; i <= N_FILIAIS; ++i)
-		novo->totalVendas[i] = original->totalVendas[i];
-	return (ValorNodo) novo;
-}
-
-static ValorNodo duplicaFatProdMes(void* p){
-	int i, j;
-	FatProdMes original = p;
-	FatProdMes novo = malloc(sizeof(struct fatProdMes));
-
-	if(novo == NULL) /* falha a alocar a struct fatProdMes */
-		return NULL;
-
-	novo->prod = duplicaProduto(original->prod);
-	if(novo->prod == NULL){ /* falha a duplicar o produto */
-		free(novo);
-		return NULL;
-	}
-
-	for(i = 0; i < N_TIPOS_VENDA; ++i){
-		for(j = 1; j <= N_FILIAIS; ++j){
-			novo->vendas[i][j] = original->vendas[i][j];
-			novo->faturacao[i][j] = original->faturacao[i][j];
-		}
-	}
-	return (ValorNodo) novo;
-}
-/* Fim das funções de duplicação de nodos das AVLs */
-
-/* Funções de libertação de nodos das AVLs */
-
-/* Apaga uma estrutura do tipo FatProdMes armazenada na AVL de fatProds */
-static void apagaNodoFatProdMes(void* p)
-{
-	if(p != NULL){
-		FatProdMes fProdMes = p;
-
-		apagaProduto(fProdMes->prod);
-		free(fProdMes);
-	}
-}
-
-static void apagaFatAnualProd(void* p)
-{	
-	if(p != NULL){
-		FatAnualProd fAnualProd = p;
-
-		apagaProduto(fAnualProd->prod);
-		free(fAnualProd);
-	}
 }
