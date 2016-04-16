@@ -111,17 +111,6 @@ static int comparaVendasAnuais(const void* v1, const void* v2);
 static void apagaFatMensalInterv(FatMes fMes[], int inicio, int fim);
 static void apagaFatMes(FatMes fMes);
 
-/* Função de comparação passada para qsort() para se obter o array
- * ordenado decrescentemente pelo total de vendas anuais dos produtos */
-static int comparaVendasAnuais(const void* v1, const void* v2)
-{	
-	int totalVendas1 = obterTotalVendasAnuaisProd((FatAnualProd) v1);
-	int totalVendas2 = obterTotalVendasAnuaisProd((FatAnualProd) v2);
-	/* trocar a posição dos termos da subtração permite que qsort ordene
-	 * os produtos por ordem decrescente do total de vendas anuais */
-	return totalVendas2 - totalVendas1;
-}
-
 /* Funções de comparaçõa usadas nas AVLs */
 static int comparaFatProdMes(const void* p1, const void* p2)
 {	
@@ -149,7 +138,6 @@ static void atualizaFatProdMes(void* p1, void* p2)
 			atual->faturacao[i][j] += adicional->faturacao[i][j];
 		}
 	}
-	/* apagaFatProdMes(adicional); */
 }
 
 static void atualizaFatAnualProd(void* p1, void* p2)
@@ -160,7 +148,6 @@ static void atualizaFatAnualProd(void* p1, void* p2)
 
 	for(i = 1; i <= N_FILIAIS; ++i)
 		atual->totalVendas[i] += adicional->totalVendas[i];
-	/* apagaFatAnualProd((void *) adicional); */
 }
 /* Fim das funções de atualização dos nodos das AVLs */
 
@@ -254,14 +241,14 @@ FaturacaoGlobal criaFaturacaoGlobal()
 	return fg;
 }
 
-void apagaFaturacaoGlobal(FaturacaoGlobal fg)
+/* Apaga um array de struct fatMes, desde 'inicio' até 'fim' (inclusivé) */
+static void apagaFatMensalInterv(FatMes fatMensal[], int inicio, int fim)
 {
-	if(fg != NULL){
+	if(fatMensal != NULL && inicio >= 0){
 		int i;
 
-		for(i = 0; i <= N_MESES; ++i)
-			apagaFatMes(fg->fatMensal[i]);
-		apagaAVL(fg->todosProdutos);
+		for(i = inicio; i <= fim; ++i)
+			apagaFatMes(fatMensal[i]);
 	}
 }
 
@@ -274,14 +261,14 @@ static void apagaFatMes(FatMes fMes)
 	}
 }
 
-/* Apaga um array de struct fatMes, desde 'inicio' até 'fim' (inclusivé) */
-static void apagaFatMensalInterv(FatMes fatMensal[], int inicio, int fim)
+void apagaFaturacaoGlobal(FaturacaoGlobal fg)
 {
-	if(fatMensal != NULL && inicio >= 0){
+	if(fg != NULL){
 		int i;
 
-		for(i = inicio; i <= fim; ++i)
-			apagaFatMes(fatMensal[i]);
+		for(i = 0; i <= N_MESES; ++i)
+			apagaFatMes(fg->fatMensal[i]);
+		apagaAVL(fg->todosProdutos);
 	}
 }
 
@@ -671,4 +658,15 @@ LStrings obterNmaisVendidos(int N, FaturacaoGlobal fg)
 	apagaArray((void**) arrTodosProdutos, total, apagaFatAnualProd);
 	apagaArray((void**) infoNmaisVend, N, free);
 	return lStr;
+}
+
+/* Função de comparação passada para qsort() para se obter o array
+ * ordenado decrescentemente pelo total de vendas anuais dos produtos */
+static int comparaVendasAnuais(const void* v1, const void* v2)
+{	
+	int totalVendas1 = obterTotalVendasAnuaisProd((FatAnualProd) v1);
+	int totalVendas2 = obterTotalVendasAnuaisProd((FatAnualProd) v2);
+	/* trocar a posição dos termos da subtração permite que qsort ordene
+	 * os produtos por ordem decrescente do total de vendas anuais */
+	return totalVendas2 - totalVendas1;
 }
