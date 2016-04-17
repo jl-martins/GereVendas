@@ -128,8 +128,9 @@ static const char* opcoes[] = {
 
 int main()
 {
+	int r;
 	splashScreen();
-	int r = interpretador();
+	r = interpretador();
 	return r;
 }
 
@@ -219,10 +220,10 @@ void navegaVarias(LStrings lStrArr[], int tamanho)
 {	
 	int i;
 	bool sair = FALSE;
-
+	fflush(stdin);
 	do{
 		printf("Existem resultados para %d filiais.\n", tamanho);
-		printf("Introduza o número da filial que pretende"
+		printf("Introduza o número da filial que pretende "
 			   "ou %d se pretender sair\n\n>>> ", tamanho + 1);
 		i = leInt(NULL);
 		if(i > 0 && i <= tamanho) /* a indexação começa em 1 */
@@ -571,6 +572,7 @@ static int query3()
 		default:
 			MSG_ERRO("Erro: Modo inválido\nModos válidos: G | F\n");
 	}
+	ENTER_PARA_CONTINUAR();
 	return 0;
 }
 
@@ -698,7 +700,7 @@ static int query6()
 
 	printf("Intervalo de meses = [%d,%d]\n", inicio, fim);
 	printf("Total de unidades vendidas = %d\n"
-		   "Total faturado = %.2f", totalVendas, totalFaturado);
+		   "Total faturado = %.2f\n\n", totalVendas, totalFaturado);
 	return 0; /* introduzir verificação de erros */
 }
 
