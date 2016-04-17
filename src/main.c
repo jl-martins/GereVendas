@@ -78,15 +78,24 @@ static int query12();
 /* Função invocada imediatamente antes de sair */
 static int sair();
 
+/* Funções auxiliares das queries */
+static void resultadosGlobaisQuery3(FatProdMes);
+static void resultadosFiliaisQuery3(FatProdMes);
+
 Query queries[] = {NULL, query1, query2, query3, query4, query5, query6, query7, query8,
 		     query9, query10, query11, query12, sair};
 
 typedef void (*opcaoNavega) (LStrings);
 
+/* Funções de leitura */
 static int leInt();
+static char obterModoRes();
+static char* leCodigo(const char* tipo, int tamanho, char* buffer);
+
+static char* avancaEspacosInicio(char str[]);
 static void perguntaPag(LStrings lStr);
-static void imprimeInformacaoLStrings(int total, int numTotalPags);
 static void apresentaPag(Pagina pag);
+static void imprimeInformacaoLStrings(int total, int numTotalPags);
 
 static opcaoNavega opsNavega[] = {
 	NULL,
@@ -147,7 +156,10 @@ int interpreta(char linha[])
 	int r;
 	int i = atoi(linha);
 
-	if(i > 0 && i <= N_OPCOES){ /* o utilizador introduziu um comando válido */
+	linha = avancaEspacosInicio(linha);
+	if(linha[0] == '\0')
+		r = CONTINUAR;
+	else if(i > 0 && i <= N_OPCOES){ /* o utilizador introduziu um comando válido */
 		queries[i]();
 		r = i == N_OPCOES? SAIR : CONTINUAR; /* se for inserida a ultima opção, o programa deve sair */
 	}
@@ -156,6 +168,15 @@ int interpreta(char linha[])
 		r = CMD_INVAL;
 	}
 	return r;
+}
+
+static char* avancaEspacosInicio(char str[])
+{
+	int i = 0;
+
+	while(str[i] != '\0' && isspace(str[i]))
+		++i;
+	return &str[i];
 }
 
 /* Imprime as opções do GereVendas */
@@ -466,8 +487,8 @@ static int query2()
 		LStrings lProdsLetra;
 
 		printf("Introduza a 1ª letra dos códigos de produto que pretende consultar: ");
-		scanf("%c", &letra);
-		/*letra = toupper(getchar());*/
+
+		letra = toupper(getchar());
 		lProdsLetra = prodsPorLetra(catProds, letra);
 
 		if(lProdsLetra){
@@ -480,10 +501,90 @@ static int query2()
 	return erro;
 }
 
-static int query3( /* faltam os args */)
+static char* leCodigo(const char* tipo, int tamanho, char* buffer)
+{	
+	printf("Introduza o código de %s: ", tipo);
+	fgets(buffer, tamanho, stdin);
+	strtok(buffer, "\r\n");
+
+	return buffer;
+}
+
+static char obterModoRes()
+{	
+	char c;
+
+	printf("Resultados globais[G] ou por filial[F]? ");
+	c = toupper(getchar());
+	return c;
+}
+
+static int query3()
 {
+	int mes;
+	char modo;
+	char codigoProd[MAX_CODIGO_PROD], *cod; /* mudar este nome */
+	Produto p;
+	FatProdMes fProdMes;
+
+	mes = leInt();
+	cod = leCodigo("produto", MAX_CODIGO_PROD, codigoProd);
+	modo = obterModoRes();
+
+	p = criaProduto(cod);
+	fProdMes = obterFatProdMes(faturacaoGlobal, p, mes);
+	apagaProduto(p); /* já não precisamos do produto */
+
+	switch(modo){
+		case 'G':
+			resultadosGlobaisQuery3(fProdMes);
+			break;
+		case 'F':
+			resultadosFiliaisQuery3(fProdMes);
+			break;
+		default:
+			MSG_ERRO("Erro: Modo inválido\nModos válidos: G | F\n");
+	}
 	return 0;
 }
+
+/* calcula e apresenta os resultados globais da query3 */
+static void resultadosGlobaisQuery3(FatProdMes fProdMes)
+{
+	int totalVendas[N_TIPOS_VENDA];
+	double totalFaturado[N_TIPOS_VENDA];
+
+	totalVendas[N] = vendasTotaisProdMes(fProdMes, N),
+	totalVendas[P] = vendasTotaisProdMes(fProdMes, P);
+	totalFaturado[N] = faturacaoTotalProdMes(fProdMes, N);
+	totalFaturado[P] = faturacaoTotalProdMes(fProdMes, P);
+		
+	puts(" ------------------\n| Resultado global |\n -------------------");
+	printf("Vendas N = %d, Vendas P = %d\nFaturação N = %.2f, Faturação P = %.2f\n",
+		    totalVendas[N], totalVendas[P], totalFaturado[N], totalFaturado[P]);
+}
+
+/* calcula e apresenta os resultados da query3 por filial */
+static void resultadosFiliaisQuery3(FatProdMes fProdMes)
+{
+	int filial;
+	int* vendasFilial[N_TIPOS_VENDA];
+	double* faturacaoFilial[N_TIPOS_VENDA];
+		
+	vendasFilial[N] = vendasPorFilialProdMes(fProdMes, N);
+	vendasFilial[P] = vendasPorFilialProdMes(fProdMes, P);
+	faturacaoFilial[N] = faturacaoPorFilialProdMes(fProdMes, N);
+	faturacaoFilial[P] = faturacaoPorFilialProdMes(fProdMes, P);
+
+	for(filial = 1; filial <= N_FILIAIS; ++filial){
+		printf(" ----------\n| Filial %d |\n ----------\n", filial);
+		printf("Vendas N = %d, Vendas P = %d\n"
+			   "Faturação N = %.2f, Faturação P = %.2f\n\n",
+				vendasFilial[N][filial], vendasFilial[P][filial],
+				faturacaoFilial[N][filial], faturacaoFilial[P][filial]);
+	}
+}
+
 
 static int query4( /* faltam os args */)
 {

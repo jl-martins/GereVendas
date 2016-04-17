@@ -382,8 +382,13 @@ FatProdMes obterFatProdMes(const FaturacaoGlobal fg, const Produto p, int mes)
 {	
 	FatProdMes fProdMes = NULL;
 	
-	if(MES_VALIDO(mes))
-		fProdMes = (FatProdMes) procuraAVL(fg->fatMensal[mes]->fatProds, p);
+	if(MES_VALIDO(mes)){
+		FatProdMes tmp = malloc(sizeof(struct fatProdMes));
+
+		tmp->prod = p;
+		fProdMes = (FatProdMes) procuraAVL(fg->fatMensal[mes]->fatProds, tmp);
+		free(tmp);
+	}
 	return fProdMes;
 }
 
