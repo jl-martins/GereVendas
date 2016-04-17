@@ -186,21 +186,19 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 
 	if(naFilial == NULL){ /* é a primeira vez que o cliente compra na filial */
 		int i;
-		char* codigo = obterCodigoCliente(ccliente->cliente);
+		/*char* codigo = obterCodigoCliente(ccliente->cliente);*/
 		/* inicializar os campos */
-		for(i = 1; i < 13; i++){
+		for(i = 1; i < 13; i++)
 			ccliente->comprasPorMes[i] = criaAVLgenerica(atualizaComprasDoProduto, comparaComprasDoProduto, duplicaComprasDoProduto, apagaNodoComprasDoProduto);
-			printf("Cliente: %s | Mês: %d | End: %p\n", codigo, i, (void *) ccliente->comprasPorMes[i]);
-		}
+
 		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[mes], comprasAux);
-		printf("ccliente->comprasPorMes[mes] = %p\n", (void *) ccliente->comprasPorMes[mes]);
+		/*printf("ccliente->comprasPorMes[%d] = %p\n",  mes, (void *) ccliente->comprasPorMes[mes]);*/
 		filial->clientesOrdenados[posicao] = insere(filial->clientesOrdenados[posicao], ccliente);
-		free(codigo);
+		/*naFilial = procuraAVL(filial->clientesOrdenados[posicao], ccliente);*/
+		/*printf("naFilial: %p | ccliente: %p | ccliente->comprasPorMes[%d]: %p\n", (void *) naFilial, (void *) ccliente, mes, (void *) naFilial->comprasPorMes[mes]);
+		free(codigo);*/
 	}
 	else{
-		printf("Cliente: %p\n", (void *) naFilial->cliente);	
-		perror("erro: ");
-		sleep(5);
 		free(ccliente); /* falta liberta o código de cliente duplicado */
 		insere(naFilial->comprasPorMes[mes], comprasAux);  /*nota: a funçao de atualização deve fazer o free no caso de atualizar */
 	}	

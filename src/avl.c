@@ -279,7 +279,7 @@ ValorNodo procuraAVL(const AVL arv, ValorNodo val)
 			nodoAtual = nodoAtual->esquerda;
 		else{
 			/* ver código de tratamento de erros */
-			res = (arv->duplica != NULL) ? arv->duplica(val) : val;
+			res = (arv->duplica != NULL) ? arv->duplica(nodoAtual->valor) : nodoAtual->valor;
 			break; /* encontramos o valor procurado */
 		}
 	}

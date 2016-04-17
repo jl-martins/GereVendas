@@ -43,6 +43,10 @@ double totalFatIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
  * sobre a faturação de um produto num dado mês */
 FatProdMes obterFatProdMes(const FaturacaoGlobal fg, const Produto p, int mes);
 
+/* Liberta uma cópia do tipo FatProdMes que
+ * é devolvida pela função obterFatProdMes()  */
+void apagaFatProdMes(FatProdMes fProdMes);
+
 /* Recebe a faturação de um produto num mês ('fProdMes') e o tipo de venda ('tipo'). 
  * Devolve o total de vendas do tipo especificado, registadas em 'fProdMes' */
 int vendasTotaisProdMes(const FatProdMes fProdMes, TipoVenda tipo);
@@ -73,9 +77,5 @@ LStrings obterNmaisVendidos(int N, FaturacaoGlobal fg);
 
 /* Liberta a memória alocada para armazenar a faturação global */
 void apagaFaturacaoGlobal(FaturacaoGlobal fg);
-
-/* Liberta uma cópia do tipo FatProdMes que
- * é devolvida pela função obterFatProdMes()  */
-void apagaFatProdMes(FatProdMes fProdMes);
 
 #endif

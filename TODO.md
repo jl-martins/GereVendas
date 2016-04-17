@@ -1,8 +1,9 @@
 Afazeres:
-- Escolher módulo para AVLs ou desenvolver o nosso
-- Começar a fazer documentação do doxygen 
-- corrigir a função de validação de casos
-- limpar código do filtraVendas
-- implementar os modulos de Catalogo de Produtos, Catalogo de Clientes, Faturaçao global, Vendas por filial
+
 - aprender a usar Makefiles :)
-- ponham coisas aqui
+- fazer com que o interpretador de comandos não diga "comando inválido" quando o utilizador
+  escreve só espaços;
+- apresentar o nome dos ficheiros só depois da leitura dos mesmos;
+- definir macro para sinalizar falhas de alocação no interpretador de comandos;
+- testar as funções que apagam os catálogos, faturação e filiais; 
+- criar uma espécies de "erros.c" e "erros.h" para não encher a main com tratamento de erros;
