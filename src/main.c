@@ -707,6 +707,7 @@ static int query6()
 static bool comprouTodasFiliais(Cliente c){
 	int i;
 	for(i = 1; i <= N_FILIAIS; i++)
+		printf("ctf\n");
 		if(!clienteComprouNaFilial(filiais[i], c))
 			return FALSE;
 	return TRUE;
@@ -725,8 +726,11 @@ int query7()
 	/* if(clientes == NULL) ... */
 	codigosClientes = malloc(nClientes * sizeof(char *));
 	for(i = 0; i < nClientes; i++){
-		if(comprouTodasFiliais(clientes[i]))
+		printf("loop\n");
+		if(comprouTodasFiliais(clientes[i])){
+			printf("bla\n");
 			codigosClientes[j++] = obterCodigoCliente(clientes[i]);
+		}
 		apagaCliente(clientes[i]);	
 	}
 	free(clientes);
