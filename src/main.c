@@ -15,9 +15,10 @@
 #include "faturacaoGlobal.h"
 #include "filial.h"
 #include "LStrings.h"
+#include "leitura.h"
 
 #define N_FILIAIS 3
-#define BUF_SIZE 1024
+#define TAM_LINHA 1024
 
 static CatClientes catClientes = NULL;
 static CatProds catProds = NULL;
@@ -90,13 +91,11 @@ typedef void (*opcaoNavega) (LStrings);
 
 /* Funções de leitura */
 static char obterModoRes();
-static int leInt(const char msg[]);
-static char* leCodigo(const char tipo[], int tamanho, char buffer[]);
+static char* leCodigo(const char tipo[], int tamanho);
 
-static char* avancaEspacosInicio(char str[]);
 static void perguntaPag(LStrings lStr);
 static void apresentaPag(Pagina pag);
-static void imprimeInformacaoLStrings(int total, int numTotalPags);
+static void imprimeInformacaoLStrings(LStrings);
 
 static opcaoNavega opsNavega[] = {
 	NULL,
@@ -104,7 +103,8 @@ static opcaoNavega opsNavega[] = {
 	proxPag,
 	perguntaPag,
 	primPag,
-	ultimaPag
+	ultimaPag,
+	imprimeInformacaoLStrings
 };
 
 /* Opções do interpretador de comandos */
@@ -158,12 +158,15 @@ void splashScreen()
 int interpretador()
 {
 	int r = CONTINUAR;
-	char linha[MAXLINHA];
+	char *linha;
 
 	do{
 		system(CLEAR);
 		imprimeOpcoes(opcoes);
-		r = (fgets(linha, MAXLINHA, stdin) == NULL) ? SAIR : interpreta(linha); /* se falhar deve-se sair? */
+		linha = leLinha(MAXLINHA);
+		r = (linha == NULL) ? SAIR : interpreta(linha); /* se falhar deve-se sair? */
+		if(linha)
+			free(linha);
 	}while(r == CONTINUAR || r == CMD_INVAL); /* enquanto não houver erro ou ordem para sair */
 	
 	return r;
@@ -172,29 +175,24 @@ int interpretador()
 int interpreta(char linha[])
 {
 	int r;
-	int i = atoi(linha);
+	int i;
 
 	linha = avancaEspacosInicio(linha);
-	if(linha[0] == '\0')
+	if(linha[0] == '\0') /* foi introduzida uma linha em branco */
 		r = CONTINUAR;
-	else if(i > 0 && i <= N_OPCOES){ /* o utilizador introduziu um comando válido */
-		queries[i]();
-		r = i == N_OPCOES? SAIR : CONTINUAR; /* se for inserida a ultima opção, o programa deve sair */
-	}
 	else{
-		opcaoInvalida(linha);
-		r = CMD_INVAL;
+		i = atoi(linha);
+		if(i > 0 && i <= N_OPCOES){ /* o utilizador introduziu um comando válido */
+			queries[i]();
+			r = (i == N_OPCOES) ? SAIR : CONTINUAR; /* se for inserida a ultima opção, o programa deve sair */
+		}
+		else{
+			opcaoInvalida(linha);
+			r = CMD_INVAL;
+		}
+		ENTER_PARA_CONTINUAR();
 	}
 	return r;
-}
-
-static char* avancaEspacosInicio(char str[])
-{
-	int i = 0;
-
-	while(str[i] != '\0' && isspace(str[i]))
-		++i;
-	return &str[i];
 }
 
 /* Imprime as opções do GereVendas */
@@ -220,12 +218,12 @@ void navegaVarias(LStrings lStrArr[], int tamanho)
 {	
 	int i;
 	bool sair = FALSE;
-	fflush(stdin);
+
 	do{
 		printf("Existem resultados para %d filiais.\n", tamanho);
 		printf("Introduza o número da filial que pretende "
 			   "ou %d se pretender sair\n\n>>> ", tamanho + 1);
-		i = leInt(NULL);
+		i = leInt();
 		if(i > 0 && i <= tamanho) /* a indexação começa em 1 */
 			navega(lStrArr[i]);
 		else if(i == (tamanho + 1))
@@ -240,31 +238,52 @@ void navega(LStrings lStr)
 {
 	Pagina pag;
 	int opcao;
-	int total, numTotalPags; 
+	int numTotalPags; 
 	bool sair = FALSE;
 
-	total = obterTotal(lStr); /* número total de entradas na LStrings */
 	numTotalPags = obterNumTotalPags(lStr);
-	imprimeInformacaoLStrings(total, numTotalPags);
+	imprimeInformacaoLStrings(lStr);
 	do{
 		system(CLEAR);
 		
-		pag = obterPag(lStr); /* lê a página atual */
+		pag = obterPag(lStr); /* devolve a página atual */
 		apresentaPag(pag);
 		IMPRIME_OPCOES_NAVEGA();
 		printf("(%d/%d): ", obterNumPag(lStr), numTotalPags);
 		
-		opcao = leInt(NULL);
-		if(opcao >= 1 && opcao <= 5)
-			opsNavega[opcao](lStr);
-		else if(opcao == 6)
-			imprimeInformacaoLStrings(total, numTotalPags);
+		opcao = leInt();
+		if(opcao >= 1 && opcao <= 6)
+			opsNavega[opcao](lStr); 
 		else if(opcao == 7)
 			sair = TRUE;
 		else
 			MSG_ERRO("Opção inválida\n")
 	} while(sair == FALSE);
 	system(CLEAR);
+}
+
+/* Imprime o número de entradas, o total de páginas e o número de entras/página */
+static void imprimeInformacaoLStrings(LStrings lStr)
+{	
+	system(CLEAR);
+	printf("Número de entradas: %d\nTotal de páginas: %d\nEntradas por página: %d\n\n",
+			  obterTotal(lStr), obterNumTotalPags(lStr), STRINGS_POR_PAG);
+	ENTER_PARA_CONTINUAR();
+}
+
+/* Pergunta ao utilizador para que página pretende ir e avança para
+ * a página especificada, se esta for válida. */
+static void perguntaPag(LStrings lStr)
+{
+	int pag;
+
+	printf("Para que página pretende ir? ");
+	pag = leInt();
+
+	if(pag <= 0 || pag > obterNumTotalPags(lStr))
+		MSG_ERRO("A página que introduziu é inválida\n")
+	else
+		irParaPag(pag, lStr);
 }
 
 /* Apresenta uma página */
@@ -278,93 +297,92 @@ static void apresentaPag(Pagina pag)
 	}
 }
 
-/* Pergunta ao utilizador para que página pretende ir e avança para
- * a página especificada, se esta for válida. */
-static void perguntaPag(LStrings lStr)
-{
-	int pag;
-
-	pag = leInt("Para que página pretende ir? ");
-
-	if(pag <= 0 || pag > obterNumTotalPags(lStr))
-		MSG_ERRO("A página que introduziu é inválida\n")
-	else
-		irParaPag(pag, lStr);
-}
-
-/* Imprime o número de entradas, o total de páginas e o número de entras/página */
-static void imprimeInformacaoLStrings(int total, int numTotalPags)
-{	
-	system(CLEAR);
-	printf("Número de entradas: %d\nTotal de páginas: %d\nEntradas por página: %d\n\n",
-			total, numTotalPags, STRINGS_POR_PAG);
-	ENTER_PARA_CONTINUAR();
-}
-
-static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[BUF_SIZE], char * tipoDeElems){
-	FILE * fp;
-	char * caminho;
+static FILE* perguntaAbreFicheiro(char* ficheiroPadrao, char linha[TAM_LINHA], char* tipoDeElems){
+	FILE* fp;
+	char* caminho;
 
 	printf("Insira o caminho do ficheiro de %s (Enter para abrir ficheiro padrao):", tipoDeElems);	
-	fgets(buf, BUF_SIZE, stdin);
-	caminho = strtok(buf, "\r\n");
+	fgets(linha, TAM_LINHA, stdin);
+	caminho = strtok(linha, "\r\n");
 
-	if (caminho) for(; *caminho && isspace(*caminho); caminho++) 
-		;
-	if(caminho == NULL || *caminho == '\0') 
+	if(caminho != NULL)
+		caminho = avancaEspacosInicio(caminho);
+	if(caminho == NULL || caminho == '\0') 
 		caminho = ficheiroPadrao;
 
 	fp = fopen(caminho, "r");
-	if(fp == NULL) fprintf(stderr, "Nao foi possivel abrir o ficheiro %s\n", caminho);
-	else printf("Ficheiro lido: %s\n", caminho);
+	if(fp == NULL)
+		fprintf(stderr, "Nao foi possivel abrir o ficheiro %s\n", caminho);
+	else /* imprimir esta mensagem só depois de se ter percorrido o ficheiro todo */
+		printf("Ficheiro lido: %s\n", caminho);
 	return fp;	
 }
 
 int leCatalogoProdutos(){
-	Produto p;
-	FILE * fp;	
-	char buf[BUF_SIZE];
-	char * tmp;
+	FILE* fp;	
+	char linha[TAM_LINHA];
+	char* linhaLimpa;
 	int quantos = 0;
+	Produto p;
+	CatProds novoCatP;
+	FaturacaoGlobal novaFatG;
 
-	fp = perguntaAbreFicheiro(FPRODUTOS, buf, "produtos");
-	if(fp == NULL) return ERRO;
-	while(fgets(buf, BUF_SIZE, fp)){
-		tmp = strtok(buf, "\r\n");
-		p = criaProduto(tmp);
-		if(p == NULL)return ERRO; 
+	fp = perguntaAbreFicheiro(FPRODUTOS, linha, "produtos");
+	if(fp == NULL)
+		return ERRO;
+	while(fgets(linha, TAM_LINHA, fp)){
+		linhaLimpa = strtok(linha, "\r\n");
+		p = criaProduto(linhaLimpa);
+		if(p == NULL) /* falha de alocação ao criar o produto */
+			return ERRO; 
 		quantos++;
-		catProds = insereProduto(catProds, p); /*inserir tratamento de erros */
-		registaProduto(faturacaoGlobal, p);
+		
+		novoCatP = insereProduto(catProds, p);
+		if(novoCatP == NULL) /* falha de alocação a inserir o produto */
+			return ERRO;
+		else
+			catProds = novoCatP;
+		
+		novaFatG = registaProduto(faturacaoGlobal, p);
+		if(novaFatG == NULL)
+			return ERRO;
+		else
+			faturacaoGlobal = novaFatG; 
 		apagaProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
-	printf("Produtos Lidos: %d\n", totalProdutos(catProds));
+	printf("Número de produtos lidos: %d\n", totalProdutos(catProds));
 	fclose(fp);
 	return quantos;
 }
 
 int leCatalogoClientes(){
-	FILE * fp;	
-	char buf[BUF_SIZE];
-	Cliente c;
-	char * tmp;
+	FILE* fp;	
+	char linha[TAM_LINHA];
+	char* linhaLimpa;
 	int quantos = 0;
+	Cliente c;
+	CatClientes novoCatC;
 
-	fp = perguntaAbreFicheiro(FCLIENTES, buf, "clientes");
-	if(fp == NULL) return ERRO;
+	fp = perguntaAbreFicheiro(FCLIENTES, linha, "clientes");
+	if(fp == NULL)
+		return ERRO;
 
-	while(fgets(buf, BUF_SIZE, fp)){
-		tmp = strtok(buf, "\r\n");
-		c = criaCliente(tmp);
-		if(c == NULL) return ERRO;
+	while(fgets(linha, TAM_LINHA, fp)){
+		linhaLimpa = strtok(linha, "\r\n");
+		c = criaCliente(linhaLimpa);
+		if(c == NULL) /* falha de alocação ao criar o cliente */
+			return ERRO;
 		quantos++;
-		insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
+		novoCatC = insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
+		if(novoCatC == NULL)
+			return ERRO;
+		else
+			catClientes = novoCatC;
 		/* registar código de cliente na filial para ser mais facil distinguir quando um código é invalido de quando nao fez compras */
 		/* registaNovoCliente(FILIAL_GLOBAL, c); */
 		apagaCliente(c);
 	}
-	
-	printf("Clientes Lidos: %d\n", totalClientes(catClientes));
+	printf("Número de clientes lidos: %d\n", totalClientes(catClientes));
 	fclose(fp);
 
 	return quantos;
@@ -378,15 +396,15 @@ int leCatalogoClientes(){
 #define MAX_PRECO 999.99
 
 /* Dada uma linha com informação da venda, a função processa a informação da venda e, se for válida, regista a compra */
-int insereSeValida(char buf[BUF_SIZE]){
+int insereSeValida(char linha[TAM_LINHA]){
 	Cliente cliente;
 	Produto produto;
 	int unidades, mes, nfilial,  quantos = 0;
 	double preco;
 	TipoVenda tipoVenda;
-	char * it;
+	char* it;
 
-	it = strtok(buf, " ");
+	it = strtok(linha, " ");
 	VERIFICA(it);
 	produto = criaProduto(it);
 
@@ -436,19 +454,20 @@ int insereSeValida(char buf[BUF_SIZE]){
 #undef VERIFICA
 
 int carregaVendasValidas(){
-	char buf[BUF_SIZE];
-	FILE * fp;
+	char linha[TAM_LINHA];
+	FILE* fp;
 	int validas = 0;
 
-	fp = perguntaAbreFicheiro(FVENDAS, buf, "vendas");
-	if(fp == NULL) return ERRO;
+	fp = perguntaAbreFicheiro(FVENDAS, linha, "vendas");
+	if(fp == NULL)
+		return ERRO;
 	
-	while(fgets(buf, BUF_SIZE, fp)){
-		validas += insereSeValida(buf);
+	while(fgets(linha, TAM_LINHA, fp)){
+		validas += insereSeValida(linha);
 	}
-	
+
 	fclose(fp);
-	printf("Vendas Validas: %d\n", validas);
+	printf("Número de vendas válidas: %d\n", validas);
 	return 0; /* mudar valor */
 }
 
@@ -497,6 +516,7 @@ static int query2()
 		printf("Introduza a 1ª letra dos códigos de produto que pretende consultar: ");
 
 		letra = toupper(getchar());
+		FLUSH_STDIN();
 		lProdsLetra = prodsPorLetra(catProds, letra);
 
 		if(lProdsLetra){
@@ -509,28 +529,14 @@ static int query2()
 	return erro;
 }
 
-/* Lê um inteiro e devolve-o à função chamadora. Se o utilizador passar
- * uma mensagem como argumento, leInt() apresenta-a antes de ler o inteiro */
-static int leInt(const char msg[])
-{
-	char buffer[LE_INT_BUFF];
-
-	if(msg)
-		printf("%s", msg);
-	fgets(buffer, LE_INT_BUFF, stdin);
-	fflush(stdin);
-	return atoi(buffer);
-}
-
-/* Recebe o tipo do código a ler (i.e.: produto ou cliente), o seu tamanho
- * e um buffer com o tamanho especificado e lê o código para esse buffer. */
-static char* leCodigo(const char tipo[], int tamanho, char* buffer)
+/* Recebe o tipo do código a ler (i.e.: produto ou cliente) e o tamanho
+ * máximo do mesmo e lê o código do stdin. Se a leitura tiver sucesso,
+ * é devolvido o código lido, se não é devolvido NULL. O código devolvido
+ * deve ser libertado com a função free(), quando já não for necessário. */
+static char* leCodigo(const char tipo[], int tamanho)
 {	
 	printf("Introduza o código de %s: ", tipo);
-	fgets(buffer, tamanho, stdin);
-	strtok(buffer, "\r\n");
-
-	return buffer;
+	return leLinha(tamanho);
 }
 
 /* Pergunta ao utilizador se pretende um resultado global (G)
@@ -542,7 +548,7 @@ static char obterModoRes()
 
 	printf("Resultados globais[G] ou por filial[F]? ");
 	c = toupper(getchar());
-	fflush(stdin); /* ver se funciona */
+	FLUSH_STDIN();
 	return c;
 }
 
@@ -550,17 +556,17 @@ static int query3()
 {
 	int mes;
 	char modo;
-	char codigoProd[MAX_CODIGO_PROD], *cod; /* mudar este nome */
+	char *codigoProd; /* mudar este nome */
 	Produto p;
 	FatProdMes fProdMes;
 
-	mes = leInt("Introduza o mês: ");
-	cod = leCodigo("produto", MAX_CODIGO_PROD, codigoProd);
+	codigoProd = leCodigo("produto", MAX_CODIGO_PROD);
+	printf("Mês: "); mes = leInt();
 	modo = obterModoRes();
 
-	p = criaProduto(cod);
+	p = criaProduto(codigoProd);
 	fProdMes = obterFatProdMes(faturacaoGlobal, p, mes);
-	apagaProduto(p); /* já não precisamos do produto */
+	free(codigoProd); apagaProduto(p);/* já não precisamos do produto nem do código */
 
 	switch(modo){
 		case 'G':
@@ -571,8 +577,8 @@ static int query3()
 			break;
 		default:
 			MSG_ERRO("Erro: Modo inválido\nModos válidos: G | F\n");
+			break;
 	}
-	ENTER_PARA_CONTINUAR();
 	return 0;
 }
 
@@ -587,7 +593,7 @@ static void resultadosGlobaisQuery3(FatProdMes fProdMes)
 	totalFaturado[N] = faturacaoTotalProdMes(fProdMes, N);
 	totalFaturado[P] = faturacaoTotalProdMes(fProdMes, P);
 		
-	puts(" ------------------\n| Resultado global |\n -------------------");
+	puts(" ------------------\n| Resultado global |\n ------------------");
 	printf("Vendas N = %d, Vendas P = %d\nFaturação N = %.2f, Faturação P = %.2f\n",
 		    totalVendas[N], totalVendas[P], totalFaturado[N], totalFaturado[P]);
 }
@@ -611,6 +617,8 @@ static void resultadosFiliaisQuery3(FatProdMes fProdMes)
 				vendasFilial[N][filial], vendasFilial[P][filial],
 				faturacaoFilial[N][filial], faturacaoFilial[P][filial]);
 	}
+	free(vendasFilial[N]); free(vendasFilial[P]);
+	free(faturacaoFilial[N]); free(faturacaoFilial[P]);
 }
 
 static int query4()
@@ -691,9 +699,9 @@ static int query6()
 	int totalVendas;
 	double totalFaturado;
 
-	puts("Intervalo fechado de meses");
-	inicio = leInt("Inicio: ");
-	fim = leInt("Fim: ");
+	puts("Introduza um intervalo fechado de meses");
+	printf("Inicio: "); inicio = leInt();
+	printf("Fim: "); fim = leInt();
 
 	totalVendas = totalVendasIntervMeses(faturacaoGlobal, inicio, fim);
 	totalFaturado = totalFatIntervMeses(faturacaoGlobal, inicio, fim);

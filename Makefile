@@ -15,11 +15,11 @@ tmp: avl.o catalogoProds.o catalogoClientes.o faturacaoGlobal.o filial.o LString
 $(EXEC): $(OBJS)
 	$(LINK.c) $(OBJS) $(OUTPUT_OPTION)
 
-debug: CFLAGS = -O0 -g
+debug: CFLAGS = -Wall -Wextra -ansi -pedantic -O0 -g
 debug: $(EXEC)
 	gdb ./$(EXEC)
 
-leak-check: CFLAGS = -O0 -g
+leak-check: CFLAGS = -Wall -Wextra -ansi -pedantic -O0 -g
 leak-check: $(EXEC)
 	valgrind --tool=memcheck --leak-check=yes ./$(EXEC)
 
