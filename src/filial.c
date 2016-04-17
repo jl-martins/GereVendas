@@ -219,11 +219,12 @@ static ComprasPorCliente procuraClienteNasVendas(Cliente cliente, Filial filial)
 		return NULL;
 	ccliente->cliente = cliente;
 	nasVendas = procuraAVL(filial->clientesOrdenados[posicao], ccliente);
+	free(ccliente); /*nao estou a usar a API para limpar */
 	return nasVendas;
 }
 
 bool clienteComprouNaFilial(Filial filial, Cliente cliente){
-	return procuraClienteNasVendas(cliente, filial) == NULL;
+	return (procuraClienteNasVendas(cliente, filial) == NULL);
 }
 
 /* fazer o existe à custa do procura */
@@ -254,36 +255,6 @@ static int somaUnidadesMes(AVL_ComprasPorCliente arv){
 	free(produtosComprados);	
 	return soma;
 }
-
-/*query 7 */
-/* esta query vai ser implementada com um merge das 3 listas */
-/* apagar!! 
-Cliente * clientesCompraramNaFilial(Filial filial){
-	int nClientes = 0, quantasCompras;
-	int i, j, lim, k;
-	Cliente * clientes;
-	ComprasPorCliente* compras;
-
-	for(i = 0; i < 26; i++)
-		nClientes += tamanho(filial->clientesOrdenados[i]);
-			
-	clientes = malloc(sizeof(Cliente) * nClientes);
-	i = 0;
-	for(j = 0; j < 26; j++){
-		compras = (ComprasPorCliente *) inorder(filial->clientesOrdenados[i]);
-		if(compras == NULL) return NULL;
-		limpar o que foi alocado 
-		quantasCompras = tamanho(filial->clientesOrdenados[i]); 		
-		lim = i + quantasCompras;		
-		for(k=0; i < lim; i++, k++)
-			clientes[i] = compras[k]->cliente; 
-		free(compras);				
-	}
-	return clientes;
-}
-*/
-/*estratégia alternativa: navegar apenas na filial global */
-
 
 /* fazer funçoes que libertam avls alocadas (mas nao Produtos e Vendas) e Produtos * e Vendas * (talvez ecapsular Produto *) */
 

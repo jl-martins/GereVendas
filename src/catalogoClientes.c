@@ -91,6 +91,7 @@ Cliente * todosClientes(CatClientes catC, int * nElems){
 		nclientes += tamanho(catC->catalogo[i]);
 	/* fazer codigo para cuidar de erros */
 	clientes = (Cliente *) malloc(sizeof(Cliente) * nclientes); 
+	/* mudar para 0 se for NULL */
 	*nElems = nclientes;
 	
 	indice = 0;
