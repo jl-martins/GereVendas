@@ -719,7 +719,7 @@ int query7()
 	int nClientes, i, j;
 	LStrings lista;
 
-	i = 0;	
+	i = 0; j = 0;	
 	/* impedir que leia se os ficheiros nao tiverem sido carregados */
 	clientes = todosClientes(catClientes, &nClientes);
 	/* if(clientes == NULL) ... */
