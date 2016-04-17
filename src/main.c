@@ -352,6 +352,7 @@ int leCatalogoClientes(){
 		if(c == NULL) return ERRO;
 		quantos++;
 		insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
+		/* registar código de cliente na filial para ser mais facil distinguir quando um código é invalido de quando nao fez compras */
 		/* registaNovoCliente(FILIAL_GLOBAL, c); */
 		apagaCliente(c);
 	}
@@ -591,10 +592,46 @@ static int query4( /* faltam os args */)
 	return 0;
 }
 
-static int query5( /* faltam os args */)
+#define IMPRIME_SEPARADOR printf("----------------------------------------------------------------\n");
+static int query5()
 {
+	char buff[16]; /*definir tamanho numa macro */
+	char * tok;
+	Cliente cliente;
+	int totalMes, i, j;
+	int * comprasPorFilial[N_FILIAIS+1]; /* ao indice i (!= 0), correspondem as vendas na filial i */	
+	printf("Insira um código de cliente: ");
+	fgets(buff, 16, stdin);
+	/* mover strtok para a criaProdutos? e parte que avanca codigo em branco*/
+	/* versao para testar, sem cuidados para erros */
+	tok = strtok(buff, " \r\n");
+	cliente = criaCliente(tok);
+	/*validar codigo de cliente */
+
+	for(i = 1; i <= N_FILIAIS; i++)
+		comprasPorFilial[i] = unidadesClientePorMes(filiais[i], cliente); 	
+	/* ver o que acontece se for NULL */	
+	IMPRIME_SEPARADOR;
+	printf("|--Meses--|");
+	for(i = 1; i <= N_FILIAIS; i++)
+		printf("|--Filial %d--|", i);	
+	printf("|--Total--|\n");
+	IMPRIME_SEPARADOR;
+
+	for(j = 1; j < 13; j++){
+		totalMes = 0;
+		printf("|%8d |", j);
+		for(i = 1 ; i <= N_FILIAIS; i++){
+			printf("|%11d |", comprasPorFilial[i][j]);
+			totalMes += comprasPorFilial[i][j];
+		}
+		printf("|%8d |\n", totalMes);	
+		IMPRIME_SEPARADOR;
+	}		
 	return 0;
 }
+
+#undef IMPRIME_SEPARADOR
 
 static int query6( /* faltam os args */)
 {
@@ -643,70 +680,4 @@ static void erroNaoLeuFich()
 	fputs("Erro: Ainda não leu os ficheiros de dados\n"
 		  "Introduza '1' e prima ENTER para o fazer\n", stderr);
 }
-/*
-#define MAXBUF 8
-#define NEXT 1
-#define PREV 2
-#define GOTO 3
-#define FST 4
-#define LST 5
-*/
-/*
-void navega(ConjuntoProds conj)
-{
-	int exit = 0;
-	int err = 0;
-	char linha[MAXBUF]; int op;
 
-	while(!exit)
-	{
-		if(system("clear") == -1)
-			system("cls");
-		printf("Column1    Column2    Column3    Column4\n");
-		apresentaPag(conj);
-		if(err){ printf("Erro: Página inexistente!\n"); err = 0; }
-		printf("(%d/%d): NEXT(1) | PREV(2) | GOTO(3) | FIRST(4) | LAST(5) | SAIR(0)\n", obterPag(conj), obterMaxPag(conj));
-		
-		fgets(linha, MAXBUF, stdin);
-		op = atoi(linha);
-
-		switch(op)
-		{
-			case NEXT: nextPage(conj); break;
-			case PREV: prevPage(conj); break;
-			case GOTO: 
-				fgets(linha, MAXBUF, stdin);
-				op = atoi(linha);
-				err = goToPage(conj, op);
-				break;
-			case FST: fstPage(conj); break;
-			case LST: lastPage(conj); break;
-			case SAIR: exit = 1;
-		}
-	}
-}
-
-void apresentaPag(ConjuntoProds conjP)
-{
-	char** conj = obterCodigosPPag(conjP);
-	int i = 0;
-	int f = obterIndiceFinal(conjP) - obterIndice(conjP);
-
-	if(conj)
-	{
-		while(i < f)
-		{
-			if(i < f && conj[i]) printf("%7s", conj[i++]);	
-			if(i < f && conj[i]) printf("%11s", conj[i++]);
-			if(i < f && conj[i]) printf("%11s", conj[i++]);
-			if(i < f && conj[i]) printf("%11s", conj[i++]);
-			printf("\n");
-		}
-	}
-
-	for(i = 0; i < f; i++)
-		free(conj[i]);
-	
-	free(conj);
-}
-*/

@@ -221,8 +221,8 @@ static ComprasPorCliente procuraClienteNasVendas(Cliente cliente, Filial filial)
 }
 
 /* funçoes para queries */
-/*querie 5*/
-/* devolve um array com 13 entradas(12 validas) que à entrada i daz corresponder o numero de unidades do mes i */
+/*query 5*/
+/* devolve um array com 13 entradas(12 validas) que à entrada i faz corresponder o numero de unidades do mes i */
 int * unidadesClientePorMes(Filial filial, Cliente cliente){
 	int i;
 	int * unidades; 
@@ -247,9 +247,9 @@ static int somaUnidadesMes(AVL_ComprasPorCliente arv){
 	return soma;
 }
 
-/*querie 7 */
-/* nota: para evitar duplicacoes, os elementos do tipo Cliente e Produto só vao ser libertados no modulo de catalogos*/
-/* esta querie vai ser implementada com um merge das 3 listas */
+/*query 7 */
+/* esta query vai ser implementada com um merge das 3 listas */
+/* 
 Cliente * clientesCompraramNaFilial(Filial filial){
 	int tamanhoArv = 0, quantasCompras;
 	int i, j, lim, k;
@@ -272,6 +272,9 @@ Cliente * clientesCompraramNaFilial(Filial filial){
 	}
 	return clientes;
 }
+*/
+/*estratégia alternativa: navegar apenas na filial global */
+
 
 /* fazer funçoes que libertam avls alocadas (mas nao Produtos e Vendas) e Produtos * e Vendas * (talvez ecapsular Produto *) */
 
