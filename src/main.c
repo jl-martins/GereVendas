@@ -48,6 +48,7 @@ static FaturacaoGlobal faturacaoGlobal = NULL;
 #define MSG_ERRO(msg) {fputs(msg, stderr); ENTER_PARA_CONTINUAR();}
 #define LE_INT_BUFF 16
 
+void splashScreen();
 int interpretador();
 int interpreta(char linha[]);
 
@@ -127,6 +128,7 @@ static const char* opcoes[] = {
 
 int main()
 {
+	splashScreen();
 	int r = interpretador();
 	return r;
 }
@@ -138,12 +140,27 @@ int main()
 	#define CLEAR "clear"
 #endif
 
+void splashScreen()
+{
+	char linha[] = "Prima enter para continuar...";
+	system(CLEAR);
+	printf(" _____               _   _                _\n");           
+	printf("|  __ \\             | | | |              | |\n");          
+	printf("| |  \\/ ___ _ __ ___| | | | ___ _ __   __| | __ _ ___\n"); 
+	printf("| | __ / _ | '__/ _ | | | |/ _ | '_ \\ / _` |/ _` / __|\n");
+	printf("| |_\\ |  __| | |  _ \\ \\_/ |  __| | | | (_| | (_| \\__ \\ \n");
+ 	printf(" \\____/\\___|_|  \\___|\\___/ \\___|_| |_|\\__,_|\\__,_|___/\n");
+	printf("\n%43s", linha);
+	getchar();
+}
+
 int interpretador()
 {
 	int r = CONTINUAR;
 	char linha[MAXLINHA];
 
 	do{
+		system(CLEAR);
 		imprimeOpcoes(opcoes);
 		r = (fgets(linha, MAXLINHA, stdin) == NULL) ? SAIR : interpreta(linha); /* se falhar deve-se sair? */
 	}while(r == CONTINUAR || r == CMD_INVAL); /* enquanto não houver erro ou ordem para sair */
@@ -727,4 +744,3 @@ static void erroNaoLeuFich()
 	fputs("Erro: Ainda não leu os ficheiros de dados\n"
 		  "Introduza '1' e prima ENTER para o fazer\n", stderr);
 }
-
