@@ -335,11 +335,14 @@ FaturacaoGlobal registaVenda(FaturacaoGlobal fg, Produto p, double precoUnit,
 
 	retInsere = insere(fg->fatMensal[mes]->fatProds, fProdMes);
 	if(retInsere != NULL){
+		fg->fatMensal[mes]->totalVendas += quantidade;
+		fg->fatMensal[mes]->totalFaturado += (quantidade * precoUnit); /* guardar faturaçao em variavel local ??? */
 		fg->fatMensal[mes]->fatProds = retInsere;
 		
 		retInsere = insere(fg->todosProdutos, fAnualProd);
 		if(retInsere != NULL)
 			fg->todosProdutos = retInsere;
+
 	}
 	/* chegando a este ponto, já temos cópias de fProdMes e fAnualProd 
 	 * na AVL da faturação do mês e na de todos os produtos, respetivamente */

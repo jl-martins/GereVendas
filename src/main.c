@@ -52,7 +52,7 @@ int interpretador();
 int interpreta(char linha[]);
 
 /* Funções de navegação exportadas */
-void navegaVarios(LStrings lStrArr[], int tamanho);
+void navegaVarias(LStrings lStrArr[], int tamanho);
 void navega(LStrings lStr);
 
 static void imprimeOpcoes(const char *opcoes[N_OPCOES]);
@@ -88,9 +88,9 @@ Query queries[] = {NULL, query1, query2, query3, query4, query5, query6, query7,
 typedef void (*opcaoNavega) (LStrings);
 
 /* Funções de leitura */
-static int leInt();
 static char obterModoRes();
-static char* leCodigo(const char* tipo, int tamanho, char* buffer);
+static int leInt(const char msg[]);
+static char* leCodigo(const char tipo[], int tamanho, char buffer[]);
 
 static char* avancaEspacosInicio(char str[]);
 static void perguntaPag(LStrings lStr);
@@ -121,7 +121,7 @@ static const char* opcoes[] = {
 		"Listar (decrescentemente) os produtos mais comprados por um cliente num dado mês",
 		"Criar lista com os N produtos mais vendidos do ano",
 		"Determinar códigos dos 3 produtos em que um cliente gastou mais dinheiro",
-		"Listar clientes que não compraram e produtos não vendidos",
+		"Apresentar número de clientes que não compraram e de produtos não vendidos",
 		"Sair"
 };
 
@@ -198,7 +198,7 @@ static void opcaoInvalida(char opcao[])
 
 /* Dado um array de LStrings, permite ao utilizador 
  * escolher em qual LStrings pretende navegar. */
-void navegaVarios(LStrings lStrArr[], int tamanho)
+void navegaVarias(LStrings lStrArr[], int tamanho)
 {	
 	int i;
 	bool sair = FALSE;
@@ -207,7 +207,7 @@ void navegaVarios(LStrings lStrArr[], int tamanho)
 		printf("Existem resultados para %d filiais.\n", tamanho);
 		printf("Introduza o número da filial que pretende"
 			   "ou %d se pretender sair\n\n>>> ", tamanho + 1);
-		i = leInt();
+		i = leInt(NULL);
 		if(i > 0 && i <= tamanho) /* a indexação começa em 1 */
 			navega(lStrArr[i]);
 		else if(i == (tamanho + 1))
@@ -236,7 +236,7 @@ void navega(LStrings lStr)
 		IMPRIME_OPCOES_NAVEGA();
 		printf("(%d/%d): ", obterNumPag(lStr), numTotalPags);
 		
-		opcao = leInt();
+		opcao = leInt(NULL);
 		if(opcao >= 1 && opcao <= 5)
 			opsNavega[opcao](lStr);
 		else if(opcao == 6)
@@ -266,8 +266,7 @@ static void perguntaPag(LStrings lStr)
 {
 	int pag;
 
-	printf("Para que página pretende ir? ");
-	pag = leInt();
+	pag = leInt("Para que página pretende ir? ");
 
 	if(pag <= 0 || pag > obterNumTotalPags(lStr))
 		MSG_ERRO("A página que introduziu é inválida\n")
@@ -282,16 +281,6 @@ static void imprimeInformacaoLStrings(int total, int numTotalPags)
 	printf("Número de entradas: %d\nTotal de páginas: %d\nEntradas por página: %d\n\n",
 			total, numTotalPags, STRINGS_POR_PAG);
 	ENTER_PARA_CONTINUAR();
-}
-
-/* Lê um valor inteiro */
-static int leInt()
-{
-	char buffer[LE_INT_BUFF];
-
-	fgets(buffer, LE_INT_BUFF, stdin);
-	fflush(stdin);
-	return atoi(buffer);
 }
 
 static FILE * perguntaAbreFicheiro(char * ficheiroPadrao, char buf[BUF_SIZE], char * tipoDeElems){
@@ -502,7 +491,22 @@ static int query2()
 	return erro;
 }
 
-static char* leCodigo(const char* tipo, int tamanho, char* buffer)
+/* Lê um inteiro e devolve-o à função chamadora. Se o utilizador passar
+ * uma mensagem como argumento, leInt() apresenta-a antes de ler o inteiro */
+static int leInt(const char msg[])
+{
+	char buffer[LE_INT_BUFF];
+
+	if(msg)
+		printf("%s", msg);
+	fgets(buffer, LE_INT_BUFF, stdin);
+	fflush(stdin);
+	return atoi(buffer);
+}
+
+/* Recebe o tipo do código a ler (i.e.: produto ou cliente), o seu tamanho
+ * e um buffer com o tamanho especificado e lê o código para esse buffer. */
+static char* leCodigo(const char tipo[], int tamanho, char* buffer)
 {	
 	printf("Introduza o código de %s: ", tipo);
 	fgets(buffer, tamanho, stdin);
@@ -511,12 +515,16 @@ static char* leCodigo(const char* tipo, int tamanho, char* buffer)
 	return buffer;
 }
 
+/* Pergunta ao utilizador se pretende um resultado global (G)
+ * ou por filial (F) e lê um carater com a resposta. A validação
+ * do carater lido deve ser feita na função chamadora. */
 static char obterModoRes()
 {	
 	char c;
 
 	printf("Resultados globais[G] ou por filial[F]? ");
 	c = toupper(getchar());
+	fflush(stdin); /* ver se funciona */
 	return c;
 }
 
@@ -528,7 +536,7 @@ static int query3()
 	Produto p;
 	FatProdMes fProdMes;
 
-	mes = leInt();
+	mes = leInt("Introduza o mês: ");
 	cod = leCodigo("produto", MAX_CODIGO_PROD, codigoProd);
 	modo = obterModoRes();
 
@@ -586,10 +594,35 @@ static void resultadosFiliaisQuery3(FatProdMes fProdMes)
 	}
 }
 
-
-static int query4( /* faltam os args */)
+static int query4()
 {
-	return 0;
+	char modo = obterModoRes();
+	int erro = 0;
+
+	if(modo == 'G'){
+		LStrings naoCompradosG = naoCompradosGlobal(faturacaoGlobal);
+		if(naoCompradosG){
+			navega(naoCompradosG);
+			apagaLStrings(naoCompradosG);
+		}
+		else
+			erro = 1;
+	}
+	else if(modo == 'F'){
+		LStrings* naoCompradosF = naoCompradosPorFilial(faturacaoGlobal);
+		if(naoCompradosF){
+			int i;
+			navegaVarias(naoCompradosF, N_FILIAIS);
+			for(i = 1; i <= N_FILIAIS; ++i)
+				apagaLStrings(naoCompradosF[i]);
+		}
+		else erro = 1; /* definir macros de erros */
+	}
+	else{
+		MSG_ERRO("Erro: Modo inválido\nModos válidos: G | F\n");
+		erro = 2;
+	}
+	return erro;
 }
 
 #define IMPRIME_SEPARADOR printf("----------------------------------------------------------------\n");
@@ -633,9 +666,23 @@ static int query5()
 
 #undef IMPRIME_SEPARADOR
 
-static int query6( /* faltam os args */)
-{
-	return 0;
+static int query6()
+{	
+	int inicio, fim;
+	int totalVendas;
+	double totalFaturado;
+
+	puts("Intervalo fechado de meses");
+	inicio = leInt("Inicio: ");
+	fim = leInt("Fim: ");
+
+	totalVendas = totalVendasIntervMeses(faturacaoGlobal, inicio, fim);
+	totalFaturado = totalFatIntervMeses(faturacaoGlobal, inicio, fim);
+
+	printf("Intervalo de meses = [%d,%d]\n", inicio, fim);
+	printf("Total de unidades vendidas = %d\n"
+		   "Total faturado = %.2f", totalVendas, totalFaturado);
+	return 0; /* introduzir verificação de erros */
 }
 
 static int query7( /* faltam os args */)
