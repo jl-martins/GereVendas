@@ -83,6 +83,28 @@ void apagaCatClientes(CatClientes catC)
 	}
 }
 
+/* tirar valores harcoded */
+Cliente * todosClientes(CatClientes catC, int * nElems){
+	int nclientes = 0, i, j, indice, quantas;
+	Cliente * clientes, * temp;
+	for(i = 0; i < 26; i++)
+		nclientes += tamanho(catC->catalogo[i]);
+	/* fazer codigo para cuidar de erros */
+	clientes = (Cliente *) malloc(sizeof(Cliente) * nclientes); 
+	*nElems = nclientes;
+	
+	indice = 0;
+	for(i = 0; i < 26; i++){
+		temp = (Cliente *) inorder(catC->catalogo[i]);
+		/* fazer função de limpeza em caso de erros */
+		quantas = tamanho(catC->catalogo[i]);
+		for(j = 0; j < quantas; j++)
+			clientes[indice++] = temp[j];
+		free(temp);
+	}	
+	return clientes;
+}
+
 /* Funções que manipulam conjuntos de clientes */
 
 LStrings clientesPorLetra(CatClientes catC, char l) {	

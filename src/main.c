@@ -704,8 +704,42 @@ static int query6()
 	return 0; /* introduzir verificação de erros */
 }
 
-static int query7( /* faltam os args */)
+static bool comprouTodasFiliais(Cliente c){
+	int i;
+	for(i = 1; i <= N_FILIAIS; i++)
+		if(!clienteComprouNaFilial(filiais[i], c))
+			return FALSE;
+	return TRUE;
+}
+
+int query7()
 {
+	Cliente * clientes;
+	char ** codigosClientes;
+	int nClientes, i, j;
+	LStrings lista;
+
+	i = 0;	
+	/* impedir que leia se os ficheiros nao tiverem sido carregados */
+	clientes = todosClientes(catClientes, &nClientes);
+	/* if(clientes == NULL) ... */
+	codigosClientes = malloc(nClientes * sizeof(char *));
+	for(i = 0; i < nClientes; i++){
+		if(comprouTodasFiliais(clientes[i]))
+			codigosClientes[j++] = obterCodigoCliente(clientes[i]);
+		apagaCliente(clientes[i]);	
+	}
+	free(clientes);
+
+	/*fazer um realloc do codigosClientes para gastar menos espaço??*/
+	lista = criaLStrings(j, codigosClientes);		
+	navega(lista);
+
+	/* Limpeza das estruturas usadas na função */
+	for(i = 0; i < j; i++) free(codigosClientes[i]);
+	free(codigosClientes);
+	apagaLStrings(lista);	
+
 	return 0;
 }
 

@@ -22,7 +22,7 @@ struct filial{
 typedef struct comprasPorCliente {
 	Cliente cliente;
 	/* usar o indice 0 como info de todo o ano */
-	AVL_ComprasDoProduto comprasPorMes[13]; 
+	AVL_ComprasDoProduto comprasPorMes[13]; /* ao indice 0 corresponde as compras durante todo o ano, ao indice i corresponde a compra no mes i*/
 }* ComprasPorCliente;
 
 typedef struct comprasDoProduto {
@@ -188,10 +188,11 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 		int i;
 		/*char* codigo = obterCodigoCliente(ccliente->cliente);*/
 		/* inicializar os campos */
-		for(i = 1; i < 13; i++)
+		for(i = 0; i < 13; i++)
 			ccliente->comprasPorMes[i] = criaAVLgenerica(atualizaComprasDoProduto, comparaComprasDoProduto, duplicaComprasDoProduto, apagaNodoComprasDoProduto);
 
 		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[mes], comprasAux);
+		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[0], comprasAux); /* insere na informação anual do cliente */
 		/*printf("ccliente->comprasPorMes[%d] = %p\n",  mes, (void *) ccliente->comprasPorMes[mes]);*/
 		filial->clientesOrdenados[posicao] = insere(filial->clientesOrdenados[posicao], ccliente);
 		/*naFilial = procuraAVL(filial->clientesOrdenados[posicao], ccliente);*/
@@ -206,6 +207,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 }
 
 /* codigo replicado porque em cima é necessario  o valor de ccliente para o resto da função */
+/* alterar API para apresentar primeiro a filial?*/
 static ComprasPorCliente procuraClienteNasVendas(Cliente cliente, Filial filial){
 	int posicao;
 	ComprasPorCliente nasVendas; /* mudei o nome de 'naAVL' para 'nasVendas' porque a meu ver fica mais claro */
@@ -219,6 +221,12 @@ static ComprasPorCliente procuraClienteNasVendas(Cliente cliente, Filial filial)
 	nasVendas = procuraAVL(filial->clientesOrdenados[posicao], ccliente);
 	return nasVendas;
 }
+
+bool clienteComprouNaFilial(Filial filial, Cliente cliente){
+	return procuraClienteNasVendas(cliente, filial) == NULL;
+}
+
+/* fazer o existe à custa do procura */
 
 /* funçoes para queries */
 /*query 5*/
@@ -249,21 +257,22 @@ static int somaUnidadesMes(AVL_ComprasPorCliente arv){
 
 /*query 7 */
 /* esta query vai ser implementada com um merge das 3 listas */
-/* 
+/* apagar!! 
 Cliente * clientesCompraramNaFilial(Filial filial){
-	int tamanhoArv = 0, quantasCompras;
+	int nClientes = 0, quantasCompras;
 	int i, j, lim, k;
 	Cliente * clientes;
 	ComprasPorCliente* compras;
 
-	for(i = 0; i < 26; i++){
-		tamanhoArv += tamanho(filial->clientesOrdenados[i]);
-	}		
-	clientes = malloc(sizeof(Cliente) * tamanhoArv);
+	for(i = 0; i < 26; i++)
+		nClientes += tamanho(filial->clientesOrdenados[i]);
+			
+	clientes = malloc(sizeof(Cliente) * nClientes);
 	i = 0;
 	for(j = 0; j < 26; j++){
 		compras = (ComprasPorCliente *) inorder(filial->clientesOrdenados[i]);
 		if(compras == NULL) return NULL;
+		limpar o que foi alocado 
 		quantasCompras = tamanho(filial->clientesOrdenados[i]); 		
 		lim = i + quantasCompras;		
 		for(k=0; i < lim; i++, k++)

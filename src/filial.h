@@ -16,4 +16,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 int * unidadesClientePorMes(Filial filial, Cliente cliente);
 Cliente * clientesCompraramNaFilial(Filial filial);
 
+/* Devolve TRUE se um cliente tiver feito uma compra na filial */
+bool clienteComprouNaFilial(Filial filial, Cliente cliente);
+
 #endif

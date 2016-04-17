@@ -29,6 +29,9 @@ int totalClientesLetra(CatClientes, char);
 /* Liberta a memória alocada para um catálogo de clientes */
 void apagaCatClientes(CatClientes);
 
+/* Devolve uma lista com todos os clientes do catálogo, e poe o numero de Elemntos em nElems*/
+Cliente * todosClientes(CatClientes catC, int * nElems);
+
 /* Devolve uma lista de strings com os códigos 
  * dos clientes começados pela letra especificada */
 LStrings clientesPorLetra(CatClientes, char);
