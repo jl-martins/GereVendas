@@ -829,8 +829,23 @@ int query8(){
 	return ret;
 }
 
-static int query9( /* faltam os args */)
-{
+static int query9()
+{	
+	int mes;
+	char* codigoCliente;
+	Cliente c;
+	LStrings lStr;
+
+	printf("Introduza o código do cliente: ");
+	codigoCliente = leLinha(MAX_CODIGO_CLIENTE); /* falta verificar se a linha nao é NULL */
+	c = criaCliente(codigoCliente);
+	free(codigoCliente); /* já temos o código do cliente em 'c' */
+	printf("Introduza o mês: ");
+	mes = leInt();
+
+	lStr = produtosClienteMaisComprou(filialGlobal, c, mes);
+	apagaCliente(c);
+	navega(lStr);
 	return 0;
 }
 
@@ -841,6 +856,23 @@ static int query10( /* faltam os args */)
 
 static int query11()
 {
+	char* codigoCliente;
+	Cliente c;
+	char** top3;
+
+	printf("Introduza o código do cliente: ");
+	codigoCliente = leLinha(MAX_CODIGO_CLIENTE);
+	c = criaCliente(codigoCliente);
+
+	top3 = tresProdsEmQueMaisGastou(filialGlobal, c);
+	if(top3){
+		int i;
+		printf("Códigos dos 3 produtos em que o cliente %s gastou mais dinheiro\n", codigoCliente);
+		for(i = 0; i < 3; ++i)
+			printf("%dº: %s\n", i+1, top3[i]);
+	}
+	free(codigoCliente);
+	apagaCliente(c);
 	return 0;
 }
 
