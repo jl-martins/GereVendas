@@ -772,9 +772,11 @@ int query8(){
 	char c;
 	bool comprouN, comprouP;
 	LStrings compraramN, compraramP;
+
 	printf("Insira o código de Produto: ");
 	codigo = leLinha(MAX_CODIGO_PROD+1);
 	codigo = strtok(codigo, " \t\r\n");	
+	printf("%s\n", codigo)
 	/* funçoes de leitura de Produto e caso a strtok ou leLinha falhem */;
 	/*verificar se o codigo é valido*/
 	produto = criaProduto(codigo);
@@ -784,19 +786,13 @@ int query8(){
 	filial = leInt();
 	indexP = indexN = 0;	
 	if(filial > 0 && filial <= N_FILIAIS){
+		printf("bla\n");
 		clientes = todosClientes(catClientes, &nClientes);
 		/* ver se o tamanho esta certo */
 		quemComprouN = malloc(sizeof(char *) * nClientes); 	
 		quemComprouP = malloc(sizeof(char *) * nClientes); 	
 		for(i = 0; i < nClientes; i++){
-			/*
-			if(comprou(filial, clientes[i], produto, P)){
-				quemComprouP[indexP++] = obterCodigoCliente(cliente[i]);
-			}			
-			if(comprou(filial, clientes[i], produto, N)){
-				quemComprouN[indexN++] = obterCodigoCliente(cliente[i]);	
-			}*/
-			comprou(filial, clientes[i], produto, &comprouN, &comprouP); 
+			comprou(filiais[filial], clientes[i], produto, &comprouN, &comprouP); 
 			if(comprouN){
 				quemComprouN[indexN++] = obterCodigoCliente(clientes[i]);
 			}
@@ -809,6 +805,9 @@ int query8(){
 		compraramP = criaLStrings(indexP, quemComprouP);
 		
 		do {
+			printf("%d clientes compraram o produto em modo normal\n", indexN); 
+			printf("%d clientes compraram o produto em Promocao\n", indexP); 
+
 			printf("Insira o modo que pretende consultar(P ou N) ou S para sair: ");
 			/* substituir getchar por outra coisa qq */		
 			c = getchar();
