@@ -11,6 +11,7 @@
 #include "filial.h"
 
 #include "avl.h"
+#include "memUtils.h"
 
 typedef AVL AVL_ComprasDoProduto;
 typedef AVL AVL_ComprasPorCliente;
@@ -37,6 +38,7 @@ static int comparaComprasPorCliente(const void* cc1, const void* cc2);
 static int comparaComprasDoProduto(const void* vp1, const void* vp2);
 static void atualizaComprasDoProduto(void* vp1, void* vp2);
 static void apagaComprasDoProduto(ComprasDoProduto cdp);
+static int comparaTotalCompras(const void* cdp1, const void* cdp2);
 
 static void atualizaComprasDoProduto(void* c1, void* c2)
 {
@@ -296,3 +298,100 @@ void comprou(Filial filial, Cliente cliente, Produto produto, int * comprouN, in
 	}
 }
 
+/* Recebe o número de uma filial e um cliente. Devolve uma lista de strings, com códigos
+ * dos produtos comprados pelo cliente, em ordem decrescente da quantidade comprada. */
+LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes){
+	LStrings res = NULL;
+	ComprasPorCliente cpc = procuraClienteNasVendas(c, filial);
+
+	if(cpc != NULL){ /* o cliente foi encontrado */
+		int i, total = tamanho(cpc->comprasPorMes[mes]); /* adicionar macro COMPRAS_DO_ANO(x) x->comprasPorMes[0] */
+		ComprasDoProduto* arrComprasDoMes = malloc(total * sizeof(ComprasDoProduto));
+		char** codigosProds;
+
+		if(arrComprasDoMes == NULL) /* falha de alocação */
+			return NULL;
+		
+		codigosProds = malloc(total * sizeof(char *));
+		if(codigosProds == NULL){
+			apagaArray((void **) arrComprasDoMes, total, free);
+			return NULL;
+		}
+		/* Falta verificar o resultado da inorder() */
+		arrComprasDoMes = (ComprasDoProduto *) inorder(cpc->comprasPorMes[0]);
+		qsort(arrComprasDoMes, total, sizeof(ComprasDoProduto), comparaTotalCompras);
+
+		for(i = 0; i < total; ++i){
+			char* codigoProd = obterCodigoProduto(arrComprasDoMes[i]->produto);
+			if(codigoProd == NULL){ /* falha de alocação */
+				apagaArray((void **) arrComprasDoMes, total, apagaNodoComprasDoProduto);
+				apagaArray((void **) codigosProds, i, free);
+				return NULL;
+			}
+			codigosProds[i] = codigoProd;
+		}
+		res = criaLStrings(total, codigosProds);
+		apagaArray((void **) arrComprasDoMes, total, apagaNodoComprasDoProduto);
+		apagaArray((void **) codigosProds, total, free);
+	}
+	return res;
+}
+
+/* Função de compração passada para qsort(), na função produtosClienteMaisComprou() */
+static int comparaTotalCompras(const void* cdp1, const void* cdp2)
+{
+	return ((ComprasDoProduto) cdp2)->unidades - ((ComprasDoProduto) cdp1)->unidades;
+}
+
+/* Função auxiliar de tresProdsEmQueMaisGastou().
+ * Dado um array com 3 doubles, devolve o índice do seu menor elemento. */
+static int indiceDoMenor(double totalGasto[3])
+{
+	int i, imin = 0;
+
+	for(i = 1; i < 3; ++i)
+		if(totalGasto[i] < totalGasto[imin])
+			imin = i;
+	return imin;
+
+}
+
+/* Devolve o array com os códigos dos 3 produtos em que um
+ * cliente gastou mais dinheiro durante o ano, para uma dada filial. */
+char** tresProdsEmQueMaisGastou(Filial filial, Cliente c)
+{	
+	int i, imin;
+	ComprasPorCliente cpc = procuraClienteNasVendas(c, filial);
+	int total = tamanho(cpc->comprasPorMes[0]);
+	char** codigosProds = calloc(3, sizeof(char *));
+	/* guarda na posição i o total gasto no produto cujo código está em codigosProds[i] */
+	double totalGasto[3] = {0}; 
+	ComprasDoProduto* arrComprasDoAno;
+
+	if(codigosProds == NULL || cpc == NULL) /* não faz sentido prosseguir */
+		return NULL;
+	
+	arrComprasDoAno = malloc(total * sizeof(ComprasDoProduto));
+	if(arrComprasDoAno == NULL) /* falha de alocação */
+		return NULL;
+		
+	/* Falta verificar o resultado da inorder() */
+	arrComprasDoAno = (ComprasDoProduto *) inorder(cpc->comprasPorMes[0]);
+	for(i = 0; i < total; ++i){ /* percorre o array de compras do ano */
+		imin = indiceDoMenor(totalGasto);
+		if(arrComprasDoAno[i]->faturacao > totalGasto[imin]){
+			char* codigo = obterCodigoProduto(arrComprasDoAno[i]->produto);
+
+			if(codigo == NULL){ /* falha de alocação em obterCodigoProduto() */
+				apagaArray((void **) arrComprasDoAno, total, apagaNodoComprasDoProduto);
+				apagaArray((void **) codigosProds, 3, free);
+				return NULL;
+			}
+			free(codigosProds[imin]);
+			codigosProds[imin] = codigo;
+			totalGasto[imin] = arrComprasDoAno[i]->faturacao;
+		}
+	}
+	apagaArray((void **) arrComprasDoAno, total, apagaNodoComprasDoProduto);
+	return codigosProds;
+}
