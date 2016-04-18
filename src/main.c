@@ -777,7 +777,7 @@ static int query10( /* faltam os args */)
 	return 0;	
 }
 
-static int query11( /* faltam os args */)
+static int query11()
 {
 	return 0;
 }
@@ -797,23 +797,13 @@ static bool clienteNaoComprou(Cliente c){
 /* !Falta o tratamento de erros */
 static int query12()
 {
-	int i, nClientes;
 	int nClientesNaoCompr = 0;
 	int nProdsNaoVendidos;
-	Cliente* clientes;
 
-	clientes = todosClientes(catClientes, &nClientes);
-	for(i = 0; i < nClientes; ++i){
-		if(clienteNaoComprou(clientes[i]))
-			++nClientesNaoCompr;
-		apagaCliente(clientes[i]);	
-	}
-	free(clientes);
-
+	nClientesNaoCompr = totalClientes(catClientes) - quantosClientesCompraram(filialGlobal);
 	nProdsNaoVendidos = quantosNaoComprados(faturacaoGlobal);
 	printf("Número de clientes que não compraram: %d\n", nClientesNaoCompr);
 	printf("Número de produtos não vendidos: %d\n", nProdsNaoVendidos);
-
 	return 0;
 }
 

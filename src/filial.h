@@ -1,10 +1,10 @@
+#ifndef FILIAL_T 
+#define FILIAL_T
+
 #include "cliente.h"
 #include "produto.h"
 #include "bool.h"
 #include "venda.h"
-
-#ifndef FILIAL_T 
-#define FILIAL_T
 
 typedef struct filial * Filial;
 /*typedef struct vendasAnuaisFilial * VendasAnuaisFilial;*/
@@ -18,5 +18,7 @@ Cliente * clientesCompraramNaFilial(Filial filial);
 
 /* Devolve TRUE se um cliente tiver feito uma compra na filial */
 bool clienteComprouNaFilial(Filial filial, Cliente cliente);
+/* Devolve o número total de clientes que compraram numa filial */
+int quantosClientesCompraram(Filial filial);
 
 #endif
