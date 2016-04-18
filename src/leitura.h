@@ -1,7 +1,7 @@
 #ifndef LEITURA_H
 #define LEITURA_H
 
-#define FLUSH_STDIN() {int c; while((c = getchar()) != EOF && c != '\n');}
+#define FLUSH_STDIN() while(getchar() != '\n')
 
 /* Lê uma linha que tem no máximo o tamanho especificado.
  * Se for lido EOF antes de qualquer outro carater, a função
