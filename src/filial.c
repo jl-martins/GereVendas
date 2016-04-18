@@ -156,8 +156,8 @@ static ComprasDoProduto criaComprasDoProduto(Produto produto, int unidades, doub
 	}
 	novo->unidades = unidades;
 	novo->faturacao = preco * unidades;
-	novo->modoP = tipoVenda == P; /* usar valores do bool.h ou definir macro toBool(x) (!!x) */
-	novo->modoN = tipoVenda == N;
+	novo->modoP = (tipoVenda == P); /* usar valores do bool.h ou definir macro toBool(x) (!!x) */
+	novo->modoN = (tipoVenda == N);
 	return novo;
 }
 
@@ -192,7 +192,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 			ccliente->comprasPorMes[i] = criaAVLgenerica(atualizaComprasDoProduto, comparaComprasDoProduto, duplicaComprasDoProduto, apagaNodoComprasDoProduto);
 
 		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[mes], comprasAux);
-		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[0], comprasAux); /* insere na informação anual do cliente */
+		ccliente->comprasPorMes[0] = insere(ccliente->comprasPorMes[0], comprasAux); /* insere na informação anual do cliente */
 		/*printf("ccliente->comprasPorMes[%d] = %p\n",  mes, (void *) ccliente->comprasPorMes[mes]);*/
 		filial->clientesOrdenados[posicao] = insere(filial->clientesOrdenados[posicao], ccliente);
 		/*naFilial = procuraAVL(filial->clientesOrdenados[posicao], ccliente);*/
@@ -202,7 +202,9 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	else{
 		free(ccliente); /* falta liberta o código de cliente duplicado */
 		insere(naFilial->comprasPorMes[mes], comprasAux);  /*nota: a funçao de atualização deve fazer o free no caso de atualizar */
+		insere(naFilial->comprasPorMes[0], comprasAux);
 	}	
+	/* limpar comprasAux */
 	return filial;		
 }
 
@@ -280,13 +282,14 @@ void comprou(Filial filial, Cliente cliente, Produto produto, int * comprouN, in
 
 	if(cpc){
 		/*procurar na AVL*/ 	
-		paraComparar = criaComprasDoProduto(produto, 0, 0, 0);
+		paraComparar = criaComprasDoProduto(produto, 0, 0, N);
 		if(paraComparar){
 			resultadoProcura = procuraAVL(cpc->comprasPorMes[0], paraComparar);
 			if(resultadoProcura){
 				*comprouN = resultadoProcura->modoN;
 				*comprouP = resultadoProcura->modoP;
 				apagaComprasDoProduto(resultadoProcura);
+				printf("%d %d\n", *comprouN, * comprouP);
 			}
 			apagaComprasDoProduto(paraComparar);
 		}
