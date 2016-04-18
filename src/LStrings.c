@@ -23,29 +23,34 @@ LStrings criaLStrings(int total, char* strings[])
 	int i, len;
 	LStrings lStr = malloc(sizeof(struct lStrings));
 
-	if(lStr == NULL || total <= 0)
+	if(lStr == NULL)
 		return NULL;
-
-	lStr->strings = malloc(total * sizeof(char *));
-	if(lStr->strings == NULL){ /* falha de alocação do array de strings */
-		free(lStr);
-		return NULL;
+	if(total <= 0){ /* cria uma LStrings com 0 elementos */
+		lStr->total = 0;
+		lStr->strings = NULL;
 	}
-	/* Copia as o conteúdo de strings[] para lStr->strings[] */
-	for(i = 0; i < total; ++i){
-		len = strlen(strings[i]);
-		lStr->strings[i] = malloc((len + 1) * sizeof(char));
-
-		if(lStr->strings[i] == NULL){ /* falha de alocação de lStr->strings[i] */
-			lStr->total = i;
-			apagaLStrings(lStr);
+	else{
+		lStr->strings = malloc(total * sizeof(char *));
+		if(lStr->strings == NULL){ /* falha de alocação do array de strings */
+			free(lStr);
 			return NULL;
 		}
-		strcpy(lStr->strings[i], strings[i]);
+		/* Copia as o conteúdo de strings[] para lStr->strings[] */
+		for(i = 0; i < total; ++i){
+			len = strlen(strings[i]);
+			lStr->strings[i] = malloc((len + 1) * sizeof(char));
+
+			if(lStr->strings[i] == NULL){ /* falha de alocação de lStr->strings[i] */
+				lStr->total = i;
+				apagaLStrings(lStr);
+				return NULL;
+			}
+			strcpy(lStr->strings[i], strings[i]);
+		}
+		/* só chegamos aqui se não houve falhas de alocação */
+		lStr->total = total;
 	}
-	/* só chegamos aqui se não houve falhas de alocação */
-	lStr->total = total; lStr->pag = 1; lStr->indice = 0;
-	
+	lStr->pag = 1; lStr->indice = 0;
 	return lStr;
 }
 

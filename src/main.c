@@ -236,29 +236,34 @@ void navegaVarias(LStrings lStrArr[], int tamanho)
 /* Função para navegar numa LStrings */
 void navega(LStrings lStr)
 {
-	Pagina pag;
-	int opcao;
-	int numTotalPags; 
-	bool sair = FALSE;
-
-	numTotalPags = obterNumTotalPags(lStr);
-	imprimeInformacaoLStrings(lStr);
-	do{
-		system(CLEAR);
+	if(obterTotal(lStr) == 0){
+		puts("Lista vazia");
+		ENTER_PARA_CONTINUAR();
+	}
+	else{
+		int numTotalPags = obterNumTotalPags(lStr);
+		int opcao;
+		Pagina pag;
+		bool sair = FALSE;
 		
-		pag = obterPag(lStr); /* devolve a página atual */
-		apresentaPag(pag);
-		IMPRIME_OPCOES_NAVEGA();
-		printf("(%d/%d): ", obterNumPag(lStr), numTotalPags);
-		
-		opcao = leInt();
-		if(opcao >= 1 && opcao <= 6)
-			opsNavega[opcao](lStr); 
-		else if(opcao == 7)
-			sair = TRUE;
-		else
-			MSG_ERRO("Opção inválida\n")
-	} while(sair == FALSE);
+		imprimeInformacaoLStrings(lStr);
+		do{
+			system(CLEAR);
+			
+			pag = obterPag(lStr); /* devolve a página atual */
+			apresentaPag(pag);
+			IMPRIME_OPCOES_NAVEGA();
+			printf("(%d/%d): ", obterNumPag(lStr), numTotalPags);
+			
+			opcao = leInt();
+			if(opcao >= 1 && opcao <= 6)
+				opsNavega[opcao](lStr); 
+			else if(opcao == 7)
+				sair = TRUE;
+			else
+				MSG_ERRO("Opção inválida\n")
+		} while(sair == FALSE);
+	}
 	system(CLEAR);
 }
 
