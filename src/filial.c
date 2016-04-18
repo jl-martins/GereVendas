@@ -289,7 +289,7 @@ void comprou(Filial filial, Cliente cliente, Produto produto, int * comprouN, in
 				*comprouN = resultadoProcura->modoN;
 				*comprouP = resultadoProcura->modoP;
 				apagaComprasDoProduto(resultadoProcura);
-				printf("%d %d\n", *comprouN, * comprouP);
+				/*printf("%d %d\n", *comprouN, * comprouP);*/
 			}
 			apagaComprasDoProduto(paraComparar);
 		}

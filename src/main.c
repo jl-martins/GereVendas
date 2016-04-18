@@ -16,6 +16,7 @@
 #include "filial.h"
 #include "LStrings.h"
 #include "leitura.h"
+#include <time.h>
 
 #define N_FILIAIS 3
 #define TAM_LINHA 1024
@@ -462,6 +463,7 @@ int insereSeValida(char linha[TAM_LINHA]){
 #undef VERIFICA
 
 int carregaVendasValidas(){
+	time_t inicio, fim;
 	char linha[TAM_LINHA];
 	FILE* fp;
 	int validas = 0;
@@ -469,11 +471,13 @@ int carregaVendasValidas(){
 	fp = perguntaAbreFicheiro(FVENDAS, linha, "vendas");
 	if(fp == NULL)
 		return ERRO;
-	
+
+	inicio = time(NULL);
 	while(fgets(linha, TAM_LINHA, fp)){
 		validas += insereSeValida(linha);
 	}
-
+	fim = time(NULL);
+	printf("tempo de leitura: %f\n", difftime(fim, inicio));
 	fclose(fp);
 	printf("Número de vendas válidas: %d\n", validas);
 	return 0; /* mudar valor */
@@ -486,17 +490,17 @@ static int query1()
 	/* apaga os dados de uma execuçao anterior do programa */
 	int resL1, resL2, resL3, i;
 	/*	
-	apagaCatProds(catProds);
-	apagaCatClientes(catClientes);
-	apagaFaturacaoGlobal(faturacaoGlobal);
-	*/
+		apagaCatProds(catProds);
+		apagaCatClientes(catClientes);
+		apagaFaturacaoGlobal(faturacaoGlobal);
+	 */
 	/*		
-	for(i = 1; i <= N_FILIAIS; i++)    
-		filiais[i] = apagaFilial(filiais[i]); 
+			for(i = 1; i <= N_FILIAIS; i++)    
+			filiais[i] = apagaFilial(filiais[i]); 
 
-	*/
+	 */
 	/*ver verificacao de erros */
-	
+
 	catProds = criaCatProds();
 	catClientes = criaCatClientes();	
 	faturacaoGlobal = criaFaturacaoGlobal();
@@ -504,11 +508,11 @@ static int query1()
 	/* alocar espaço no 0 para a globlal */
 	for(i = 0; i <= N_FILIAIS; i++)    
 		filiais[i] = criaFilial(); 
-		
+
 	resL1 = leCatalogoProdutos();		
 	resL2 = leCatalogoClientes();
 	resL3 = carregaVendasValidas();
-	
+
 	return 0;
 }
 
@@ -597,13 +601,13 @@ static void resultadosGlobaisQuery3(FatProdMes fProdMes)
 	double totalFaturado[N_TIPOS_VENDA];
 
 	totalVendas[N] = vendasTotaisProdMes(fProdMes, N),
-	totalVendas[P] = vendasTotaisProdMes(fProdMes, P);
+		totalVendas[P] = vendasTotaisProdMes(fProdMes, P);
 	totalFaturado[N] = faturacaoTotalProdMes(fProdMes, N);
 	totalFaturado[P] = faturacaoTotalProdMes(fProdMes, P);
-		
+
 	puts(" ------------------\n| Resultado global |\n ------------------");
 	printf("Vendas N = %d, Vendas P = %d\nFaturação N = %.2f, Faturação P = %.2f\n",
-		    totalVendas[N], totalVendas[P], totalFaturado[N], totalFaturado[P]);
+			totalVendas[N], totalVendas[P], totalFaturado[N], totalFaturado[P]);
 }
 
 /* calcula e apresenta os resultados da query3 por filial */
@@ -612,7 +616,7 @@ static void resultadosFiliaisQuery3(FatProdMes fProdMes)
 	int filial;
 	int* vendasFilial[N_TIPOS_VENDA];
 	double* faturacaoFilial[N_TIPOS_VENDA];
-		
+
 	vendasFilial[N] = vendasPorFilialProdMes(fProdMes, N);
 	vendasFilial[P] = vendasPorFilialProdMes(fProdMes, P);
 	faturacaoFilial[N] = faturacaoPorFilialProdMes(fProdMes, N);
@@ -621,7 +625,7 @@ static void resultadosFiliaisQuery3(FatProdMes fProdMes)
 	for(filial = 1; filial <= N_FILIAIS; ++filial){
 		printf(" ----------\n| Filial %d |\n ----------\n", filial);
 		printf("Vendas N = %d, Vendas P = %d\n"
-			   "Faturação N = %.2f, Faturação P = %.2f\n\n",
+				"Faturação N = %.2f, Faturação P = %.2f\n\n",
 				vendasFilial[N][filial], vendasFilial[P][filial],
 				faturacaoFilial[N][filial], faturacaoFilial[P][filial]);
 	}
@@ -716,7 +720,7 @@ static int query6()
 
 	printf("Intervalo de meses = [%d,%d]\n", inicio, fim);
 	printf("Total de unidades vendidas = %d\n"
-		   "Total faturado = %.2f\n\n", totalVendas, totalFaturado);
+			"Total faturado = %.2f\n\n", totalVendas, totalFaturado);
 	return 0; /* introduzir verificação de erros */
 }
 
@@ -777,7 +781,7 @@ int query8(){
 	codigo = leLinha(MAX_CODIGO_PROD+1);
 	codigo = strtok(codigo, " \t\r\n");	
 	printf("%s\n", codigo)
-	/* funçoes de leitura de Produto e caso a strtok ou leLinha falhem */;
+		/* funçoes de leitura de Produto e caso a strtok ou leLinha falhem */;
 	/*verificar se o codigo é valido*/
 	produto = criaProduto(codigo);
 	free(codigo);
@@ -786,7 +790,6 @@ int query8(){
 	filial = leInt();
 	indexP = indexN = 0;	
 	if(filial > 0 && filial <= N_FILIAIS){
-		printf("bla\n");
 		clientes = todosClientes(catClientes, &nClientes);
 		/* ver se o tamanho esta certo */
 		quemComprouN = malloc(sizeof(char *) * nClientes); 	
@@ -797,7 +800,7 @@ int query8(){
 				quemComprouN[indexN++] = obterCodigoCliente(clientes[i]);
 			}
 			if(comprouP){
-				quemComprouN[indexP++] = obterCodigoCliente(clientes[i]);
+				quemComprouP[indexP++] = obterCodigoCliente(clientes[i]);
 			}
 			apagaCliente(clientes[i]);
 		}
