@@ -224,7 +224,7 @@ static ComprasPorCliente procuraClienteNasVendas(Cliente cliente, Filial filial)
 }
 
 bool clienteComprouNaFilial(Filial filial, Cliente cliente){
-	return (procuraClienteNasVendas(cliente, filial) == NULL);
+	return procuraClienteNasVendas(cliente, filial)? TRUE : FALSE;
 }
 
 /* fazer o existe à custa do procura */
@@ -258,5 +258,19 @@ static int somaUnidadesMes(AVL_ComprasPorCliente arv){
 
 /* fazer funçoes que libertam avls alocadas (mas nao Produtos e Vendas) e Produtos * e Vendas * (talvez ecapsular Produto *) */
 
-/*querie 8*/
 
+
+/*querie 8*/
+void comprou(Filial filial, Cliente cliente, Produto produto, int * comprouN, int * comprouP){
+	comprasPorCliente cpc = procuraClienteNasVendas(cliente, filial);		
+	ComprasDoProduto paraComparar; 
+	*comprouN = FALSE;
+	*comprouP = FALSE;
+
+	if(cpc){
+		/* procurar na AVL */	
+		paraComparar = criaComprasDoProduto(produto, 0, 0, 0);
+		if(paraComparar == NULL) return;
+		else if( 
+	}
+}
