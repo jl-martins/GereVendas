@@ -14,17 +14,18 @@ char* leLinha(int tamanho)
 	if(linha == NULL) /* falha de alocação */
 		return NULL;
 
-	if(fgets(linha, tamanho, stdin) == NULL){
+	if(fgets(linha, tamanho, stdin) == NULL){ /* chegamos ao EOF */
 		free(linha);
 		linha = NULL;
 	}
 	else{
-		int len = strlen(linha);
-
-		if(linha[len-1] == '\r' || linha[len-1] == '\n')
-			linha[len-1] = '\0';
-		else /* ficaram carateres no stdin porque o utilizador introduziu mais do que 'tamanho' */
+		/* índice do 1º carater de linha que pertence à string "\r\n" ou do '\0', se a string não tiver nem '\r' nem '\n' */
+		int i = strcspn(linha, "\r\n");
+		
+		if(linha[i] == '\0') /* não foi encontrado \r nem \n. Ficaram carateres no buffer do stdin */
 			FLUSH_STDIN();
+		else
+			linha[i] = '\0'; /* remove o carater de newline */
 	}
 	return linha;
 }
