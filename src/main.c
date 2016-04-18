@@ -762,9 +762,69 @@ int query7()
 	return 0;
 }
 
-static int query8( /* faltam os args */)
-{
-	return 0;
+int query8(){
+	int filial, ret, tamanho, indexP, indexN, i, resposta;
+	Cliente * clientes;
+	Produto produto;
+	int nClientes;
+	char ** quemComprouN, ** quemComprouP;
+	char * codigo;
+	char c;
+	bool comprouN, comprouP;
+	LStrings compraramN, compraramP;
+	printf("Insira o código de Produto: ");
+	codigo = leLinha(MAX_CODIGO_PROD+1);
+	codigo = strtok(codigo, " \t\r\n");	
+	/* funçoes de leitura de Produto e caso a strtok ou leLinha falhem */;
+	/*verificar se o codigo é valido*/
+	produto = criaProduto(codigo);
+	free(codigo);
+
+	printf("Insira a filial que pretende consultar:");
+	filial = leInt();
+	indexP = indexN = 0;	
+	if(filial > 0 && filial <= N_FILIAIS){
+		clientes = todosClientes(catClientes, &nClientes);
+		/* ver se o tamanho esta certo */
+		quemComprouN = malloc(sizeof(char *) * nClientes); 	
+		quemComprouP = malloc(sizeof(char *) * nClientes); 	
+		for(i = 0; i < nClientes; i++){
+			/*
+			if(comprou(filial, clientes[i], produto, P)){
+				quemComprouP[indexP++] = obterCodigoCliente(cliente[i]);
+			}			
+			if(comprou(filial, clientes[i], produto, N)){
+				quemComprouN[indexN++] = obterCodigoCliente(cliente[i]);	
+			}*/
+			comprou(filial, clientes[i], produto, &comprouN, &comprouP); 
+			if(comprouN){
+				quemComprouN[indexN++] = obterCodigoCliente(clientes[i]);
+			}
+			if(comprouP){
+				quemComprouN[indexP++] = obterCodigoCliente(clientes[i]);
+			}
+			apagaCliente(clientes[i]);
+		}
+		compraramN = criaLStrings(indexN, quemComprouN);
+		compraramP = criaLStrings(indexP, quemComprouP);
+		
+		do {
+			printf("Insira o modo que pretende consultar(P ou N) ou S para sair: ");
+			/* substituir getchar por outra coisa qq */		
+			c = getchar();
+			if(c == 'P') navega(compraramP);
+			else if(c == 'N') navega(compraramN);
+		} while(c != 'S');				
+
+		/* libertar tudo*/	
+		ret = 0;
+		/* limpar estruturas */
+			
+	}else{
+		printf("Filial inválida\n");
+		ret = 1;
+	}	
+	return ret;
 }
 
 static int query9( /* faltam os args */)
