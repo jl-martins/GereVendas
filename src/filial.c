@@ -269,19 +269,27 @@ static int somaUnidadesMes(AVL_ComprasPorCliente arv){
 
 
 
-/*querie 8*/
-/*
+/* funçoes uteis para querie 8*/
 void comprou(Filial filial, Cliente cliente, Produto produto, int * comprouN, int * comprouP){
-	comprasPorCliente cpc = procuraClienteNasVendas(cliente, filial);		
-	ComprasDoProduto paraComparar; 
+	ComprasDoProduto paraComparar, resultadoProcura; 
+	ComprasPorCliente cpc;
+
+	cpc = procuraClienteNasVendas(cliente, filial);		
 	*comprouN = FALSE;
 	*comprouP = FALSE;
 
 	if(cpc){
-		//procurar na AVL 	
+		/*procurar na AVL*/ 	
 		paraComparar = criaComprasDoProduto(produto, 0, 0, 0);
-		if(paraComparar == NULL) return;
-		else if(1); 
+		if(paraComparar){
+			resultadoProcura = procuraAVL(cpc->comprasPorMes[0], paraComparar);
+			if(resultadoProcura){
+				*comprouN = resultadoProcura->modoN;
+				*comprouP = resultadoProcura->modoP;
+				apagaComprasDoProduto(resultadoProcura);
+			}
+			apagaComprasDoProduto(paraComparar);
+		}
 	}
 }
-*/
+
