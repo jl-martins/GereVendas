@@ -246,6 +246,15 @@ int * unidadesClientePorMes(Filial filial, Cliente cliente){
 	return unidades;
 }
 
+int quantosClientesCompraram(Filial filial){
+	int quantos, i;
+	quantos = 0;
+	for(i = 0; i < 26; i++){
+		quantos += tamanho(filial->clientesOrdenados[i]);
+	}
+	return quantos;
+}
+
 static int somaUnidadesMes(AVL_ComprasPorCliente arv){
 	int i, tamanhoArv, soma = 0;
 	/* mudar o nome de vendaProduto para CompraProduto*/
@@ -261,6 +270,7 @@ static int somaUnidadesMes(AVL_ComprasPorCliente arv){
 
 
 /*querie 8*/
+/*
 void comprou(Filial filial, Cliente cliente, Produto produto, int * comprouN, int * comprouP){
 	comprasPorCliente cpc = procuraClienteNasVendas(cliente, filial);		
 	ComprasDoProduto paraComparar; 
@@ -268,9 +278,10 @@ void comprou(Filial filial, Cliente cliente, Produto produto, int * comprouN, in
 	*comprouP = FALSE;
 
 	if(cpc){
-		/* procurar na AVL */	
+		//procurar na AVL 	
 		paraComparar = criaComprasDoProduto(produto, 0, 0, 0);
 		if(paraComparar == NULL) return;
-		else if( 
+		else if(1); 
 	}
 }
+*/

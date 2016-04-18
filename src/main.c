@@ -23,6 +23,8 @@
 static CatClientes catClientes = NULL;
 static CatProds catProds = NULL;
 static Filial filiais[N_FILIAIS+1] = {NULL}; /* a cada elemento de indice i do vetor faz corresponder a filial i. */
+#define filialGlobal filiais[0] /* o indice 0 da filial vai guardar informação relativa a todas as compras em todas as filiais,
+				   permite fazer as queries de forma muito mais rapida */ 
 static FaturacaoGlobal faturacaoGlobal = NULL;
 
 #define N_QUERIES 12
@@ -447,6 +449,7 @@ int insereSeValida(char linha[TAM_LINHA]){
 
 	{
 		filiais[nfilial] = registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
+		filialGlobal = registaCompra(filialGlobal, cliente, produto, mes, tipoVenda, unidades, preco);
 		faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;
 		quantos = 1;
 	}
@@ -499,7 +502,7 @@ static int query1()
 	faturacaoGlobal = criaFaturacaoGlobal();
 
 	/* alocar espaço no 0 para a globlal */
-	for(i = 1; i <= N_FILIAIS; i++)    
+	for(i = 0; i <= N_FILIAIS; i++)    
 		filiais[i] = criaFilial(); 
 		
 	resL1 = leCatalogoProdutos();		
