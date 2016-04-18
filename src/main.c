@@ -719,7 +719,7 @@ static bool comprouTodasFiliais(Cliente c){
 	for(i = 1; r && i <= N_FILIAIS; i++){
 		r = clienteComprouNaFilial(filiais[i], c) == TRUE;
 	}
-	return TRUE;
+	return r;
 }
 
 int query7()
@@ -774,9 +774,39 @@ static int query11( /* faltam os args */)
 	return 0;
 }
 
-static int query12( /* faltam os args */)
+/* Devolve TRUE se o cliente passado como parâmetro nao comprou
+ * em nenhuma das filiais. Caso contrário, é devolvido FALSE. */
+static bool clienteNaoComprou(Cliente c){
+	int i;
+	bool r = TRUE;
+
+	for(i = 1; r && i <= N_FILIAIS; i++){
+		r = clienteComprouNaFilial(filiais[i], c) == FALSE;
+	}
+	return r;
+}
+
+/* !Falta o tratamento de erros */
+static int query12()
 {
-	return 0;	
+	int i, nClientes;
+	int nClientesNaoCompr = 0;
+	int nProdsNaoVendidos;
+	Cliente* clientes;
+
+	clientes = todosClientes(catClientes, &nClientes);
+	for(i = 0; i < nClientes; ++i){
+		if(clienteNaoComprou(clientes[i]))
+			++nClientesNaoCompr;
+		apagaCliente(clientes[i]);	
+	}
+	free(clientes);
+
+	nProdsNaoVendidos = quantosNaoComprados(faturacaoGlobal);
+	printf("Número de clientes que não compraram: %d\n", nClientesNaoCompr);
+	printf("Número de produtos não vendidos: %d\n", nProdsNaoVendidos);
+
+	return 0;
 }
 
 /* Liberta toda a memória alocada e devolve o valor SAIR para o interpretador */

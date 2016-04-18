@@ -85,21 +85,6 @@ static FatProdMes criaFatProdMes(Produto p, int quantidade, double totalFaturado
 static LStrings listaNaoCompradosGlobal(FatAnualProd arrTodosProdutos[], int total);
 static LStrings listaNaoCompradosFilial(FatAnualProd arrTodosProdutos[], int total, int filial);
 
-/* Funções passdas na criação de AVLs */
-
-/* Comparação de nodos */
-static int comparaFatProdMes(const void* , const void* );
-static int comparaFatAnualProd(const void* , const void* );
-/* Atualização de nodos */
-static void atualizaFatProdMes(void *, void* );
-static void atualizaFatAnualProd(void* , void* );
-/* Duplicação do valor de um nodo */
-static ValorNodo duplicaFatAnualProd(void* p);
-static ValorNodo duplicaFatProdMes(void* p);
-/* Libertação de nodos de cada uma das 2 AVLs usadas no módulo */
-static void apagaNodoFatProdMes(void* p);
-static void apagaFatAnualProd(void* p);
-
 /* Funções que devolvem informações sobre as vendas anuais de um produto */
 static int obterTotalVendasAnuaisProd(const FatAnualProd);
 static bool naoComprado(const FatAnualProd);
@@ -517,6 +502,25 @@ static int obterTotalVendasAnuaisProd(const FatAnualProd fAnualProd)
 static bool naoComprado(const FatAnualProd fAnualProd)
 {	
 	return (obterTotalVendasAnuaisProd(fAnualProd) == 0);
+}
+
+int quantosNaoComprados(const FaturacaoGlobal fg)
+{
+	FatAnualProd* arrTodosProdutos;
+	int total = tamanho(fg->todosProdutos);
+	int quantos = 0;
+
+	arrTodosProdutos = (FatAnualProd *) inorder(fg->todosProdutos);
+	if(arrTodosProdutos == NULL)
+		quantos = -1; /* sinaliza falha de alocação na inorder da AVL com todos os produtos */
+	else{
+		int i;
+		for(i = 0; i < total; ++i)
+			if(naoComprado(arrTodosProdutos[i]))
+				++quantos;
+		apagaArray((void **) arrTodosProdutos, total, apagaFatAnualProd);
+	}
+	return quantos;
 }
 
 /* Devolve conjunto ordenado com os códigos de produtos que

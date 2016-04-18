@@ -65,6 +65,10 @@ double faturacaoTotalProdMes(const FatProdMes fProdMes, TipoVenda tipo);
  * i+1, com vendas registadas em 'fProdMes', para o tipo especificado.  */
 double* faturacaoPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
+/* Em caso de sucesso, devolve o número de produtos 
+ * não comprados. Caso contrário, devolve -1. */
+int quantosNaoComprados(const FaturacaoGlobal fg);
+
 /* Devolve um conjunto com os produtos que não foram comprados em nenhuma filial */
 LStrings naoCompradosGlobal(const FaturacaoGlobal);
 
