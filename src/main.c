@@ -867,7 +867,7 @@ static int query10()
 	fatAnualProd = fatNmaisVendidos(faturacaoGlobal, n);
 	if(fatAnualProd == NULL) return -1;
 	produtos = obterArrNmaisVendidos(fatAnualProd,n); 
-
+	imprimir = malloc(sizeof(char *) * n);
 	for(i = 0; i < n; i++){
 		int j;
 		char * linha = malloc(sizeof(char *) * MAX_BUF);
