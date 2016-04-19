@@ -10,10 +10,15 @@ all: $(EXEC)
 
 tmp: avl.o catalogoProds.o catalogoClientes.o faturacaoGlobal.o filial.o LStrings.o
 
-.PHONY: all debug leak-check tmp doc tests limpar
+.PHONY: all debug profile leak-check tmp doc tests limpar
 
 $(EXEC): $(OBJS)
 	$(LINK.c) $(OBJS) $(OUTPUT_OPTION)
+
+profile: CFLAGS += -pg
+profile: $(EXEC)
+	./$(EXEC)
+	gprof gereVendas gmon.out
 
 debug: CFLAGS = -Wall -Wextra -ansi -pedantic -O0 -g
 debug: $(EXEC)
@@ -64,4 +69,4 @@ limpar:
 	$(RM) data/VendasValidas.*
 	# descobrir melhor forma de remover os executáveis de src/programasTestes
 	$(RM) src/programasTestes/infoCliente src/programasTestes/vendasFilial src/programasTestes/infoProduto
-	
+	$(RM) gmon.out

@@ -318,7 +318,7 @@ LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes){
 			return NULL;
 		}
 		/* Falta verificar o resultado da inorder() */
-		arrComprasDoMes = (ComprasDoProduto *) inorder(cpc->comprasPorMes[0]);
+		arrComprasDoMes = (ComprasDoProduto *) inorder(cpc->comprasPorMes[mes]);
 		qsort(arrComprasDoMes, total, sizeof(ComprasDoProduto), comparaTotalCompras);
 
 		for(i = 0; i < total; ++i){
