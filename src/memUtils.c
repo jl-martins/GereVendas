@@ -1,3 +1,9 @@
+/************************************************************
+ * 															*
+ * Módulo com funções úteis para alocar e desalocar memória *
+ *															*
+ ************************************************************/
+
 #include "memUtils.h"
 #include <stdlib.h>
 
@@ -23,12 +29,11 @@ void** alocaMatriz(int nlinhas, int ncolunas, size_t nBytesElem)
 	if(mat == NULL)
 		return NULL;
 
-	for(i = 0; i < ncolunas; ++i){
+	for(i = 0; i < nlinhas; ++i){
 		mat[i] = malloc(ncolunas * nBytesElem);
 		
-		if(mat[i] == NULL){ 
-			for(i = i-1; i >= 0; --i)
-				free(mat[i]);
+		if(mat[i] == NULL){ /* falha a alocar a linha i */
+			apagaArray(mat, i, free);
 			return NULL;
 		}
 	}

@@ -38,7 +38,8 @@ static int comparaComprasPorCliente(const void* cc1, const void* cc2);
 static int comparaComprasDoProduto(const void* vp1, const void* vp2);
 static void atualizaComprasDoProduto(void* vp1, void* vp2);
 static void apagaComprasDoProduto(ComprasDoProduto cdp);
-static int comparaTotalCompras(const void* cdp1, const void* cdp2);
+static int comparaTotalCompras(const void* p1, const void* p2);
+static void ordenaTop3(char* codigosProds[3], double totalGasto[3]);
 
 static void atualizaComprasDoProduto(void* c1, void* c2)
 {
@@ -305,7 +306,7 @@ LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes){
 	ComprasPorCliente cpc = procuraClienteNasVendas(c, filial);
 
 	if(cpc != NULL){ /* o cliente foi encontrado */
-		int i, total = tamanho(cpc->comprasPorMes[mes]); /* adicionar macro COMPRAS_DO_ANO(x) x->comprasPorMes[0] */
+		int i, total = tamanho(cpc->comprasPorMes[mes]);
 		ComprasDoProduto* arrComprasDoMes = malloc(total * sizeof(ComprasDoProduto));
 		char** codigosProds;
 
@@ -319,6 +320,7 @@ LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes){
 		}
 		/* Falta verificar o resultado da inorder() */
 		arrComprasDoMes = (ComprasDoProduto *) inorder(cpc->comprasPorMes[mes]);
+		printf("Estou aqui\n");
 		qsort(arrComprasDoMes, total, sizeof(ComprasDoProduto), comparaTotalCompras);
 
 		for(i = 0; i < total; ++i){
@@ -338,9 +340,11 @@ LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes){
 }
 
 /* Função de compração passada para qsort(), na função produtosClienteMaisComprou() */
-static int comparaTotalCompras(const void* cdp1, const void* cdp2)
-{
-	return ((ComprasDoProduto) cdp2)->unidades - ((ComprasDoProduto) cdp1)->unidades;
+static int comparaTotalCompras(const void* p1, const void* p2)
+{	
+	const ComprasDoProduto cdp1 = *(ComprasDoProduto *) p1;
+	const ComprasDoProduto cdp2 = *(ComprasDoProduto *) p2;
+	return cdp2->unidades - cdp1->unidades;
 }
 
 /* Função auxiliar de tresProdsEmQueMaisGastou().
@@ -393,5 +397,28 @@ char** tresProdsEmQueMaisGastou(Filial filial, Cliente c)
 		}
 	}
 	apagaArray((void **) arrComprasDoAno, total, apagaNodoComprasDoProduto);
+	ordenaTop3(codigosProds, totalGasto);
 	return codigosProds;
+}
+
+/* Recebe um array (codigosProds[3]) com os códigos dos 3 produtos em que
+ * um dado cliente gastou mais dinheiro e outro array (totalGasto[3]). 
+ * totalGasto[i] indica a quantida que um dado cliente gastou no produto
+ * cujo código está em codigosProds[i]. O array totalGasto[3] é então
+ * ordenado decrescentemente e codigosProds[3] é permutado de forma a 
+ * que a correspondência entre produtos e total gasto seja mantida. */
+void ordenaTop3(char* codigosProds[3], double totalGasto[3])
+{
+	int i, j;
+	
+	for(i = 1; i < 3; ++i){
+		double totalGastoAtual = totalGasto[i];
+		char* codigoAtual = codigosProds[i];
+		for(j = i-1; j >= 0 && totalGasto[j] < totalGastoAtual; --j){
+			totalGasto[j+1] = totalGasto[j];
+			codigosProds[j+1] = codigosProds[j];
+		}
+		totalGasto[j+1] = totalGastoAtual;
+		codigosProds[j+1] = codigoAtual;
+	}
 }

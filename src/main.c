@@ -600,8 +600,8 @@ static void resultadosGlobaisQuery3(FatProdMes fProdMes)
 	int totalVendas[N_TIPOS_VENDA];
 	double totalFaturado[N_TIPOS_VENDA];
 
-	totalVendas[N] = vendasTotaisProdMes(fProdMes, N),
-		totalVendas[P] = vendasTotaisProdMes(fProdMes, P);
+	totalVendas[N] = vendasTotaisProdMes(fProdMes, N);
+	totalVendas[P] = vendasTotaisProdMes(fProdMes, P);
 	totalFaturado[N] = faturacaoTotalProdMes(fProdMes, N);
 	totalFaturado[P] = faturacaoTotalProdMes(fProdMes, P);
 
@@ -781,7 +781,7 @@ int query8(){
 	codigo = leLinha(MAX_CODIGO_PROD+1);
 	codigo = strtok(codigo, " \t\r\n");	
 	printf("%s\n", codigo)
-		/* funçoes de leitura de Produto e caso a strtok ou leLinha falhem */;
+	/* funçoes de leitura de Produto e caso a strtok ou leLinha falhem */;
 	/*verificar se o codigo é valido*/
 	produto = criaProduto(codigo);
 	free(codigo);
@@ -874,18 +874,6 @@ static int query11()
 	free(codigoCliente);
 	apagaCliente(c);
 	return 0;
-}
-
-/* Devolve TRUE se o cliente passado como parâmetro nao comprou
- * em nenhuma das filiais. Caso contrário, é devolvido FALSE. */
-static bool clienteNaoComprou(Cliente c){
-	int i;
-	bool r = TRUE;
-
-	for(i = 1; r && i <= N_FILIAIS; i++){
-		r = clienteComprouNaFilial(filiais[i], c) == FALSE;
-	}
-	return r;
 }
 
 /* !Falta o tratamento de erros */

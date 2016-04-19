@@ -635,49 +635,17 @@ static LStrings listaNaoCompradosFilial(FatAnualProd arrTodosProdutos[], int tot
 
 /* Funções utilizadas na query10 */
 
-/* ! Falta esta função imprimir o total de vendas dos N produtos 
- * mais vendidos, para cada uma das filiais. */
-LStrings obterNmaisVendidos(int N, FaturacaoGlobal fg)
-{	
-	int i, total;
-	LStrings lStr;
-	FatAnualProd* arrTodosProdutos;
-	char** infoNmaisVend = malloc(N * sizeof(char *));
-	
-	if(infoNmaisVend == NULL)
-		return NULL;
-
-	total = tamanho(fg->todosProdutos);
-	arrTodosProdutos = (FatAnualProd *) inorder(fg->todosProdutos);
-	if(arrTodosProdutos == NULL){ /* a inorder() não conseguiu criar cópias dos elementos da AVL */
-		free(infoNmaisVend); 
-		return NULL;
-	}
-	/* ordena array por ordem decrescente do nº total de vendas anuais */
-	qsort(arrTodosProdutos, total, sizeof(FatAnualProd), comparaVendasAnuais);
-	
-	for(i = 0; i < N && i < total; ++i){
-		char* codigoProd = obterCodigoProduto(arrTodosProdutos[i]->prod);
-
-		if(codigoProd == NULL){ /* falha ao criar cópia do código do produto */
-			apagaArray((void**) arrTodosProdutos, total, apagaFatAnualProd);
-			apagaArray((void**) infoNmaisVend, i, free);
-			return NULL;
-		}
-		infoNmaisVend[i] = codigoProd;
-	}
-	lStr = criaLStrings(N, infoNmaisVend);
-	apagaArray((void**) arrTodosProdutos, total, apagaFatAnualProd);
-	apagaArray((void**) infoNmaisVend, N, free);
-	return lStr;
+LStrings obterNmaisVendidos(FaturacaoGlobal fg, int N /* int* unidadesVendidas */)
+{
+	return NULL;
 }
 
 /* Função de comparação passada para qsort() para se obter o array
  * ordenado decrescentemente pelo total de vendas anuais dos produtos */
 static int comparaVendasAnuais(const void* v1, const void* v2)
 {	
-	int totalVendas1 = obterTotalVendasAnuaisProd((FatAnualProd) v1);
-	int totalVendas2 = obterTotalVendasAnuaisProd((FatAnualProd) v2);
+	int totalVendas1 = obterTotalVendasAnuaisProd(*(FatAnualProd *) v1);
+	int totalVendas2 = obterTotalVendasAnuaisProd(*(FatAnualProd *) v2);
 	/* trocar a posição dos termos da subtração permite que qsort ordene
 	 * os produtos por ordem decrescente do total de vendas anuais */
 	return totalVendas2 - totalVendas1;

@@ -77,7 +77,7 @@ LStrings naoCompradosGlobal(const FaturacaoGlobal);
 LStrings* naoCompradosPorFilial(const FaturacaoGlobal);
 
 /* Devolve uma lista de strings com os códigos dos N produtos mais vendidos */
-LStrings obterNmaisVendidos(int N, FaturacaoGlobal fg);
+LStrings obterNmaisVendidos(FaturacaoGlobal fg, int N);
 
 /* Liberta a memória alocada para armazenar a faturação global */
 void apagaFaturacaoGlobal(FaturacaoGlobal fg);
