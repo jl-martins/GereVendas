@@ -423,7 +423,7 @@ void ordenaTop3(char* codigosProds[3], double totalGasto[3])
 	}
 }
 
-int quantosClientesCompraram(Filial filial, Produto produto, int * unidadesCompradas){
+int numeroClientesCompraramProduto(Filial filial, Produto produto, int * unidadesCompradas){
 	int i, elems, unidades = 0, conta = 0;
 	ComprasDoProduto encontrou;
 	ComprasDoProduto paraComparar = malloc(sizeof(struct comprasDoProduto));
@@ -431,7 +431,8 @@ int quantosClientesCompraram(Filial filial, Produto produto, int * unidadesCompr
 	    return -1;
   paraComparar->produto = produto;
 	for(i = 0; i < 26; i++){
-		ComprasPorCliente cpc = inorder(filial->clientesOrdenados[i]);
+		int j;
+		ComprasPorCliente * cpc = (ComprasPorCliente*) inorder(filial->clientesOrdenados[i]);
 		if (cpc == NULL) return -1;
 		elems = tamanho(filial->clientesOrdenados[i]);
 		for(j = 0; j < elems; j++){
