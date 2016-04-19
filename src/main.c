@@ -849,9 +849,51 @@ static int query9()
 	return 0;
 }
 
-static int query10( /* faltam os args */)
+static int query10()
 {
-	return 0;	
+	/* fazer tabela em vez de LString */
+	int n, i;
+	Produto * produtos;
+	char ** imprimir;
+	FatAnualProd* fatAnualProd;
+	char * temp;
+	int unidadesVendidasPorFilial[N_FILIAIS+1];
+	int nclientes[N_FILIAIS+1];
+	char aux[16];
+	printf("Quantos produtos pretende consultar? ");
+	n = leInt();
+
+	fatAnualProd = fatNmaisVendidos(fatGlobal, n);
+	if(fatAnualProd == NULL) return -1;
+	produtos = fatNmaisVendidos(fatGlobal, n); 
+
+	for(i = 0; i < n; i++){
+		int j;
+		char * linha = malloc(sizeof(char *) * MAX_BUF);
+		char * codigoTemp = obterCodigoProduto(produtos[i]);
+		int numeroTotalClientes;
+		for(j = 1; j <= N_FILIAIS; j++){
+			unidadesVendidasPorFilial[j] = /* usar faturacao global para obter estes dados, apagar a unidadesVendidasNaFilial(filial[j], produtos[i]);*/;
+		}
+		/*numeroTotalClientes = quantosClientesCompraram(filialGlobal, produtos[i]);*/
+		for(j = 1; j <= N_FILIAIS; j++)
+			nclientes[j] = numeroClientesCompraram(filial[j], produtos[i]);	
+
+		sprintf(linha, "%s %d", codigoTemp, numeroTotalClientes);
+
+		for(j = 1; j <= N_FILIAIS; j++){
+			sprintf(aux, " %d ", unidadesVendidasPorFilial[j])
+			strcat(linha, aux);
+		}
+
+		apagaProduto(produtos[i]);
+		imprimir[i] = linha;
+		free(codigoTemp);
+	}
+	free(produtos);
+
+	LStrings nova = criaLStrings(imprimir, n);
+	navega(produtos);
 }
 
 static int query11()
