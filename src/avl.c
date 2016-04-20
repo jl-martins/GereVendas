@@ -340,12 +340,13 @@ static int alturaAux(const AVL_NODO* raiz)
 	return res;
 }
 
-void apagaAVL(AVL arvore)
+AVL apagaAVL(AVL arvore)
 {	
-	if(arvore != NULL){
+	if(arvore){
 		apagaNodos(arvore->raiz, arvore->liberta);
 		free(arvore);
 	}
+	return NULL;
 }
 
 /* Apaga os nodos de uma AVL. Se o apontador para a função

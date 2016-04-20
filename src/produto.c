@@ -21,8 +21,9 @@ Produto duplicaProduto(Produto p){
 	return novo;
 }
 
-void apagaProduto(Produto p) {
+Produto apagaProduto(Produto p) {
 	free(p);
+	return NULL;
 }
 
 char* obterCodigoProduto(Produto prod){

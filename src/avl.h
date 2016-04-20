@@ -5,7 +5,7 @@
 typedef struct TCD_AVL* AVL;  
 typedef void (*Atualizador) (void *, void *);
 typedef int (*Comparador) (const void *, const void *);
-typedef void* (*Duplicador) (void*);
+typedef void* (*Duplicador) (const void*);
 typedef void (*LibertarNodo) (void *);
 
 /* Cria uma AVL vazia, que vai utilizar a função de comparação 'compara' e
@@ -21,7 +21,7 @@ AVL criaAVL(Atualizador atualiza, Comparador compara, Duplicador duplica, Libert
 AVL insereAVL(AVL arvore, void * val);
 
 /* Apaga uma AVL (i.e.: liberta toda a memória alocada para a mesma) */
-void apagaAVL(AVL arvore);
+AVL apagaAVL(AVL arvore);
 
 /* Devolve o número de nodos de uma AVL */
 int tamanhoAVL(const AVL arvore);

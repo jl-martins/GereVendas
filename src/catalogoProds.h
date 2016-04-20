@@ -27,7 +27,7 @@ int totalProdutos(CatProds);
 int totalProdutosLetra(CatProds, char);
 
 /* Liberta a memória alocada para um catálogo de produtos */
-void apagaCatProds(CatProds);
+CatProds apagaCatProds(CatProds);
 
 /* Devolve uma lista de strings com os produtos
  * cujo código começa com a letra especificada. */

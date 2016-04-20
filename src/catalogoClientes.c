@@ -72,7 +72,7 @@ int totalClientes(CatClientes catC)
 	return total;
 }
 
-void apagaCatClientes(CatClientes catC)
+CatClientes apagaCatClientes(CatClientes catC)
 {
 	if(catC){
 		int i;
@@ -81,6 +81,7 @@ void apagaCatClientes(CatClientes catC)
 			apagaAVL(catC->catalogo[i]);
 		free(catC); 
 	}
+	return NULL;
 }
 
 /* tirar valores harcoded */

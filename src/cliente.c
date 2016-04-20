@@ -21,8 +21,9 @@ Cliente duplicaCliente(Cliente c){
 	return novo;
 }
 
-void apagaCliente(Cliente c) {
+Cliente apagaCliente(Cliente c) {
 	free(c);
+	return NULL;
 }
 
 char* obterCodigoCliente(Cliente c) {

@@ -6,7 +6,7 @@
 typedef struct produto* Produto;
 
 Produto criaProduto(char* codigoProduto);
-void apagaProduto(Produto p);
+Produto apagaProduto(Produto p);
 char* obterCodigoProduto(Produto prod);
 char inicioCodigoProduto(Produto prod);
 int comparaCodigosProduto(Produto p1, Produto p2);

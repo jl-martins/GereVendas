@@ -489,16 +489,12 @@ static int query1()
 {
 	/* apaga os dados de uma execuçao anterior do programa */
 	int resL1, resL2, resL3, i;
-	/*	
-		apagaCatProds(catProds);
-		apagaCatClientes(catClientes);
-		apagaFaturacaoGlobal(faturacaoGlobal);
-	 */
-	/*		
-			for(i = 1; i <= N_FILIAIS; i++)    
-			filiais[i] = apagaFilial(filiais[i]); 
-
-	 */
+	catProds = apagaCatProds(catProds);
+	catClientes = apagaCatClientes(catClientes);
+	faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
+	 
+	for(i = 1; i <= N_FILIAIS; i++)    
+		filiais[i] = apagaFilial(filiais[i]); 
 	/*ver verificacao de erros */
 
 	catProds = criaCatProds();

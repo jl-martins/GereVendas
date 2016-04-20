@@ -75,7 +75,7 @@ int totalProdutos(CatProds catP) {
 	return total;
 }
 
-void apagaCatProds(CatProds catP) {
+CatProds apagaCatProds(CatProds catP) {
  	if(catP){
  		int i;
 
@@ -83,6 +83,7 @@ void apagaCatProds(CatProds catP) {
  			apagaAVL(catP->catalogo[i]);
  		free(catP);
  	}
+	return NULL;
 }
 
 LStrings prodsPorLetra(CatProds catP, char l) {	
