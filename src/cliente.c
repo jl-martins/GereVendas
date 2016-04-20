@@ -3,7 +3,7 @@
 #include "cliente.h"
 
 struct cliente {
-	char *codigoCliente;
+	char* codigoCliente;
 };
 
 Cliente criaCliente(char* codigoCliente)
@@ -15,7 +15,7 @@ Cliente criaCliente(char* codigoCliente)
 		novo->codigoCliente = malloc((len + 1) * sizeof(char));
 
 		if(novo->codigoCliente != NULL)
-		strcpy(novo->codigoCliente, codigoCliente);
+			strcpy(novo->codigoCliente, codigoCliente);
 	}
 	return novo;
 }
