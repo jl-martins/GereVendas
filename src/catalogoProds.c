@@ -16,7 +16,7 @@ struct catProds {
 
 /* Funções passadas para criaAVLgenerica() */
 static int compara(const void *, const void *);
-static ValorNodo duplica(void *);
+static void * duplica(void *);
 static void liberta(void *);
 static void atualiza(void *, void *);
 
@@ -28,7 +28,7 @@ CatProds criaCatProds() {
 	
 	if(catP)
 		for(i = 0; i < MAX_AVL; ++i)
-			catP->catalogo[i] = criaAVLgenerica(atualiza, compara, duplica, liberta);
+			catP->catalogo[i] = criaAVL(atualiza, compara, duplica, liberta);
 	return catP;
 }
 
@@ -37,7 +37,7 @@ CatProds insereProduto(CatProds catP, Produto p) {
 		AVL nova;
 		int i = calculaPos(p);
 
-		nova = insere(catP->catalogo[i], p);
+		nova = insereAVL(catP->catalogo[i], p);
 		if(nova == NULL) /* falha de alocação a inserir na AVL */
 			return NULL;
 		catP->catalogo[i] = nova;
@@ -60,7 +60,7 @@ bool existeProduto(CatProds catP, Produto p) {
 int totalProdutosLetra(CatProds catP, char l) {
 	int i = isupper(l) ? l - 'A' : -1; /* validação da letra */
 	
-	return (i == -1) ? 0 : tamanho(catP->catalogo[i]);
+	return (i == -1) ? 0 : tamanhoAVL(catP->catalogo[i]);
 }
 
 int totalProdutos(CatProds catP) {
@@ -70,7 +70,7 @@ int totalProdutos(CatProds catP) {
 		int i;
 
 		for(i = 0; i < MAX_AVL; ++i)
-			total += tamanho(catP->catalogo[i]);
+			total += tamanhoAVL(catP->catalogo[i]);
 	}
 	return total;
 }
@@ -90,11 +90,11 @@ LStrings prodsPorLetra(CatProds catP, char l) {
 
 	if(isupper(l)){ 
 		int i = l - 'A';
-		int total = tamanho(catP->catalogo[i]);
+		int total = tamanhoAVL(catP->catalogo[i]);
 		Produto* prods;
 		char** arrCods;
 
-		prods = (Produto*) inorder(catP->catalogo[i]);
+		prods = (Produto*) inorderAVL(catP->catalogo[i]);
 		if(prods == NULL) /* falha de alocação na inorder() da AVL */
 			return NULL;
 		
@@ -129,9 +129,9 @@ static int compara(const void* p1, const void* p2)
 	return comparaCodigosProduto((Produto) p1, (Produto) p2);
 }
 
-static ValorNodo duplica(void* prod)
+static void * duplica(void* prod)
 {
-	return (ValorNodo) duplicaProduto((Produto) prod);
+	return (void *) duplicaProduto((Produto) prod);
 }
 
 static void liberta(void* prod)

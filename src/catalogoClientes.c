@@ -24,7 +24,7 @@ CatClientes criaCatClientes() {
 	
 	if(catC) 
 		for(i = 0; i < MAX_AVL; ++i)
-			catC->catalogo[i] = criaAVLgenerica(atualiza, compara, duplica, liberta);
+			catC->catalogo[i] = criaAVL(atualiza, compara, duplica, liberta);
 	return catC;
 }
 
@@ -34,7 +34,7 @@ CatClientes insereCliente(CatClientes catC, Cliente c)
 		AVL nova;
 		int i = calculaPos(c);
 
-		nova = insere(catC->catalogo[i], c);
+		nova = insereAVL(catC->catalogo[i], c);
 		if(nova == NULL) /* falha de alocação a inserir na AVL */
 			return NULL;
 		catC->catalogo[i] = nova;
@@ -56,7 +56,7 @@ int totalClientesLetra(CatClientes catC, char l)
 {
 	int i = isupper(l) ? l - 'A' : -1;
 	
-	return (i == -1) ? 0 : tamanho(catC->catalogo[i]);
+	return (i == -1) ? 0 : tamanhoAVL(catC->catalogo[i]);
 }
 
 int totalClientes(CatClientes catC)
@@ -67,7 +67,7 @@ int totalClientes(CatClientes catC)
 		int i;
 
 		for(i = 0; i < MAX_AVL; ++i)
-			total += tamanho(catC->catalogo[i]);
+			total += tamanhoAVL(catC->catalogo[i]);
 	}
 	return total;
 }
@@ -88,7 +88,7 @@ Cliente * todosClientes(CatClientes catC, int * nElems){
 	int nclientes = 0, i, j, indice, quantas;
 	Cliente * clientes, * temp;
 	for(i = 0; i < 26; i++)
-		nclientes += tamanho(catC->catalogo[i]);
+		nclientes += tamanhoAVL(catC->catalogo[i]);
 	/* fazer codigo para cuidar de erros */
 	clientes = (Cliente *) malloc(sizeof(Cliente) * nclientes); 
 	/* mudar para 0 se for NULL */
@@ -96,9 +96,9 @@ Cliente * todosClientes(CatClientes catC, int * nElems){
 	
 	indice = 0;
 	for(i = 0; i < 26; i++){
-		temp = (Cliente *) inorder(catC->catalogo[i]);
+		temp = (Cliente *) inorderAVL(catC->catalogo[i]);
 		/* fazer função de limpeza em caso de erros */
-		quantas = tamanho(catC->catalogo[i]);
+		quantas = tamanhoAVL(catC->catalogo[i]);
 		for(j = 0; j < quantas; j++)
 			clientes[indice++] = temp[j];
 		free(temp);
@@ -113,11 +113,11 @@ LStrings clientesPorLetra(CatClientes catC, char l) {
 
 	if(isupper(l)){ 
 		int i = l - 'A';
-		int total = tamanho(catC->catalogo[i]);
+		int total = tamanhoAVL(catC->catalogo[i]);
 		Cliente* clientes;
 		char** arrCods;
 
-		clientes = (Cliente*) inorder(catC->catalogo[i]);
+		clientes = (Cliente*) inorderAVL(catC->catalogo[i]);
 		if(clientes == NULL) /* falha de alocação na inorder() da AVL */
 			return NULL;
 		

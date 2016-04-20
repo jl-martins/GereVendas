@@ -98,7 +98,7 @@ static void apagaComprasDoProduto(ComprasDoProduto cdp)
 	apagaNodoComprasDoProduto((void *) cdp);
 }
 
-static ValorNodo duplicaComprasDoProduto(void* p){
+static void * duplicaComprasDoProduto(void* p){
 	ComprasDoProduto original = p;
 	ComprasDoProduto copia = NULL;
 	
@@ -117,7 +117,7 @@ static ValorNodo duplicaComprasDoProduto(void* p){
 		copia->modoP = original->modoP;
 		copia->modoN = original->modoN;
 	}
-	return (ValorNodo) copia;
+	return (void *) copia;
 }
 
 /* verificada */
@@ -130,7 +130,7 @@ Filial criaFilial(){
 
 	for(i = 0; i < 26; i++){		
 		/* definir função de comparação */
-		nova->clientesOrdenados[i] = criaAVLgenerica(NULL, comparaComprasPorCliente, NULL, apagaNodoComprasPorCliente);/*nao devia passar função de atualização??*/
+		nova->clientesOrdenados[i] = criaAVL(NULL, comparaComprasPorCliente, NULL, apagaNodoComprasPorCliente);/*nao devia passar função de atualização??*/
 	}
 	return nova;
 }
@@ -192,20 +192,20 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 		/*char* codigo = obterCodigoCliente(ccliente->cliente);*/
 		/* inicializar os campos */
 		for(i = 0; i < 13; i++)
-			ccliente->comprasPorMes[i] = criaAVLgenerica(atualizaComprasDoProduto, comparaComprasDoProduto, duplicaComprasDoProduto, apagaNodoComprasDoProduto);
+			ccliente->comprasPorMes[i] = criaAVL(atualizaComprasDoProduto, comparaComprasDoProduto, duplicaComprasDoProduto, apagaNodoComprasDoProduto);
 
-		ccliente->comprasPorMes[mes] = insere(ccliente->comprasPorMes[mes], comprasAux);
-		ccliente->comprasPorMes[0] = insere(ccliente->comprasPorMes[0], comprasAux); /* insere na informação anual do cliente */
+		ccliente->comprasPorMes[mes] = insereAVL(ccliente->comprasPorMes[mes], comprasAux);
+		ccliente->comprasPorMes[0] = insereAVL(ccliente->comprasPorMes[0], comprasAux); /* insere na informação anual do cliente */
 		/*printf("ccliente->comprasPorMes[%d] = %p\n",  mes, (void *) ccliente->comprasPorMes[mes]);*/
-		filial->clientesOrdenados[posicao] = insere(filial->clientesOrdenados[posicao], ccliente);
+		filial->clientesOrdenados[posicao] = insereAVL(filial->clientesOrdenados[posicao], ccliente);
 		/*naFilial = procuraAVL(filial->clientesOrdenados[posicao], ccliente);*/
 		/*printf("naFilial: %p | ccliente: %p | ccliente->comprasPorMes[%d]: %p\n", (void *) naFilial, (void *) ccliente, mes, (void *) naFilial->comprasPorMes[mes]);
 		free(codigo);*/
 	}
 	else{
 		free(ccliente); /* falta liberta o código de cliente duplicado */
-		insere(naFilial->comprasPorMes[mes], comprasAux);  /*nota: a funçao de atualização deve fazer o free no caso de atualizar */
-		insere(naFilial->comprasPorMes[0], comprasAux);
+		insereAVL(naFilial->comprasPorMes[mes], comprasAux);  /*nota: a funçao de atualização deve fazer o free no caso de atualizar */
+		insereAVL(naFilial->comprasPorMes[0], comprasAux);
 	}	
 	/* limpar comprasAux */
 	return filial;		
@@ -255,7 +255,7 @@ int quantosClientesCompraram(Filial filial){
 	int quantos, i;
 	quantos = 0;
 	for(i = 0; i < 26; i++){
-		quantos += tamanho(filial->clientesOrdenados[i]);
+		quantos += tamanhoAVL(filial->clientesOrdenados[i]);
 	}
 	return quantos;
 }
@@ -263,8 +263,8 @@ int quantosClientesCompraram(Filial filial){
 static int somaUnidadesMes(AVL_ComprasPorCliente arv){
 	int i, tamanhoArv, soma = 0;
 	/* mudar o nome de vendaProduto para CompraProduto*/
-	ComprasDoProduto * produtosComprados = (ComprasDoProduto *) inorder(arv);
-	tamanhoArv = (produtosComprados != NULL)? tamanho(arv) : 0;
+	ComprasDoProduto * produtosComprados = (ComprasDoProduto *) inorderAVL(arv);
+	tamanhoArv = (produtosComprados != NULL)? tamanhoAVL(arv) : 0;
 	for(i = 0; i < tamanhoArv; i++) soma += produtosComprados[i]->unidades;
 	free(produtosComprados);	
 	return soma;
@@ -306,7 +306,7 @@ LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes){
 	ComprasPorCliente cpc = procuraClienteNasVendas(c, filial);
 
 	if(cpc != NULL){ /* o cliente foi encontrado */
-		int i, total = tamanho(cpc->comprasPorMes[mes]);
+		int i, total = tamanhoAVL(cpc->comprasPorMes[mes]);
 		ComprasDoProduto* arrComprasDoMes = malloc(total * sizeof(ComprasDoProduto));
 		char** codigosProds;
 
@@ -318,8 +318,8 @@ LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes){
 			apagaArray((void **) arrComprasDoMes, total, free);
 			return NULL;
 		}
-		/* Falta verificar o resultado da inorder() */
-		arrComprasDoMes = (ComprasDoProduto *) inorder(cpc->comprasPorMes[mes]);
+		/* Falta verificar o resultado da inorderAVL() */
+		arrComprasDoMes = (ComprasDoProduto *) inorderAVL(cpc->comprasPorMes[mes]);
 		printf("Estou aqui\n");
 		qsort(arrComprasDoMes, total, sizeof(ComprasDoProduto), comparaTotalCompras);
 
@@ -366,7 +366,7 @@ char** tresProdsEmQueMaisGastou(Filial filial, Cliente c)
 {	
 	int i, imin;
 	ComprasPorCliente cpc = procuraClienteNasVendas(c, filial);
-	int total = tamanho(cpc->comprasPorMes[0]);
+	int total = tamanhoAVL(cpc->comprasPorMes[0]);
 	char** codigosProds = calloc(3, sizeof(char *));
 	/* guarda na posição i o total gasto no produto cujo código está em codigosProds[i] */
 	double totalGasto[3] = {0}; 
@@ -379,8 +379,8 @@ char** tresProdsEmQueMaisGastou(Filial filial, Cliente c)
 	if(arrComprasDoAno == NULL) /* falha de alocação */
 		return NULL;
 		
-	/* Falta verificar o resultado da inorder() */
-	arrComprasDoAno = (ComprasDoProduto *) inorder(cpc->comprasPorMes[0]);
+	/* Falta verificar o resultado da inorderAVL() */
+	arrComprasDoAno = (ComprasDoProduto *) inorderAVL(cpc->comprasPorMes[0]);
 	for(i = 0; i < total; ++i){ /* percorre o array de compras do ano */
 		imin = indiceDoMenor(totalGasto);
 		if(arrComprasDoAno[i]->faturacao > totalGasto[imin]){
@@ -432,9 +432,9 @@ int numeroClientesCompraramProduto(Filial filial, Produto produto, int * unidade
   paraComparar->produto = produto;
 	for(i = 0; i < 26; i++){
 		int j;
-		ComprasPorCliente * cpc = (ComprasPorCliente*) inorder(filial->clientesOrdenados[i]);
+		ComprasPorCliente * cpc = (ComprasPorCliente*) inorderAVL(filial->clientesOrdenados[i]);
 		if (cpc == NULL) return -1;
-		elems = tamanho(filial->clientesOrdenados[i]);
+		elems = tamanhoAVL(filial->clientesOrdenados[i]);
 		for(j = 0; j < elems; j++){
 		    encontrou = procuraAVL(cpc[j]->comprasPorMes[0], paraComparar);
 				if(encontrou){
