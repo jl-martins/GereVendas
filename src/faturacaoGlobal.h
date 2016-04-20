@@ -98,10 +98,11 @@ void apagaFatAnualProd(FatAnualProd fAnualProd);
  * total de vendas durante o ano */
 Produto* obterArrNmaisVendidos(const FatAnualProd fatNmaisVend[], int N);
 
+int* vendasPorFilialProdAno(const FatAnualProd fAnualProd);
 /* Recebe o array devolvido por fatNmaisVendidos(). Devolve uma matriz
  * de dimensões em que cada posição (i,j) armazena o número de vendas do
  * iesimo produto mais vendido, na filial j. NOTA: a contagem dos N
  * mais vendidos começa em 0, enquanto que a das filiais começa em 1. */
-int** vendasPorFilialNmaisVend(const FatAnualProd fatNmaisVend[], int N);
+/* int** vendasPorFilialNmaisVend(const FatAnualProd fatNmaisVend[], int N); */
 
 #endif
