@@ -38,7 +38,7 @@ CatClientes insereCliente(CatClientes catC, Cliente c)
 		if(codCliente == NULL)
 			return NULL;
 		
-		nova = insereAVL(catC->catalogo[i], c);
+		nova = insereAVL(catC->catalogo[i], codCliente);
 		if(nova == NULL) /* falha de alocação a inserir na AVL */
 			catC = NULL;
 		else
@@ -50,7 +50,7 @@ CatClientes insereCliente(CatClientes catC, Cliente c)
 bool existeCliente(CatClientes catC, Cliente c)
 {
 	bool existe = FALSE;
-	
+
 	if(catC){
 		int i = calculaPos(c);
 		char* codCliente = obterCodigoCliente(c);
