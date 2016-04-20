@@ -16,8 +16,7 @@ struct catProds {
 
 /* Funções passadas para criaAVLgenerica() */
 static int compara(const void *, const void *);
-static void * duplica(void *);
-static void liberta(void *);
+static void* duplica(void *);
 static void atualiza(void *, void *);
 
 /* Funções que manipulam catálogos de produtos */
@@ -28,7 +27,7 @@ CatProds criaCatProds() {
 	
 	if(catP)
 		for(i = 0; i < MAX_AVL; ++i)
-			catP->catalogo[i] = criaAVL(atualiza, compara, duplica, liberta);
+			catP->catalogo[i] = criaAVL(atualiza, compara, duplica, NULL);
 	return catP;
 }
 
@@ -36,11 +35,16 @@ CatProds insereProduto(CatProds catP, Produto p) {
 	if(catP){
 		AVL nova;
 		int i = calculaPos(p);
+		char* codProd = obterCodigoProduto(p);
 
-		nova = insereAVL(catP->catalogo[i], p);
-		if(nova == NULL) /* falha de alocação a inserir na AVL */
+		if(codProd == NULL)
 			return NULL;
-		catP->catalogo[i] = nova;
+
+		nova = insereAVL(catP->catalogo[i], codProd);
+		if(nova == NULL) /* falha de alocação a inserir na AVL */
+			catP = NULL;
+		else
+			catP->catalogo[i] = nova;
 	}
 	return catP;
 }
@@ -51,7 +55,10 @@ bool existeProduto(CatProds catP, Produto p) {
 
 	if(catP){ /* temos um catálogo */
 		i = calculaPos(p);
-		existe = existeAVL(catP->catalogo[i], p);
+		char* codProd = obterCodigoProduto(p);
+
+		if(codProd != NULL)
+			existe = existeAVL(catP->catalogo[i], codProd);
 	}
 	return existe;
 }
@@ -92,32 +99,14 @@ LStrings prodsPorLetra(CatProds catP, char l) {
 	if(isupper(l)){ 
 		int i = l - 'A';
 		int total = tamanhoAVL(catP->catalogo[i]);
-		Produto* prods;
-		char** arrCods;
+		char** codigosPorLetra = inorderAVL(catP->catalogo[i]);
 
-		prods = (Produto*) inorderAVL(catP->catalogo[i]);
-		if(prods == NULL) /* falha de alocação na inorder() da AVL */
+		if(codigosPorLetra == NULL) /* falha de alocação na inorderAVL() */
 			return NULL;
-		
-		arrCods	= malloc(total * sizeof(char *));
-		if(arrCods == NULL){ /* falha de alocação */
-			apagaArray((void**) prods, total, liberta);
-			return NULL;
-		}
 
-		for(i = 0; i < total; ++i){
-			char* copia = obterCodigoProduto(prods[i]);
+		lProdsPorLetra = criaLStrings(total, codigosPorLetra);
+		apagaArray((void**) codigosPorLetra, total, free);
 
-			if(copia == NULL){ /* falha a obter o código do produto */
-				apagaArray((void**) prods, total, liberta);
-				apagaArray((void**) arrCods, i, free);
-				return NULL;
-			}
-			arrCods[i] = copia;
-		}
-		lProdsPorLetra = criaLStrings(total, arrCods);
-		apagaArray((void**) prods, total, liberta);
-		apagaArray((void**) arrCods, i, free); 
 	}
 	return lProdsPorLetra;
 }
@@ -125,20 +114,22 @@ LStrings prodsPorLetra(CatProds catP, char l) {
 /* Funções static passadas para criar AVLs */
 
 /* Função de comparação entre dois elementos do tipo Produto */
-static int compara(const void* p1, const void* p2)
+static int compara(const void* cod1, const void* cod2)
 {	
-	return comparaCodigosProduto((Produto) p1, (Produto) p2);
+	return strcmp((char *) cod1, (char *) cod2);
 }
 
-static void * duplica(void* prod)
-{
-	return (void *) duplicaProduto((Produto) prod);
+static void* duplica(void* codProd)
+{	
+	char* original = codProd;
+	int len = strlen(original);
+	char* copia = malloc((len + 1) * sizeof(char));
+
+	if(copia != NULL)
+		strcpy(copia, original);
+	return copia;
 }
 
-static void liberta(void* prod)
-{
-	apagaProduto((Produto) prod);
-}
 
 static void atualiza(void* prod1, void* prod2)
 {

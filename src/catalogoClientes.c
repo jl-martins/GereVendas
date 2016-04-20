@@ -1,6 +1,6 @@
 #include "catalogoClientes.h"
 #include "avl.h"
-#include "memUtils.h" /* funções para alocar e libertar arrays de apontadores genéricos */
+#include "memUtils.h" /* funções para alocar e libertar arrays genéricos */
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h> /* importa strcmp() */
@@ -15,16 +15,16 @@ struct catClientes {
 
 static int compara(const void *, const void *);
 static void* duplica(void *);
-static void liberta(void *);
 static void atualiza(void *, void *);
 
-CatClientes criaCatClientes() {
+CatClientes criaCatClientes()
+{
 	int i;
 	CatClientes catC = malloc(sizeof(struct catClientes));
 	
 	if(catC) 
-		for(i = 0; i < MAX_AVL; ++i)
-			catC->catalogo[i] = criaAVL(atualiza, compara, duplica, liberta);
+		for(i = 0; i < MAX_AVL; ++i) /* agora que estamos a guardar strings, não precisamos de passar uma função de libertação */
+			catC->catalogo[i] = criaAVL(atualiza, compara, duplica, NULL);
 	return catC;
 }
 
@@ -33,11 +33,16 @@ CatClientes insereCliente(CatClientes catC, Cliente c)
 	if(catC){
 		AVL nova;
 		int i = calculaPos(c);
+		char* codCliente = obterCodigoCliente(c);
 
+		if(codCliente == NULL)
+			return NULL;
+		
 		nova = insereAVL(catC->catalogo[i], c);
 		if(nova == NULL) /* falha de alocação a inserir na AVL */
-			return NULL;
-		catC->catalogo[i] = nova;
+			catC = NULL;
+		else
+			catC->catalogo[i] = nova;
 	}
 	return catC;
 }
@@ -47,7 +52,10 @@ bool existeCliente(CatClientes catC, Cliente c)
 	bool existe = FALSE;
 	if(catC){
 		int i = calculaPos(c);
-		existe = existeAVL(catC->catalogo[i], c);
+		char* codCliente = obterCodigoCliente(c);
+
+		if(codCliente != NULL)
+			existe = existeAVL(catC->catalogo[i], c);
 	}
 	return existe;
 }
@@ -84,82 +92,61 @@ CatClientes apagaCatClientes(CatClientes catC)
 	return NULL;
 }
 
-/* tirar valores harcoded */
-Cliente * todosClientes(CatClientes catC, int * nElems){
-	int nclientes = 0, i, j, indice, quantas;
-	Cliente * clientes, * temp;
-	for(i = 0; i < 26; i++)
-		nclientes += tamanhoAVL(catC->catalogo[i]);
-	/* fazer codigo para cuidar de erros */
-	clientes = (Cliente *) malloc(sizeof(Cliente) * nclientes); 
-	/* mudar para 0 se for NULL */
-	*nElems = nclientes;
+Cliente* todosClientes(CatClientes catC)
+{
+	int i, j, iclientes, quantos;
+	Cliente* clientes = malloc(totalClientes(catC) * sizeof(Cliente)); 
 	
-	indice = 0;
-	for(i = 0; i < 26; i++){
-		temp = (Cliente *) inorderAVL(catC->catalogo[i]);
+	if(codsClientes == NULL)
+		return NULL;
+	iclientes = 0;
+	for(i = 0; i < MAX_AVL; ++i){
+		char** temp = inorderAVL(catC->catalogo[i]);
 		/* fazer função de limpeza em caso de erros */
-		quantas = tamanhoAVL(catC->catalogo[i]);
-		for(j = 0; j < quantas; j++)
-			clientes[indice++] = temp[j];
-		free(temp);
+		quantos = tamanhoAVL(catC->catalogo[i]);
+		for(j = 0; j < quantos; ++j)
+			clientes[iclientes++] = criaCliente(temp[j]);
+		
+		apagaArray((void**) temp, quantos, free);
 	}	
 	return clientes;
 }
 
-/* Funções que manipulam conjuntos de clientes */
-
-LStrings clientesPorLetra(CatClientes catC, char l) {	
+LStrings clientesPorLetra(CatClientes catC, char l)
+{	
 	LStrings lClientesPorLetra = NULL;
 
 	if(isupper(l)){ 
 		int i = l - 'A';
 		int total = tamanhoAVL(catC->catalogo[i]);
-		Cliente* clientes;
-		char** arrCods;
+		char** codigosPorLetra = inorderAVL(catC->catalogo[i]);
 
-		clientes = (Cliente*) inorderAVL(catC->catalogo[i]);
-		if(clientes == NULL) /* falha de alocação na inorder() da AVL */
+		if(codigosPorLetra == NULL) /* falha de alocação na inorder() da AVL */
 			return NULL;
-		
-		arrCods	= malloc(total * sizeof(char *));
-		if(arrCods == NULL){ /* falha de alocação do array de códigos de clientes */
-			apagaArray((void *) clientes, total, liberta);
-			return NULL;
-		}
-		for(i = 0; i < total; ++i){
-			char* copia = obterCodigoCliente(clientes[i]);
 
-			if(copia == NULL){ /* falha a obter o código do cliente */
-				apagaArray((void**) clientes, total, liberta);
-				apagaArray((void**) arrCods, i, free);
-				return NULL;
-			}
-			arrCods[i] = copia;
-		}
-		lClientesPorLetra = criaLStrings(total, arrCods);
-		apagaArray((void**) clientes, total, liberta);
-		apagaArray((void**) arrCods, i, free); 
+		lClientesPorLetra = criaLStrings(total, codigosPorLetra);
+		apagaArray((void**) codigosPorLetra, total, free);
 	}
 	return lClientesPorLetra;
 }
 
 /* Funções static passadas para criar AVLs */
 
-/* Função de comparação entre dois elementos do tipo Cliente */
-static int compara(const void *cliente1, const void *cliente2)
+/* Função de comparação entre dois códigos de cliente */
+static int compara(const void* cod1, const void* cod2)
 {	
-	return comparaCodigosCliente((Cliente) cliente1, (Cliente) cliente2);
+	return strcmp((char *) cod1, (char *) cod2);
 }
 
-static void* duplica(void * cliente)
-{
-	return duplicaCliente((Cliente) cliente);
-}
+static void* duplica(void* codCliente)
+{	
+	char* original = codCliente;
+	int len = strlen(original);
+	char* copia = malloc((len + 1) * sizeof(char));
 
-static void liberta(void * cliente)
-{
-	apagaCliente((Cliente) cliente);
+	if(copia != NULL)
+		strcpy(copia, original);
+	return copia;
 }
 
 static void atualiza(void* x, void* y)
