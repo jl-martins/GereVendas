@@ -55,13 +55,14 @@ LStrings criaLStrings(int total, char* strings[])
 }
 
 /* Liberta a memória alocada para uma lista de Strings */
-void apagaLStrings(LStrings lStr)
+LStrings apagaLStrings(LStrings lStr)
 {	
 	if(lStr != NULL){
 		if(lStr->strings != NULL)
 			apagaArray((void**) lStr->strings, lStr->total, free);
 		free(lStr);
 	}
+	return NULL;
 }
 
 /* Funções de navegação */

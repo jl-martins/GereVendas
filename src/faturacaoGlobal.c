@@ -91,8 +91,8 @@ static bool naoComprado(const FatAnualProd);
 static int comparaVendasAnuais(const void* v1, const void* v2);
 
 /* Funções de libertação dos tipos de dados não exportados */
-static FatMes* apagaFatMensalInterv(FatMes fMes[], int inicio, int fim);
-static FatMes apagaFatMes(FatMes fMes);
+static void apagaFatMensalInterv(FatMes fMes[], int inicio, int fim);
+static void apagaFatMes(FatMes fMes);
 
 /* Funções de comparaçõa usadas nas AVLs */
 static int comparaFatProdMes(const void* p1, const void* p2)
@@ -178,7 +178,7 @@ static void* duplicaFatProdMes(void* p){
 }
 
 /* Funções de libertação de nodos das AVLs */
-static void* apagaNodoFatProdMes(void* p)
+static void apagaNodoFatProdMes(void* p)
 {
 	if(p != NULL){
 		FatProdMes fProdMes = p;
@@ -186,11 +186,10 @@ static void* apagaNodoFatProdMes(void* p)
 		fProdMes->prod = apagaProduto(fProdMes->prod);
 		free(fProdMes);
 	}
-	return NULL;
 }
 
 /* Função passada na criação da AVL da faturação anual de todos os produtos */
-static void* apagaNodoFatAnualProd(void* p)
+static void apagaNodoFatAnualProd(void* p)
 {	
 	if(p != NULL){
 		FatAnualProd fAnualProd = p;
@@ -198,13 +197,12 @@ static void* apagaNodoFatAnualProd(void* p)
 		fAnualProd->prod = apagaProduto(fAnualProd->prod);
 		free(fAnualProd);
 	}
-	return NULL;
 }
 
 FatAnualProd apagaFatAnualProd(FatAnualProd fAnualProd)
 {
-	fAnualProd = apagaNodoFatAnualProd((void *) fAnualProd);
-	return fAnualProd;
+	apagaNodoFatAnualProd((void *) fAnualProd);
+	return NULL;
 }
 
 FaturacaoGlobal criaFaturacaoGlobal()
@@ -222,7 +220,7 @@ FaturacaoGlobal criaFaturacaoGlobal()
 		fg->fatMensal[i] = malloc(sizeof(struct fatMes));
 
 		if(fg->fatMensal[i] == NULL){ /* falha a alocar a struct fatMes */
-			fg->fatMensal = apagaFatMensalInterv(fg->fatMensal, 1, i-1);
+			apagaFatMensalInterv(fg->fatMensal, 1, i-1);
 			return NULL;
 		}
 		fg->fatMensal[i]->totalVendas = 0;
@@ -240,18 +238,17 @@ static void apagaFatMensalInterv(FatMes fatMensal[], int inicio, int fim)
 		int i;
 
 		for(i = inicio; i <= fim; ++i)
-			fatMensal[i] = apagaFatMes(fatMensal[i]);
+			apagaFatMes(fatMensal[i]);
 	}
 }
 
 /* Liberta a memória alocada para uma struct fatMes */
-static FatMes apagaFatMes(FatMes fMes)
+static void apagaFatMes(FatMes fMes)
 {	
 	if(fMes != NULL){
-		fMes->fatProds = apagaAVL(fMes->fatProds);
+		apagaAVL(fMes->fatProds);
 		free(fMes);
 	}
-	return NULL;
 }
 
 FaturacaoGlobal apagaFaturacaoGlobal(FaturacaoGlobal fg)
@@ -260,9 +257,10 @@ FaturacaoGlobal apagaFaturacaoGlobal(FaturacaoGlobal fg)
 		int i;
 
 		for(i = 0; i <= N_MESES; ++i)
-			fg->fatMensal[i] = apagaFatMes(fg->fatMensal[i]);
+			apagaFatMes(fg->fatMensal[i]);
 		fg->todosProdutos = apagaAVL(fg->todosProdutos);
 	}
+	return NULL;
 }
 
 /* Regista um produto na faturação global, guardando-o na AVL de total de vendas
@@ -322,7 +320,7 @@ FaturacaoGlobal registaVenda(FaturacaoGlobal fg, Produto p, double precoUnit,
 	fAnualProd = criaFatAnualProd(p, totalVendas);
 
 	if(fAnualProd == NULL){ /* falha a alocar memória na função criaFatAnualProd()*/
-		fProdMes = apagaFatProdMes((void*) fProdMes);
+		apagaFatProdMes((void*) fProdMes);
 		return NULL;
 	}
 
@@ -339,7 +337,7 @@ FaturacaoGlobal registaVenda(FaturacaoGlobal fg, Produto p, double precoUnit,
 	}
 	/* chegando a este ponto, já temos cópias de fProdMes e fAnualProd 
 	 * na AVL da faturação do mês e na de todos os produtos, respetivamente */
-	fProdMes = apagaFatProdMes((void *) fProdMes);
+	apagaFatProdMes((void *) fProdMes);
 	fAnualProd = apagaFatAnualProd(fAnualProd);
 	return fg;
 }
@@ -516,7 +514,7 @@ static bool naoComprado(const FatAnualProd fAnualProd)
 int quantosNaoComprados(const FaturacaoGlobal fg)
 {
 	FatAnualProd* arrTodosProdutos;
-	int total = tamanho(fg->todosProdutos);
+	int total = tamanhoAVL(fg->todosProdutos);
 	int quantos = 0;
 
 	arrTodosProdutos = (FatAnualProd *) inorderAVL(fg->todosProdutos);
@@ -527,7 +525,7 @@ int quantosNaoComprados(const FaturacaoGlobal fg)
 		for(i = 0; i < total; ++i)
 			if(naoComprado(arrTodosProdutos[i]))
 				++quantos;
-		arrTodosProdutos = apagaArray((void **) arrTodosProdutos, total, apagaNodoFatAnualProd);
+		apagaArray((void **) arrTodosProdutos, total, apagaNodoFatAnualProd);
 	}
 	return quantos;
 }
@@ -537,14 +535,14 @@ int quantosNaoComprados(const FaturacaoGlobal fg)
 LStrings naoCompradosGlobal(const FaturacaoGlobal fg)
 {
 	FatAnualProd* arrTodosProdutos;
-	int total = tamanho(fg->todosProdutos);
+	int total = tamanhoAVL(fg->todosProdutos);
 	LStrings res = NULL;
 
 	arrTodosProdutos = (FatAnualProd *) inorderAVL(fg->todosProdutos);
 	if(arrTodosProdutos != NULL){
 		res = listaNaoCompradosGlobal(arrTodosProdutos, total);
 		/* o array com o código dos produtos não comprados já está em 'res' */
-		arrTodosProdutos = apagaArray((void**) arrTodosProdutos, total, apagaNodoFatAnualProd);
+		apagaArray((void**) arrTodosProdutos, total, apagaNodoFatAnualProd);
 	}
 	return res;
 }
@@ -567,7 +565,7 @@ static LStrings listaNaoCompradosGlobal(FatAnualProd* arrTodosProdutos, int tota
 			char* codigoProd = obterCodigoProduto(arrTodosProdutos[i]->prod);
 			
 			if(codigoProd == NULL){ /* falha de alocação de codigoProd */
-				naoComprados = apagaArray((void**) naoComprados, numNaoComp, free);
+				apagaArray((void**) naoComprados, numNaoComp, free);
 				return NULL;
 			}
 			naoComprados[numNaoComp++] = codigoProd;
@@ -575,7 +573,7 @@ static LStrings listaNaoCompradosGlobal(FatAnualProd* arrTodosProdutos, int tota
 	}
 	/* só chegamos aqui se não houve falhas de alocação */
 	lStr = criaLStrings(numNaoComp, naoComprados);
-	naoComprados = apagaArray((void**) naoComprados, numNaoComp, free);
+	apagaArray((void**) naoComprados, numNaoComp, free);
 	return lStr;
 }
 
@@ -593,21 +591,21 @@ LStrings* naoCompradosPorFilial(const FaturacaoGlobal fg)
 		free(arrLStr);
 		return NULL;
 	}
-	total = tamanho(fg->todosProdutos);
+	total = tamanhoAVL(fg->todosProdutos);
 
 	for(filial = 1; filial <= N_FILIAIS; ++filial){
 		LStrings lStr = listaNaoCompradosFilial(arrTodosProdutos, total, filial);
 
 		if(lStr == NULL){ /* falha de alocação a criar lStr */
 			/* liberta a memória alocada */
-			while(filial >= 1)
-				arrLStr[filial] = apagaLStrings(arrLStr[filial--]);
-			arrTodosProdutos = apagaArray((void**) arrTodosProdutos, total, apagaNodoFatAnualProd);
+			for( ; filial >= 1; --filial)
+				arrLStr[filial] = apagaLStrings(arrLStr[filial]);
+			apagaArray((void**) arrTodosProdutos, total, apagaNodoFatAnualProd);
 			return NULL;
 		}
 		arrLStr[filial] = lStr;
 	}
-	arrTodosProdutos = apagaArray((void**) arrTodosProdutos, total, apagaNodoFatAnualProd);
+	apagaArray((void**) arrTodosProdutos, total, apagaNodoFatAnualProd);
 	return arrLStr;
 }
 
@@ -628,14 +626,14 @@ static LStrings listaNaoCompradosFilial(FatAnualProd arrTodosProdutos[], int tot
 			char* codigoProd = obterCodigoProduto(atual->prod);
 
 			if(codigoProd == NULL){ /* falha a duplicar código do produto */
-				naoComprados = apagaArray((void**) naoComprados, numNaoComp, free);
+				apagaArray((void**) naoComprados, numNaoComp, free);
 				return NULL;
 			}
 			naoComprados[numNaoComp++] = codigoProd;
 		}
 	}
 	lStr = criaLStrings(numNaoComp, naoComprados);
-	naoComprados = apagaArray((void**) naoComprados, numNaoComp, free);
+	apagaArray((void**) naoComprados, numNaoComp, free);
 	return lStr;
 }
 
@@ -649,7 +647,7 @@ FatAnualProd* fatNmaisVendidos(const FaturacaoGlobal fg, int N)
 	FatAnualProd* arrTodosProdutos;
 	FatAnualProd* fatNmaisVend;
 
-	total = tamanho(fg->todosProdutos);
+	total = tamanhoAVL(fg->todosProdutos);
 	arrTodosProdutos = (FatAnualProd *) inorderAVL(fg->todosProdutos);
 	if(arrTodosProdutos == NULL) /* a inorderAVL() não conseguiu criar cópias dos elementos da AVL */
 		return NULL;
@@ -682,9 +680,8 @@ Produto* obterArrNmaisVendidos(const FatAnualProd fatNmaisVend[], int N)
 	for(i = 0; i < N; ++i){
 		nMaisVend[i] = duplicaProduto(fatNmaisVend[i]->prod);
 		if(nMaisVend[i] == NULL){ /* falha a duplicar o produto */
-			--i;
-			while(i >= 0)
-				nMaisVend[i] = apagaProduto(nMaisVend[i--]);
+			for( ; i >= 0; --i)
+				nMaisVend[i] = apagaProduto(nMaisVend[i]);
 			return NULL;
 		}
 	}

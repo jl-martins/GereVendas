@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 /* Apaga um array de estruturas */
-void apagaArray(void** array, int total, void (*apagaElem) (void*))
+void apagaArray(void* array[], int total, void (*apagaElem) (void*))
 {
 	if(array != NULL){
 		int i;

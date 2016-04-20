@@ -10,7 +10,7 @@ typedef struct pagina* Pagina;
 LStrings criaLStrings(int tamanho, char* elems[]);
 
 /* Liberta a memória alocada para armazenar uma LStrings */
-void apagaLStrings(LStrings l);
+LStrings apagaLStrings(LStrings l);
 
 /* Funções de navegação */
 

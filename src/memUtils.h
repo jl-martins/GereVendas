@@ -4,6 +4,6 @@
 #include <stddef.h>
 
 void** alocaMatriz(int nlinhas, int ncolunas, size_t nBytesElem);
-void apagaArray(void** array, int total, void (*apagaElem) (void*));
+void apagaArray(void* array[], int total, void (*apagaElem) (void*));
 
 #endif
