@@ -71,11 +71,9 @@ static void apagaComprasPorCliente(void* p)
 
 	if(cpc == NULL){
 		free(cpc->cliente);
-		/*
+
 		for(i = 1; i < 13; i++)
 			apagaAVL(cpc->comprasPorMes[i]);
-		*/
-		apagaArray(cpc->comprasPorMes, 13, apagaAVL);
 		free(cpc);
 	}
 }
@@ -306,33 +304,24 @@ LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes){
 
 	if(cpc){ /* o cliente foi encontrado */
 		int i, total = tamanhoAVL(cpc->comprasPorMes[mes]);
-		ComprasDoProduto* arrComprasDoMes /* = malloc(total * sizeof(ComprasDoProduto))*/;
+		ComprasDoProduto* arrComprasDoMes;
 		char** codigosProds;
-
-		if(arrComprasDoMes == NULL) /* falha de alocação */
-			return NULL;
 		
 		codigosProds = malloc(total * sizeof(char *));
-		if(codigosProds == NULL){
-			/*apagaArray((void **) arrComprasDoMes, total, free);*/
+		if(codigosProds == NULL)
 			return NULL;
-		}
 
 		arrComprasDoMes = (ComprasDoProduto *) inorderAVL(cpc->comprasPorMes[mes]);
-		if(arrComprasDoMes == NULL)
+		if(arrComprasDoMes == NULL){
+			free(codigosProds);
 			return NULL;
+		}
 
 		qsort(arrComprasDoMes, total, sizeof(ComprasDoProduto), comparaTotalCompras);
 
-		for(i = 0; i < total; ++i){
-			/*char* codigoProd = obterCodigoProduto(arrComprasDoMes[i]->produto);
-			if(codigoProd == NULL){ 
-				apagaArray((void **) arrComprasDoMes, total, apagaComprasDoProduto);
-				apagaArray((void **) codigosProds, i, free);
-				return NULL;
-			}*/
+		for(i = 0; i < total; ++i)
 			codigosProds[i] = arrComprasDoMes[i]->produto;
-		}
+		
 		res = criaLStrings(total, codigosProds);
 		apagaArray((void **) arrComprasDoMes, total, apagaComprasDoProduto);
 		free(codigosProds);
@@ -365,25 +354,30 @@ static int indiceDoMenor(double totalGasto[3])
  * cliente gastou mais dinheiro durante o ano, para uma dada filial. */
 char** tresProdsEmQueMaisGastou(Filial filial, Cliente c)
 {	
-	int i, imin;
+	int i, imin, total;
 	ComprasPorCliente cpc;
-	int total;
 	char** codigosProds;
-
-	cpc = procuraClienteNasVendas(c, filial);
-	total = tamanhoAVL(cpc->comprasPorMes[0]);
-	codigosProds = calloc(3, sizeof(char *));
-
+	double totalGasto[3] = {0};
 	/* guarda na posição i o total gasto no produto cujo código está em codigosProds[i] */
-	double totalGasto[3] = {0}; 
 	ComprasDoProduto* arrComprasDoAno;
 
-	if(codigosProds == NULL || cpc == NULL) /* não faz sentido prosseguir */
+	cpc = procuraClienteNasVendas(c, filial);
+	if(cpc == NULL)
 		return NULL;
+
+	codigosProds = calloc(3, sizeof(char *));
 	
-	arrComprasDoAno = malloc(total * sizeof(ComprasDoProduto));
-	if(arrComprasDoAno == NULL) /* falha de alocação */
+	if(codigosProds == NULL){
+		apagaComprasDoProduto(cpc);
 		return NULL;
+	}
+	
+	total = tamanhoAVL(cpc->comprasPorMes[0]);
+	arrComprasDoAno = malloc(total * sizeof(ComprasDoProduto));
+	if(arrComprasDoAno == NULL){ /* falha de alocação */
+		apagaComprasDoProduto(cpc); free(codigosProds);
+		return NULL;
+	}
 		
 	/* Falta verificar o resultado da inorderAVL() */
 	arrComprasDoAno = (ComprasDoProduto *) inorderAVL(cpc->comprasPorMes[0]);
@@ -395,9 +389,9 @@ char** tresProdsEmQueMaisGastou(Filial filial, Cliente c)
 			totalGasto[imin] = arrComprasDoAno[i]->faturacao;
 		}
 	}
-	
 	ordenaTop3(codigosProds, totalGasto);
-	for(i = 0; i < 3; i++) free(codigosProds[i]);
+	for(i = 0; i < total; ++i)
+		apagaComprasDoProduto(arrComprasDoAno[i]);
 	free(arrComprasDoAno);
 	return codigosProds;
 }
