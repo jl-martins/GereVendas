@@ -1,0 +1,55 @@
+==2853== 6,735,648 bytes in 841,956 blocks are definitely lost in loss record 9,888 of 9,897
+==2853==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2853==    by 0x401C72: duplicaCliente (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x402DBF: registaCompra (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x405297: insereSeValida (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x405377: carregaVendasValidas (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x40545C: query1 (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x404489: interpreta (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x40451D: interpretador (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x4E58EC4: (below main) (libc-start.c:287)
+==2853== 
+==2853== 6,997,792 bytes in 874,724 blocks are definitely lost in loss record 9,889 of 9,897
+==2853==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2853==    by 0x401C72: duplicaCliente (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x402DBF: registaCompra (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x4052C4: insereSeValida (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x405377: carregaVendasValidas (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x40545C: query1 (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x404489: interpreta (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x40451D: interpretador (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x4E58EC4: (below main) (libc-start.c:287)
+==2853== 
+==2853== 42,773,184 (28,515,456 direct, 14,257,728 indirect) bytes in 891,108 blocks are definitely lost in loss record 9,896 of 9,897
+==2853==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2853==    by 0x402C21: criaComprasDoProduto (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x402D97: registaCompra (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x405297: insereSeValida (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x405377: carregaVendasValidas (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x40545C: query1 (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x404489: interpreta (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x40451D: interpretador (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x4E58EC4: (below main) (libc-start.c:287)
+==2853== 
+==2853== 42,773,184 (28,515,456 direct, 14,257,728 indirect) bytes in 891,108 blocks are definitely lost in loss record 9,897 of 9,897
+==2853==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2853==    by 0x402C21: criaComprasDoProduto (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x402D97: registaCompra (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x4052C4: insereSeValida (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x405377: carregaVendasValidas (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x40545C: query1 (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x404489: interpreta (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x40451D: interpretador (in /home/joao/Dropbox/Aulas/2º Ano - 2º Semestre/Laboratórios de Informática 3/GereVendas/gereVendas)
+==2853==    by 0x4E58EC4: (below main) (libc-start.c:287)
+==2853== 
+==2853== LEAK SUMMARY:
+==2853==    definitely lost: 70,764,352 bytes in 3,498,896 blocks
+==2853==    indirectly lost: 28,515,456 bytes in 1,782,216 blocks
+==2853==      possibly lost: 0 bytes in 0 blocks
+==2853==    still reachable: 467,020,064 bytes in 14,797,164 blocks
+==2853==         suppressed: 0 bytes in 0 blocks
+==2853== Reachable blocks (those to which a pointer was found) are not shown.
+==2853== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==2853== 
+==2853== For counts of detected and suppressed errors, rerun with: -v
+==2853== ERROR SUMMARY: 4 errors from 4 contexts (suppressed: 0 from 0)

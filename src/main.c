@@ -884,7 +884,7 @@ static int query10()
 			unidadesVendidasPorFilial[j] = nUnidades;	
 		}
 
-		sprintf(linha, "%s %d", codigoTemp, numeroTotalClientes);
+		sprintf(linha, "%s ", codigoTemp);
 
 		for(j = 1; j <= N_FILIAIS; j++){
 			sprintf(aux, " %d ", unidadesVendidasPorFilial[j]);
