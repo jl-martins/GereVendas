@@ -168,8 +168,7 @@ int interpretador()
 		imprimeOpcoes(opcoes);
 		linha = leLinha(MAXLINHA);
 		r = (linha == NULL) ? SAIR : interpreta(linha); /* se falhar deve-se sair? */
-		if(linha)
-			free(linha);
+		free(linha);
 	}while(r == CONTINUAR || r == CMD_INVAL); /* enquanto não houver erro ou ordem para sair */
 	
 	return r;
@@ -739,7 +738,8 @@ int query7()
 
 	i = 0; j = 0;	
 	/* impedir que leia se os ficheiros nao tiverem sido carregados */
-	clientes = todosClientes(catClientes, &nClientes);
+	nclientes = totalClientes(catClientes);
+	clientes = todosClientes(catClientes);
 	/* if(clientes == NULL) ... */
 	codigosClientes = malloc(nClientes * sizeof(char *));
 	for(i = 0; i < nClientes; i++){
@@ -755,7 +755,8 @@ int query7()
 	navega(lista);
 
 	/* Limpeza das estruturas usadas na função */
-	for(i = 0; i < j; i++) free(codigosClientes[i]);
+	for(i = 0; i < j; i++)
+		free(codigosClientes[i]);
 	free(codigosClientes);
 	apagaLStrings(lista);	
 
@@ -786,7 +787,8 @@ int query8(){
 	filial = leInt();
 	indexP = indexN = 0;	
 	if(filial > 0 && filial <= N_FILIAIS){
-		clientes = todosClientes(catClientes, &nClientes);
+		nclientes = totalClientes(catClientes);
+		clientes = todosClientes(catClientes);
 		/* ver se o tamanho esta certo */
 		quemComprouN = malloc(sizeof(char *) * nClientes); 	
 		quemComprouP = malloc(sizeof(char *) * nClientes); 	
