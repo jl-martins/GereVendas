@@ -2,7 +2,7 @@
 #include "avl.h"
 #include "memUtils.h"
 #include <stdlib.h>
-#include <string.h> /* para utilizar a função memcpy() */
+#include <string.h> /* para utilizar a função memcpy() e strcmp() */
 
 #define N_FILIAIS 3
 #define N_MESES 12
@@ -14,7 +14,7 @@
  *		        														      *
  *	 _FaturacaoGlobal_______________	   __FatAnualProd________________	  *
  *	|								|	  |								 |	  *
- *	|  AVL todosProdutos;			| ==> |	Produto prod;				 |	  *
+ *	|  AVL todosProdutos;			| ==> |	char* prod;				 	 |	  *
  *	|  FatMes fatMensal[N_MESES+1]; | 	  |	int totalVendas[N_FILIAIS+1];|	  *
  *	|_______________________________|	  |______________________________|	  *
  *				 															  *
@@ -32,7 +32,7 @@
  *																			  *
  *	 _FatProdMes____________________________________						  *
  *	|                              					|						  *
- *	|  Produto prod;               					|						  *
+ *	|  char* prod;               					|						  *
  *	|  int vendas[N_TIPOS_VENDA][N_FILIAIS+1]       |						  *
  *	|  double faturacao[N_TIPOS_VENDA][N_FILIAIS+1] |						  *
  *	|_______________________________________________|						  *
@@ -44,18 +44,14 @@ typedef struct fatMes* FatMes;
 
 /* Faturação global */
 struct fatGlobal{
-	/* referencia todos os produtos (mesmo os não vendidos). Permite obter informações
-	 * sobre as vendas anuais de cada produto, tanto globalmente como por filial */
-	AVL todosProdutos;
-	/* guarda, para cada mês, informação quantitiva sobre as vendas e produtos
-	 * vendidos nesse mês (produtos não vendidos não são referenciados) */
-	FatMes fatMensal[N_MESES+1]; 
+	AVL todosProdutos; /* referencia todos os produtos (mesmo os não vendidos). */
+	FatMes fatMensal[N_MESES+1]; /* para cada mês, guarda informação apenas sobre as vendas desse mês */
 };
 
 /* Armazena, para um dado produto, informação sobre o seu
  * total de vendas anuais em cada uma das filiais */
 struct fatAnualProd{
-	Produto prod;
+	char* prod;
 	int totalVendas[N_FILIAIS+1];
 };
 
@@ -67,7 +63,7 @@ struct fatMes{
 
 /* Guarda informação sobre a faturação de um produto (num dado mês) */
 struct fatProdMes{
-	Produto prod;
+	char* prod;
 	int vendas[N_TIPOS_VENDA][N_FILIAIS+1];
 	double faturacao[N_TIPOS_VENDA][N_FILIAIS+1];
 };
@@ -75,8 +71,8 @@ struct fatProdMes{
 /* Funções privadas ao módulo */
 
 /* Funções privadas usadas na criação de estruturas de dados */
-static FatAnualProd criaFatAnualProd(Produto p, int totalVendas[N_FILIAIS+1]);
-static FatProdMes criaFatProdMes(Produto p, int quantidade, double totalFaturado,
+static FatAnualProd criaFatAnualProd(char* codProd, int totalVendas[N_FILIAIS+1]);
+static FatProdMes criaFatProdMes(char* codProd, int quantidade, double totalFaturado,
 								 TipoVenda tipo, int filial);
 
 /* Funções que auxiliam na obtenção dos produtos não comprados */
@@ -84,8 +80,8 @@ static LStrings listaNaoCompradosGlobal(FatAnualProd arrTodosProdutos[], int tot
 static LStrings listaNaoCompradosFilial(FatAnualProd arrTodosProdutos[], int total, int filial);
 
 /* Funções que devolvem informações sobre as vendas anuais de um produto */
-static int obterTotalVendasAnuaisProd(const FatAnualProd);
-static bool naoComprado(const FatAnualProd);
+static int obterTotalVendasAnuaisProd(const FatAnualProd fAnualProd);
+static bool naoComprado(const FatAnualProd fAnualProd);
 
 /* Compara o nº total de vendas anuais de dois produtos */
 static int comparaVendasAnuais(const void* v1, const void* v2);
@@ -94,17 +90,16 @@ static int comparaVendasAnuais(const void* v1, const void* v2);
 static void apagaFatMensalInterv(FatMes fMes[], int inicio, int fim);
 static void apagaFatMes(FatMes fMes);
 
+
 /* Funções de comparaçõa usadas nas AVLs */
 static int comparaFatProdMes(const void* p1, const void* p2)
 {	
-	return comparaCodigosProduto( ((FatProdMes) p1)->prod, 
-		                          ((FatProdMes) p2)->prod );
+	return strcmp( ((FatProdMes) p1)->prod , ((FatProdMes) p2)->prod );
 }
 
 static int comparaFatAnualProd(const void* p1, const void* p2)
 {
-	return comparaCodigosProduto( ((FatAnualProd) p1)->prod, 
-		                          ((FatAnualProd) p2)->prod );
+	return strcmp( ((FatAnualProd) p1)->prod , ((FatAnualProd) p2)->prod );
 }
 /* Fim das funções de comparação usadas nas AVLs */
 
@@ -139,64 +134,64 @@ static void* duplicaFatAnualProd(void* p)
 {	
 	int i;
 	FatAnualProd original = p;
-	FatAnualProd novo = malloc(sizeof(struct fatAnualProd));
+	FatAnualProd copia = malloc(sizeof(struct fatAnualProd));
 
-	if(novo == NULL) /* falha a alocar a struct fatAnualProd */
+	if(copia == NULL) /* falha a alocar a struct fatAnualProd */
 		return NULL;
 
-	novo->prod = duplicaProduto(original->prod);
-	if(novo->prod == NULL){ /* falha a duplicar o produto */
-		free(novo);
+	copia->prod = malloc((strlen(original->prod) + 1) * sizeof(char));
+	if(copia->prod == NULL){ /* falha de alocação */
+		free(copia);
 		return NULL;
 	}
+	strcpy(copia->prod, original->prod);
 	for(i = 1; i <= N_FILIAIS; ++i)
-		novo->totalVendas[i] = original->totalVendas[i];
-	return (void*) novo;
+		copia->totalVendas[i] = original->totalVendas[i];
+	
+	return (void *) copia;
 }
 
 static void* duplicaFatProdMes(void* p){
 	int i, j;
 	FatProdMes original = p;
-	FatProdMes novo = malloc(sizeof(struct fatProdMes));
+	FatProdMes copia = malloc(sizeof(struct fatProdMes));
 
-	if(novo == NULL) /* falha a alocar a struct fatProdMes */
+	if(copia == NULL) /* falha a alocar a struct fatProdMes */
 		return NULL;
 
-	novo->prod = duplicaProduto(original->prod);
-	if(novo->prod == NULL){ /* falha a duplicar o produto */
-		free(novo);
+	copia->prod = malloc((strlen(original->prod) + 1) * sizeof(char));
+	if(copia->prod == NULL){ /* falha a duplicar o produto */
+		free(copia);
 		return NULL;
 	}
-
+	strcpy(copia->prod, original->prod);
 	for(i = 0; i < N_TIPOS_VENDA; ++i){
 		for(j = 1; j <= N_FILIAIS; ++j){
-			novo->vendas[i][j] = original->vendas[i][j];
-			novo->faturacao[i][j] = original->faturacao[i][j];
+			copia->vendas[i][j] = original->vendas[i][j];
+			copia->faturacao[i][j] = original->faturacao[i][j];
 		}
 	}
-	return (void*) novo;
+	return (void *) copia;
 }
 
 /* Funções de libertação de nodos das AVLs */
 static void apagaNodoFatProdMes(void* p)
-{
-	if(p != NULL){
-		FatProdMes fProdMes = p;
-
-		fProdMes->prod = apagaProduto(fProdMes->prod);
-		free(fProdMes);
-	}
+{	
+	FatProdMes fProdMes = p;
+	
+	if(fProdMes != NULL)
+		free(fProdMes->prod);
+	free(fProdMes);
 }
 
 /* Função passada na criação da AVL da faturação anual de todos os produtos */
 static void apagaNodoFatAnualProd(void* p)
 {	
-	if(p != NULL){
-		FatAnualProd fAnualProd = p;
-
-		fAnualProd->prod = apagaProduto(fAnualProd->prod);
-		free(fAnualProd);
-	}
+	FatAnualProd fAnualProd = p;
+	
+	if(fAnualProd != NULL)
+		free(fAnualProd->prod);
+	free(fAnualProd);
 }
 
 FatAnualProd apagaFatAnualProd(FatAnualProd fAnualProd)
@@ -214,9 +209,15 @@ FaturacaoGlobal criaFaturacaoGlobal()
 		return NULL;
 
 	fg->todosProdutos = criaAVL(atualizaFatAnualProd, comparaFatAnualProd, 
-										duplicaFatAnualProd, apagaNodoFatAnualProd);
+								duplicaFatAnualProd, apagaNodoFatAnualProd);
+	if(fg->todosProdutos == NULL){ /* falha de alocação a criar a AVL de 'todosProdutos' */
+		free(fg);
+		return NULL;
+	}
+
 	fg->fatMensal[0] = NULL;
-	for(i = 1; i <= N_MESES; ++i){ /* cria estruturas da faturação mensal */
+	/* cria estruturas da faturação mensal */
+	for(i = 1; i <= N_MESES; ++i){
 		fg->fatMensal[i] = malloc(sizeof(struct fatMes));
 
 		if(fg->fatMensal[i] == NULL){ /* falha a alocar a struct fatMes */
@@ -226,7 +227,7 @@ FaturacaoGlobal criaFaturacaoGlobal()
 		fg->fatMensal[i]->totalVendas = 0;
 		fg->fatMensal[i]->totalFaturado = 0;
 		fg->fatMensal[i]->fatProds = criaAVL(atualizaFatProdMes,comparaFatProdMes,
-													 duplicaFatProdMes, apagaNodoFatProdMes);
+											 duplicaFatProdMes, apagaNodoFatProdMes);
 	}
 	return fg;
 }
@@ -245,10 +246,9 @@ static void apagaFatMensalInterv(FatMes fatMensal[], int inicio, int fim)
 /* Liberta a memória alocada para uma struct fatMes */
 static void apagaFatMes(FatMes fMes)
 {	
-	if(fMes != NULL){
+	if(fMes != NULL)
 		apagaAVL(fMes->fatProds);
-		free(fMes);
-	}
+	free(fMes);
 }
 
 FaturacaoGlobal apagaFaturacaoGlobal(FaturacaoGlobal fg)
@@ -260,45 +260,45 @@ FaturacaoGlobal apagaFaturacaoGlobal(FaturacaoGlobal fg)
 			apagaFatMes(fg->fatMensal[i]);
 		fg->todosProdutos = apagaAVL(fg->todosProdutos);
 	}
+	free(fg);
 	return NULL;
 }
 
 /* Regista um produto na faturação global, guardando-o na AVL de total de vendas
- * anuais com o total de vendas igual a 0, para cada uma das filiais. */
+ * anuais com um total de vendas nulo, para cada uma das filiais. */
 FaturacaoGlobal registaProduto(FaturacaoGlobal fg, Produto p)
 {	
-	int totalVendas[N_FILIAIS+1] = {0};
+	int arrTotalVendas[N_FILIAIS+1] = {0};
+	char* codProd = obterCodigoProduto(p);
 	FatAnualProd fAnualProd;
 	AVL nova;
 
-	fAnualProd = criaFatAnualProd(p, totalVendas);
+	fAnualProd = criaFatAnualProd(codProd, arrTotalVendas);
 	if(fAnualProd == NULL)/* falha a criar a struct fatAnualProd */
 		return NULL;
 
-	/* insere cópia de fAnualProd na AVL de todos os produtos */
 	nova = insereAVL(fg->todosProdutos, fAnualProd); 
 	if(nova == NULL)
 		fg = NULL; /* indica falha a inserir na AVL à função chamadora */
 	else
 		fg->todosProdutos = nova;
 
-	fAnualProd = apagaFatAnualProd(fAnualProd);
+	fAnualProd = apagaFatAnualProd(fAnualProd); /* já temos uma cópia de fAnualProd na AVL */
 	return fg;
 }
 
 /* Cria a estrutura de dados que guarda o total de
  * vendas anuais de um produto, para cada filial. */
-static FatAnualProd criaFatAnualProd(Produto p, int totalVendas[N_FILIAIS+1])
+static FatAnualProd criaFatAnualProd(char* codProd, int arrTotalVendas[N_FILIAIS+1])
 {	
 	FatAnualProd fAnualProd = malloc(sizeof(struct fatAnualProd));
 
 	if(fAnualProd != NULL){
-		Produto copia = duplicaProduto(p);
-		if(copia != NULL){
-			fAnualProd->prod = copia;
-			memcpy(fAnualProd->totalVendas, totalVendas, (N_FILIAIS + 1) * sizeof(int));
-		}
+		fAnualProd->prod = codProd;
+		memcpy(fAnualProd->totalVendas, arrTotalVendas, (N_FILIAIS + 1) * sizeof(int));
 	}
+	else
+		free(codProd);
 	return fAnualProd;
 }
 
@@ -309,15 +309,15 @@ FaturacaoGlobal registaVenda(FaturacaoGlobal fg, Produto p, double precoUnit,
 {
 	FatProdMes fProdMes;
 	FatAnualProd fAnualProd;
-	int totalVendas[N_FILIAIS+1] = {0};
+	int arrTotalVendas[N_FILIAIS+1] = {0};
 	AVL retInsere; /* guarda valor de retorno da função insere() */
 
-	fProdMes = criaFatProdMes(p, quantidade, quantidade * precoUnit, tipo, filial);
+	fProdMes = criaFatProdMes(obterCodigoProduto(p), quantidade, quantidade * precoUnit, tipo, filial);
 	if(fProdMes == NULL) /* falha a alocar memória na função criaFatProdMes() */
 		return NULL;
 	
-	totalVendas[filial] = quantidade; 
-	fAnualProd = criaFatAnualProd(p, totalVendas);
+	arrTotalVendas[filial] = quantidade; 
+	fAnualProd = criaFatAnualProd(obterCodigoProduto(p), arrTotalVendas);
 
 	if(fAnualProd == NULL){ /* falha a alocar memória na função criaFatAnualProd()*/
 		apagaFatProdMes((void*) fProdMes);
@@ -327,13 +327,12 @@ FaturacaoGlobal registaVenda(FaturacaoGlobal fg, Produto p, double precoUnit,
 	retInsere = insereAVL(fg->fatMensal[mes]->fatProds, fProdMes);
 	if(retInsere != NULL){
 		fg->fatMensal[mes]->totalVendas += quantidade;
-		fg->fatMensal[mes]->totalFaturado += (quantidade * precoUnit); /* guardar faturaçao em variavel local ??? */
+		fg->fatMensal[mes]->totalFaturado += (quantidade * precoUnit);
 		fg->fatMensal[mes]->fatProds = retInsere;
 		
 		retInsere = insereAVL(fg->todosProdutos, fAnualProd);
 		if(retInsere != NULL)
 			fg->todosProdutos = retInsere;
-
 	}
 	/* chegando a este ponto, já temos cópias de fProdMes e fAnualProd 
 	 * na AVL da faturação do mês e na de todos os produtos, respetivamente */
@@ -344,22 +343,18 @@ FaturacaoGlobal registaVenda(FaturacaoGlobal fg, Produto p, double precoUnit,
 
 /* Cria estrutura de dados com informação 
  * sobre a faturação de um produto num dado mês. */
-static FatProdMes criaFatProdMes(Produto p, int quantidade, double totalFaturado, TipoVenda tipo, int filial)
+static FatProdMes criaFatProdMes(char* codProd, int quantidade, double totalFaturado, TipoVenda tipo, int filial)
 {	
 	int i, j;
 	FatProdMes fProdMes;
-	Produto copia = duplicaProduto(p);
-
-	if(copia == NULL) /* falha a duplicar o produto */
-		return NULL;
 
 	fProdMes = malloc(sizeof(struct fatProdMes));
-	if(fProdMes == NULL){ /* falha a alocar a struct fatProdMes */
-		copia = apagaProduto(copia);
+	if(fProdMes == NULL){
+		free(codProd);
 		return NULL;
 	}
 	/* Preenchimento da estrutura de dados */
-	fProdMes->prod = copia;
+	fProdMes->prod = codProd;
 	for(i = 0; i < N_TIPOS_VENDA; ++i){
 		for(j = 1; j <= N_FILIAIS; ++j){
 			fProdMes->vendas[i][j] = 0;
@@ -379,9 +374,12 @@ FatProdMes obterFatProdMes(const FaturacaoGlobal fg, const Produto p, int mes)
 	if(MES_VALIDO(mes)){
 		FatProdMes tmp = malloc(sizeof(struct fatProdMes));
 
-		tmp->prod = p;
+		if(tmp == NULL)
+			return NULL;
+
+		tmp->prod = obterCodigoProduto(p);
 		fProdMes = (FatProdMes) procuraAVL(fg->fatMensal[mes]->fatProds, tmp);
-		free(tmp);
+		free(tmp->prod); free(tmp);
 	}
 	return fProdMes;
 }
@@ -390,10 +388,9 @@ FatProdMes obterFatProdMes(const FaturacaoGlobal fg, const Produto p, int mes)
  * FatProdMes devolvida pela função obterFatProdMes()  */
 FatProdMes apagaFatProdMes(FatProdMes fProdMes)
 {	
-	if(fProdMes != NULL){
-		fProdMes->prod = apagaProduto(fProdMes->prod);
-		free(fProdMes);
-	}
+	if(fProdMes != NULL)
+		free(fProdMes->prod);
+	free(fProdMes);
 	return NULL;
 }
 
@@ -511,6 +508,7 @@ static bool naoComprado(const FatAnualProd fAnualProd)
 	return (obterTotalVendasAnuaisProd(fAnualProd) == 0);
 }
 
+/* Query12 */
 int quantosNaoComprados(const FaturacaoGlobal fg)
 {
 	FatAnualProd* arrTodosProdutos;
@@ -530,8 +528,8 @@ int quantosNaoComprados(const FaturacaoGlobal fg)
 	return quantos;
 }
 
-/* Devolve conjunto ordenado com os códigos de produtos que
- * não forma comprados em nenhuma das filiais. */
+/* Devolve a lista ordenada com os códigos de produtos
+ * que não foram comprados em nenhuma das filiais. */
 LStrings naoCompradosGlobal(const FaturacaoGlobal fg)
 {
 	FatAnualProd* arrTodosProdutos;
@@ -541,7 +539,7 @@ LStrings naoCompradosGlobal(const FaturacaoGlobal fg)
 	arrTodosProdutos = (FatAnualProd *) inorderAVL(fg->todosProdutos);
 	if(arrTodosProdutos != NULL){
 		res = listaNaoCompradosGlobal(arrTodosProdutos, total);
-		/* o array com o código dos produtos não comprados já está em 'res' */
+		/* os códigos dos produtos não comprados já estão em 'res' */
 		apagaArray((void**) arrTodosProdutos, total, apagaNodoFatAnualProd);
 	}
 	return res;
@@ -562,12 +560,14 @@ static LStrings listaNaoCompradosGlobal(FatAnualProd* arrTodosProdutos, int tota
 	numNaoComp = 0;
 	for(i = 0; i < total; ++i){
 		if(naoComprado(arrTodosProdutos[i])){
-			char* codigoProd = obterCodigoProduto(arrTodosProdutos[i]->prod);
+			int len = strlen(arrTodosProdutos[i]->prod);
+			char* codigoProd = malloc((len + 1) * sizeof(char));
 			
 			if(codigoProd == NULL){ /* falha de alocação de codigoProd */
-				apagaArray((void**) naoComprados, numNaoComp, free);
+				apagaArray((void **) naoComprados, numNaoComp, free);
 				return NULL;
 			}
+			strcpy(codigoProd, arrTodosProdutos[i]->prod);
 			naoComprados[numNaoComp++] = codigoProd;
 		}
 	}
@@ -597,7 +597,6 @@ LStrings* naoCompradosPorFilial(const FaturacaoGlobal fg)
 		LStrings lStr = listaNaoCompradosFilial(arrTodosProdutos, total, filial);
 
 		if(lStr == NULL){ /* falha de alocação a criar lStr */
-			/* liberta a memória alocada */
 			for( ; filial >= 1; --filial)
 				arrLStr[filial] = apagaLStrings(arrLStr[filial]);
 			apagaArray((void**) arrTodosProdutos, total, apagaNodoFatAnualProd);
@@ -623,12 +622,14 @@ static LStrings listaNaoCompradosFilial(FatAnualProd arrTodosProdutos[], int tot
 	for(i = 0; i < total; ++i){
 		FatAnualProd atual = arrTodosProdutos[i];
 		if(atual->totalVendas[filial] == 0){
-			char* codigoProd = obterCodigoProduto(atual->prod);
+			int len = strlen(atual->prod);
+			char* codigoProd = malloc((len + 1) * sizeof(char));
 
 			if(codigoProd == NULL){ /* falha a duplicar código do produto */
 				apagaArray((void**) naoComprados, numNaoComp, free);
 				return NULL;
 			}
+			strcpy(codigoProd, atual->prod);
 			naoComprados[numNaoComp++] = codigoProd;
 		}
 	}
@@ -678,8 +679,8 @@ Produto* obterArrNmaisVendidos(const FatAnualProd fatNmaisVend[], int N)
 		return NULL;
 
 	for(i = 0; i < N; ++i){
-		nMaisVend[i] = duplicaProduto(fatNmaisVend[i]->prod);
-		if(nMaisVend[i] == NULL){ /* falha a duplicar o produto */
+		nMaisVend[i] = criaProduto(fatNmaisVend[i]->prod);
+		if(nMaisVend[i] == NULL){ /* falha a criar o produto */
 			for( ; i >= 0; --i)
 				nMaisVend[i] = apagaProduto(nMaisVend[i]);
 			return NULL;
@@ -688,11 +689,11 @@ Produto* obterArrNmaisVendidos(const FatAnualProd fatNmaisVend[], int N)
 	return nMaisVend;
 }
 
-int* vendasPorFilialProdAno(const FatAnualProd fatNmaisVend)
+int* vendasPorFilialProdAno(const FatAnualProd fAnualProd)
 {
 	int* vendasPorFilial = malloc((N_FILIAIS + 1) * sizeof(int));
 
 	if(vendasPorFilial != NULL)
-		vendasPorFilial = memcpy(vendasPorFilial, fatNmaisVend->totalVendas, N_FILIAIS+1);
+		vendasPorFilial = memcpy(vendasPorFilial, fAnualProd->totalVendas, N_FILIAIS+1);
 	return vendasPorFilial;
 }
