@@ -8,6 +8,7 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 #include "filial.h"
 #include "avl.h"
 #include "memUtils.h"
@@ -35,7 +36,7 @@ static int somaUnidadesMes(AVL_ComprasPorCliente arv);
 static int comparaComprasPorCliente(const void* cc1, const void* cc2);
 static int comparaComprasDoProduto(const void* vp1, const void* vp2);
 static void atualizaComprasDoProduto(void* vp1, void* vp2);
-static void apagaComprasDoProduto(ComprasDoProduto cdp);
+static void apagaComprasDoProduto(void* p);
 static int comparaTotalCompras(const void* p1, const void* p2);
 static void ordenaTop3(char* codigosProds[3], double totalGasto[3]);
 
@@ -202,7 +203,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 		filial->clientesOrdenados[posicao] = insereAVL(filial->clientesOrdenados[posicao], ccliente);
 	}
 	else{
-		free(ccliente->produto)
+		free(ccliente->cliente);
 		free(ccliente);
 		insereAVL(naFilial->comprasPorMes[mes], comprasAux); 
 		insereAVL(naFilial->comprasPorMes[0], comprasAux);

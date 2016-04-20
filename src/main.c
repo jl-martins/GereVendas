@@ -738,7 +738,7 @@ int query7()
 
 	i = 0; j = 0;	
 	/* impedir que leia se os ficheiros nao tiverem sido carregados */
-	nclientes = totalClientes(catClientes);
+	nClientes = totalClientes(catClientes);
 	clientes = todosClientes(catClientes);
 	/* if(clientes == NULL) ... */
 	codigosClientes = malloc(nClientes * sizeof(char *));
@@ -787,7 +787,7 @@ int query8(){
 	filial = leInt();
 	indexP = indexN = 0;	
 	if(filial > 0 && filial <= N_FILIAIS){
-		nclientes = totalClientes(catClientes);
+		nClientes = totalClientes(catClientes);
 		clientes = todosClientes(catClientes);
 		/* ver se o tamanho esta certo */
 		quemComprouN = malloc(sizeof(char *) * nClientes); 	
