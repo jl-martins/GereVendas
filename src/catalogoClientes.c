@@ -50,6 +50,7 @@ CatClientes insereCliente(CatClientes catC, Cliente c)
 bool existeCliente(CatClientes catC, Cliente c)
 {
 	bool existe = FALSE;
+	
 	if(catC){
 		int i = calculaPos(c);
 		char* codCliente = obterCodigoCliente(c);
@@ -97,11 +98,11 @@ Cliente* todosClientes(CatClientes catC)
 	int i, j, iclientes, quantos;
 	Cliente* clientes = malloc(totalClientes(catC) * sizeof(Cliente)); 
 	
-	if(codsClientes == NULL)
+	if(clientes == NULL)
 		return NULL;
 	iclientes = 0;
 	for(i = 0; i < MAX_AVL; ++i){
-		char** temp = inorderAVL(catC->catalogo[i]);
+		char** temp = (char **) inorderAVL(catC->catalogo[i]);
 		/* fazer função de limpeza em caso de erros */
 		quantos = tamanhoAVL(catC->catalogo[i]);
 		for(j = 0; j < quantos; ++j)
@@ -119,7 +120,7 @@ LStrings clientesPorLetra(CatClientes catC, char l)
 	if(isupper(l)){ 
 		int i = l - 'A';
 		int total = tamanhoAVL(catC->catalogo[i]);
-		char** codigosPorLetra = inorderAVL(catC->catalogo[i]);
+		char** codigosPorLetra = (char **) inorderAVL(catC->catalogo[i]);
 
 		if(codigosPorLetra == NULL) /* falha de alocação na inorder() da AVL */
 			return NULL;

@@ -51,10 +51,9 @@ CatProds insereProduto(CatProds catP, Produto p) {
 
 bool existeProduto(CatProds catP, Produto p) {
 	bool existe = FALSE;
-	int i;
 
 	if(catP){ /* temos um catálogo */
-		i = calculaPos(p);
+		int i = calculaPos(p);
 		char* codProd = obterCodigoProduto(p);
 
 		if(codProd != NULL)
@@ -99,7 +98,7 @@ LStrings prodsPorLetra(CatProds catP, char l) {
 	if(isupper(l)){ 
 		int i = l - 'A';
 		int total = tamanhoAVL(catP->catalogo[i]);
-		char** codigosPorLetra = inorderAVL(catP->catalogo[i]);
+		char** codigosPorLetra = (char **) inorderAVL(catP->catalogo[i]);
 
 		if(codigosPorLetra == NULL) /* falha de alocação na inorderAVL() */
 			return NULL;
