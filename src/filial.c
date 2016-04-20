@@ -391,7 +391,7 @@ char** tresProdsEmQueMaisGastou(Filial filial, Cliente c)
 	}
 	ordenaTop3(codigosProds, totalGasto);
 	for(i = 0; i < total; ++i)
-		apagaComprasDoProduto(arrComprasDoAno[i]);
+		free(arrComprasDoAno[i]);
 	free(arrComprasDoAno);
 	return codigosProds;
 }
