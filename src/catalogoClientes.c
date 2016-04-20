@@ -56,7 +56,7 @@ bool existeCliente(CatClientes catC, Cliente c)
 		char* codCliente = obterCodigoCliente(c);
 
 		if(codCliente != NULL)
-			existe = existeAVL(catC->catalogo[i], c);
+			existe = existeAVL(catC->catalogo[i], codCliente);
 	}
 	return existe;
 }
