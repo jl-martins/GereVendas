@@ -185,6 +185,6 @@ LStrings naoCompradosGlobal(const FaturacaoGlobal fg);
  */
 LStrings* naoCompradosPorFilial(const FaturacaoGlobal fg);
 
-Produto* NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial);
+char** NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial);
 
 #endif

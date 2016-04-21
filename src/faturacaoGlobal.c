@@ -662,12 +662,12 @@ static int (*arrFunCompara[N_FILIAIS+1]) (const void*, const void*) = {
 	compVendasAnuaisFilial3
 };
 
-Produto* NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial)
+char** NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial)
 {
 	int i, total;
 	FatAnualProd* arrTodosProdutos;
 	FatAnualProd* fatNmaisVend;
-	Produto* maisVendFilial = malloc(N * sizeof(Produto));
+	char** maisVendFilial = malloc(N * sizeof(char *));
 
 	if(maisVendFilial == NULL)
 		return NULL;
@@ -684,9 +684,11 @@ Produto* NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial)
 	fatNmaisVend = realloc(arrTodosProdutos, N * sizeof(FatAnualProd));
 	/* libertar arrTodosProdutos */
 	for(i = 0; i < N; ++i){
-		maisVendFilial[i] = criaProduto(fatNmaisVend[i]->prod);
+		maisVendFilial[i] = fatNmaisVend[i]->prod;
 		free(fatNmaisVend[i]);
 	}
+	while(i < total)
+		apagaFatAnualProd(fatNmaisVend[i++]);
 
 	return maisVendFilial;
 }
