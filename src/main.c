@@ -19,18 +19,17 @@
 #include <time.h>
 
 #define N_FILIAIS 3
-#define TAM_LINHA 1024
-
-static CatClientes catClientes = NULL;
-static CatProds catProds = NULL;
-static Filial filiais[N_FILIAIS+1] = {NULL}; /* a cada elemento de indice i do vetor faz corresponder a filial i. */
-#define filialGlobal filiais[0] /* o indice 0 da filial vai guardar informação relativa a todas as compras em todas as filiais,
-				   permite fazer as queries de forma muito mais rapida */ 
-static FaturacaoGlobal faturacaoGlobal = NULL;
-
 #define N_QUERIES 12
 #define N_OPCOES (N_QUERIES + 1)
- 
+#define TAM_LINHA 1024
+
+/* Definição do comando de limpar o ecrã com base no sistema operativo */
+#ifdef _WIN32
+	#define CLEAR "cls"
+#else
+	#define CLEAR "clear"
+#endif
+
 /* Tamanho máximo da linha do interpretador de comandos */
 #define MAXLINHA 32
 
@@ -52,53 +51,16 @@ static FaturacaoGlobal faturacaoGlobal = NULL;
 #define MSG_ERRO(msg) {fputs(msg, stderr); ENTER_PARA_CONTINUAR();}
 #define LE_INT_BUFF 16
 
-void splashScreen();
-int interpretador();
-int interpreta(char linha[]);
-
-/* Funções de navegação exportadas */
-void navegaVarias(LStrings lStrArr[], int tamanho);
-void navega(LStrings lStr);
-
-static void imprimeOpcoes(const char *opcoes[N_OPCOES]);
-
-/* Apresentação de mensagens de erro */
-static void opcaoInvalida(char opcao[]);
-static void erroNaoLeuFich();
-
-/* Queries interativas */
 typedef int (*Query) (void);
-static int query1();
-static int query2();
-static int query3();
-static int query4();
-static int query5();
-static int query6();
-static int query7();
-static int query8();
-static int query9();
-static int query10();
-static int query11();
-static int query12();
-/* Função invocada imediatamente antes de sair */
-static int sair();
-
-/* Funções auxiliares das queries */
-static void resultadosGlobaisQuery3(FatProdMes);
-static void resultadosFiliaisQuery3(FatProdMes);
-
-Query queries[] = {NULL, query1, query2, query3, query4, query5, query6, query7, query8,
-		     query9, query10, query11, query12, sair};
-
 typedef void (*opcaoNavega) (LStrings);
 
-/* Funções de leitura */
-static char obterModoRes();
-static char* leCodigo(const char tipo[], int tamanho);
-
-static void perguntaPag(LStrings lStr);
-static void apresentaPag(Pagina pag);
-static void imprimeInformacaoLStrings(LStrings);
+/* Definição das estruturas necessárias ao programa */
+static CatClientes catClientes = NULL;
+static CatProds catProds = NULL;
+static Filial filiais[N_FILIAIS+1] = {NULL}; /* a cada elemento de indice i do vetor faz corresponder a filial i. */
+#define filialGlobal filiais[0] /* o indice 0 da filial vai guardar informação relativa a todas as compras em todas as filiais,
+				   permite fazer as queries de forma muito mais rapida */ 
+static FaturacaoGlobal faturacaoGlobal = NULL;
 
 static opcaoNavega opsNavega[] = {
 	NULL,
@@ -129,6 +91,34 @@ static const char* opcoes[] = {
 		"Sair"
 };
 
+void splashScreen();
+int interpretador();
+int interpreta(char linha[]);
+/* Funções de navegação exportadas */
+void navegaVarias(LStrings lStrArr[], int tamanho);
+void navega(LStrings lStr);
+static void imprimeOpcoes(const char *opcoes[N_OPCOES]);
+/* Apresentação de mensagens de erro */
+static void opcaoInvalida(char opcao[]);
+static void erroNaoLeuFich();
+static Query query1, query2, query3, query4, query5, query6,
+			 query7, query8, query9, query10, query11, query12;
+/* Função invocada imediatamente antes de sair */
+static int sair();
+/* Funções auxiliares das queries */
+static void resultadosGlobaisQuery3(FatProdMes);
+static void resultadosFiliaisQuery3(FatProdMes);
+/* Funções de leitura */
+static char obterModoRes();
+static char* leCodigo(const char tipo[], int tamanho);
+
+static void perguntaPag(LStrings lStr);
+static void apresentaPag(Pagina pag);
+static void imprimeInformacaoLStrings(LStrings);
+
+Query queries[] = {NULL, query1, query2, query3, query4, query5, query6, query7, query8,
+		     query9, query10, query11, query12, sair};
+
 int main()
 {
 	int r;
@@ -136,13 +126,6 @@ int main()
 	r = interpretador();
 	return r;
 }
-
-/* Definição do comando de limpar o ecrã com base no sistema operativo */
-#ifdef _WIN32
-	#define CLEAR "cls"
-#else
-	#define CLEAR "clear"
-#endif
 
 void splashScreen()
 {
@@ -924,6 +907,9 @@ static int query12()
 /* Liberta toda a memória alocada e devolve o valor SAIR para o interpretador */
 static int sair( /* faltam os args */ )
 {
+	catProds = apagaCatProds(catProds);
+	catClientes = apagaCatClientes(catClientes);
+	faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
 	return SAIR;
 }
 /* Função que apresenta uma mensagem de erro quando o utilizador 
