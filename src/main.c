@@ -51,6 +51,14 @@
 #define MSG_ERRO(msg) {fputs(msg, stderr); ENTER_PARA_CONTINUAR();}
 #define LE_INT_BUFF 16
 
+/* Imprime os tempos se estiver ativado */
+#define MODO_MEDICAO_TEMPOS 1
+#ifdef MODO_MEDICAO_TEMPOS 
+	#define IMPRIME_TEMPOS(s, x) printf("Tempo na %s: %f\n", s, x)
+#else
+	#define IMPRIME_TEMPOS(x)
+#endif
+
 typedef int (*Query) (void);
 typedef void (*opcaoNavega) (LStrings);
 
@@ -321,6 +329,7 @@ static FILE* perguntaAbreFicheiro(char* ficheiroPadrao, char linha[TAM_LINHA], c
 }
 
 int leCatalogoProdutos(){
+	time_t inicio, fim;
 	FILE* fp;	
 	char linha[TAM_LINHA];
 	char* linhaLimpa;
@@ -330,6 +339,7 @@ int leCatalogoProdutos(){
 	FaturacaoGlobal novaFatG;
 
 	fp = perguntaAbreFicheiro(FPRODUTOS, linha, "produtos");
+	inicio = time(NULL); 
 	if(fp == NULL)
 		return ERRO;
 	while(fgets(linha, TAM_LINHA, fp)){
@@ -352,6 +362,8 @@ int leCatalogoProdutos(){
 		quantos++;
 		apagaProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
+	fim = time(NULL);
+	IMPRIME_TEMPOS("leitura de Produtos", difftime(fim,inicio));
 	fclose(fp);
 	return quantos;
 }
@@ -363,11 +375,12 @@ int leCatalogoClientes(){
 	int quantos = 0;
 	Cliente c;
 	CatClientes novoCatC;
+	time_t inicio, fim;
 
 	fp = perguntaAbreFicheiro(FCLIENTES, linha, "clientes");
+	inicio = time(NULL); 
 	if(fp == NULL)
 		return ERRO;
-
 	while(fgets(linha, TAM_LINHA, fp)){
 		linhaLimpa = strtok(linha, "\r\n");
 		c = criaCliente(linhaLimpa);
@@ -378,13 +391,12 @@ int leCatalogoClientes(){
 			return ERRO;
 		else
 			catClientes = novoCatC;
-		/* registar código de cliente na filial para ser mais facil distinguir quando um código é invalido de quando nao fez compras */
-		/* registaNovoCliente(FILIAL_GLOBAL, c); */
 		apagaCliente(c);
 		quantos++;
 	}
+	fim = time(NULL);
 	fclose(fp);
-
+	IMPRIME_TEMPOS("leitura de clientes", difftime(fim,inicio));
 	return quantos;
 }
 
@@ -468,7 +480,7 @@ int carregaVendasValidas(){
 		validas += insereSeValida(linha);
 	}
 	fim = time(NULL);
-	printf("tempo de leitura: %f\n", difftime(fim, inicio));
+	IMPRIME_TEMPOS("leitura de vendas", difftime(fim, inicio));
 	fclose(fp);
 	return validas; 
 }
