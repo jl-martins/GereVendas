@@ -337,7 +337,6 @@ int leCatalogoProdutos(){
 		p = criaProduto(linhaLimpa);
 		if(p == NULL) /* falha de alocação ao criar o produto */
 			return ERRO; 
-		quantos++;
 		
 		novoCatP = insereProduto(catProds, p);
 		if(novoCatP == NULL) /* falha de alocação a inserir o produto */
@@ -350,9 +349,9 @@ int leCatalogoProdutos(){
 			return ERRO;
 		else
 			faturacaoGlobal = novaFatG; 
+		quantos++;
 		apagaProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
-	printf("Número de produtos lidos: %d\n", totalProdutos(catProds));
 	fclose(fp);
 	return quantos;
 }
@@ -374,7 +373,6 @@ int leCatalogoClientes(){
 		c = criaCliente(linhaLimpa);
 		if(c == NULL) /* falha de alocação ao criar o cliente */
 			return ERRO;
-		quantos++;
 		novoCatC = insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
 		if(novoCatC == NULL)
 			return ERRO;
@@ -383,8 +381,8 @@ int leCatalogoClientes(){
 		/* registar código de cliente na filial para ser mais facil distinguir quando um código é invalido de quando nao fez compras */
 		/* registaNovoCliente(FILIAL_GLOBAL, c); */
 		apagaCliente(c);
+		quantos++;
 	}
-	printf("Número de clientes lidos: %d\n", totalClientes(catClientes));
 	fclose(fp);
 
 	return quantos;
@@ -472,8 +470,7 @@ int carregaVendasValidas(){
 	fim = time(NULL);
 	printf("tempo de leitura: %f\n", difftime(fim, inicio));
 	fclose(fp);
-	printf("Número de vendas válidas: %d\n", validas);
-	return 0; /* mudar valor */
+	return validas; 
 }
 
 /* alterar para inserir os caminhos dos ficheiros */
@@ -481,7 +478,7 @@ int carregaVendasValidas(){
 static int query1()
 {
 	/* apaga os dados de uma execuçao anterior do programa */
-	int resL1, resL2, resL3, i;
+	int i, produtosLidos, vendasValidas, clientesLidos;
 	catProds = apagaCatProds(catProds);
 	catClientes = apagaCatClientes(catClientes);
 	faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
@@ -498,9 +495,11 @@ static int query1()
 	for(i = 0; i <= N_FILIAIS; i++)    
 		filiais[i] = criaFilial(); 
 
-	resL1 = leCatalogoProdutos();		
-	resL2 = leCatalogoClientes();
-	resL3 = carregaVendasValidas();
+	clientesLidos = leCatalogoClientes();
+	produtosLidos = leCatalogoProdutos();		
+	vendasValidas = carregaVendasValidas();
+		
+	printf("Nº de clientes lidos: %d\nNº de Produtos lidos: %d\nNº de vendas validas: %d\n", clientesLidos, produtosLidos, vendasValidas);
 
 	return 0;
 }
@@ -758,7 +757,7 @@ int query7()
 }
 
 int query8(){
-	int filial, ret, tamanho, indexP, indexN, i, resposta;
+	int filial, ret, indexP, indexN, i;
 	Cliente * clientes;
 	Produto produto;
 	int nClientes;
@@ -844,9 +843,9 @@ static int query9()
 static int query10()
 {
 	/* fazer tabela em vez de LString */
-	int n, i, j, filial, nClientes, nUnidades;
+	int n, i, filial, nClientes, nUnidades;
 	char ** imprimir, ** produtos;
-	char * linha, * codigoTemp;
+	char * linha;
 	LStrings resultados[N_FILIAIS+1] = {NULL};
 
 	printf("Quantos produtos pretende consultar? ");
