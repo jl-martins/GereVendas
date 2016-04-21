@@ -1,11 +1,9 @@
-/* Necessario fazer free de tudo para limpar completamente da memoria, estruturas compeltamente encapsuladas*/
-/* Garantir que os tipos são opacos para preservar encapsulamento */
 /* Nao libertar memoria dos campos das avls e dos tipos devolvidos a nao ser por funções da api */
 #include "avl.h"
 #include <assert.h>
 #include <stdlib.h>
 
-/* Casos Possíveis de evolução das árvores */
+/* Casos Possíveis de evolução das árvores: */
 /* A árvore mudou de tamanho devido a uma inserção de um nodo novo e a altura aumentou */
 #define INSERIU_CRESCEU 0
 /* Um nodo novo foi inserido mas não aumentou o tamanho da árvore */
@@ -13,7 +11,6 @@
 /* Um nodo já existente foi atualizado pelo que o numero de nodos se manteve */
 #define ATUALIZOU 2
 
-/* fazer codigo mais seguro para quando malloc falha */
 typedef enum fatorBalanco {ESQ, EQ, DIR} FatorBalanco; 
 
 typedef struct nodoAVL {
@@ -238,16 +235,10 @@ static AVL_NODO* rodaDireita(AVL_NODO* raiz)
 	return raiz;
 }
 
-/**
- * Verifica se um determinado valor existe numa AVL
- * @param arv Árvore AVL onde o valor será procurado
- * @param val Valor a procurar
- * @return 1 se o valor existir; 0 caso contrário.
- */
-void * procuraAVL(const AVL arv, void * val)
+void * procuraAVL(const AVL arv, void* val)
 {
-	int rCompara; /* guarda o resultado de uma comparação */
-	void * res = NULL;
+	int rCompara; /* guarda o resultado de cada comparação */
+	void* res = NULL;
 	AVL_NODO* nodoAtual = arv->raiz;
 	
 	while(nodoAtual){
@@ -258,7 +249,6 @@ void * procuraAVL(const AVL arv, void * val)
 		else if(rCompara > 0) /* procura na subárvore direita */
 			nodoAtual = nodoAtual->esquerda;
 		else{
-			/* ver código de tratamento de erros */
 			res = (arv->duplica != NULL) ? arv->duplica(nodoAtual->valor) : nodoAtual->valor;
 			break; /* encontramos o valor procurado */
 		}
@@ -266,9 +256,9 @@ void * procuraAVL(const AVL arv, void * val)
 	return res;
 }
 
-bool existeAVL(const AVL arv, void * val)
+bool existeAVL(const AVL arv, void* val)
 {	
-	void * res = procuraAVL(arv, val);
+	void* res = procuraAVL(arv, val);
 	bool existe;
 
 	if(res != NULL){
@@ -292,7 +282,7 @@ void ** inorderAVL(const AVL arv)
 	if(arv && arv->raiz){
 		res = malloc(arv->tamanho * sizeof(void *));
 		
-		if(res != NULL) /* ver se inorderAux não é "programação com balde" */
+		if(res != NULL)
 			inorderAux(arv->raiz, 0, res, arv->duplica);
 	}
 	return res;

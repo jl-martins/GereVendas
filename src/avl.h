@@ -35,7 +35,12 @@ void ** inorderAVL(const AVL arv);
 /* Procura um valor numa AVL. Devolve uma cópia do valor (se a função duplica tiver sido passada na altura da criação da árvore), se este for encontrado. Senão, devolve NULL. */
 void * procuraAVL(const AVL arv, void * val);
 
-/* Testa se um valor existe num AVL */
+/**
+ * Testa se um determinado valor existe numa AVL
+ * @param arv Árvore AVL onde o valor será procurado
+ * @param val Valor a procurar
+ * @return TRUE se o valor existir; FALSE caso contrário.
+ */
 bool existeAVL(const AVL arv, void * val);
 
 #endif
