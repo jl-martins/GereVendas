@@ -425,7 +425,6 @@ int numeroClientesCompraramProduto(Filial filial, char * produto, int * unidades
 	if(paraComparar == NULL)
 	    return -1;
 	paraComparar->produto = produto;
-		printf("ESTOUROU DEPOIS\n");
 	for(i = 0; i < 26; i++){
 		ComprasPorCliente * cpc = (ComprasPorCliente*) inorderAVL(filial->clientesOrdenados[i]);
 		if (cpc == NULL) return -1;
@@ -441,6 +440,6 @@ int numeroClientesCompraramProduto(Filial filial, char * produto, int * unidades
 		free(cpc); /*nao se apagam os elementos da filial porque sao os que estao na arvore */
 	}
 	*unidadesCompradas = unidades;
-/*	apagaComprasDoProduto(paraComparar);*/ /*nao se usa funçoes da api para nao apagar o produto que esta na estrutura*/
+	free(paraComparar); /*nao se usa funçoes da api para nao apagar o produto que esta na estrutura*/
 	return conta;
 }
