@@ -10,13 +10,11 @@
 /* Apaga um array de estruturas */
 void apagaArray(void* array[], int total, void (*apagaElem) (void*))
 {
-	if(array != NULL){
-		int i;
+	int i;
 
-		for(i = 0; i < total; ++i)
-			apagaElem(array[i]);
-		free(array);
-	}
+	for(i = 0; i < total; ++i)
+		apagaElem(array[i]);
+	free(array);
 }
 
 /* Recebe o #linhas e #colunas de uma matriz e o número de bytes
