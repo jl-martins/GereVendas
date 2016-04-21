@@ -62,16 +62,6 @@ static Filial filiais[N_FILIAIS+1] = {NULL}; /* a cada elemento de indice i do v
 				   permite fazer as queries de forma muito mais rapida */ 
 static FaturacaoGlobal faturacaoGlobal = NULL;
 
-static opcaoNavega opsNavega[] = {
-	NULL,
-	pagAnt,
-	proxPag,
-	perguntaPag,
-	primPag,
-	ultimaPag,
-	imprimeInformacaoLStrings
-};
-
 /* Opções do interpretador de comandos */
 /* A opção de sair deve ser a última apresentada mas deve ter código 0 */
 static const char* opcoes[] = {
@@ -101,8 +91,20 @@ static void imprimeOpcoes(const char *opcoes[N_OPCOES]);
 /* Apresentação de mensagens de erro */
 static void opcaoInvalida(char opcao[]);
 static void erroNaoLeuFich();
-static Query query1, query2, query3, query4, query5, query6,
-			 query7, query8, query9, query10, query11, query12;
+
+static int query1();
+static int query2();
+static int query3();
+static int query4();
+static int query5();
+static int query6();
+static int query7();
+static int query8();
+static int query9();
+static int query10();
+static int query11();
+static int query12();
+
 /* Função invocada imediatamente antes de sair */
 static int sair();
 /* Funções auxiliares das queries */
@@ -118,6 +120,16 @@ static void imprimeInformacaoLStrings(LStrings);
 
 Query queries[] = {NULL, query1, query2, query3, query4, query5, query6, query7, query8,
 		     query9, query10, query11, query12, sair};
+
+static opcaoNavega opsNavega[] = {
+	NULL,
+	pagAnt,
+	proxPag,
+	perguntaPag,
+	primPag,
+	ultimaPag,
+	imprimeInformacaoLStrings
+};
 
 int main()
 {
@@ -421,7 +433,6 @@ int insereSeValida(char linha[TAM_LINHA]){
 	it = GET;
 	VERIFICA(it);
 	nfilial = atoi(it);
-	
 			
 	if(existeProduto(catProds, produto) && 
 	   existeCliente(catClientes, cliente)  &&  
@@ -834,10 +845,9 @@ static int query10()
 {
 	/* fazer tabela em vez de LString */
 	int n, i, j, filial, nClientes, nUnidades;
-	Produtos * produtos; 
+	Produto * produtos; 
 	char ** imprimir;
 	char * linha, * codigoTemp;
-	int nClientes[N_FILIAIS+1];
 	LStrings resultados[N_FILIAIS+1] = {NULL};
 
 	printf("Quantos produtos pretende consultar? ");
@@ -854,7 +864,7 @@ static int query10()
 					codigoTemp = obterCodigoProduto(produtos[i]);
 					linha = malloc(sizeof(char *) * (strlen(codigoTemp)+50));	
 					nClientes = numeroClientesCompraramProduto(filiais[n], produtos[i], &nUnidades);
-					sprintf(linha, "%s, Numero clientes: %d, Numero unidades vendidas %d", codigoTemp, nUnidades);
+					sprintf(linha, "%s, Numero clientes: %d, Numero unidades vendidas %d", codigoTemp, nClientes, nUnidades);
 					apagaProduto(produtos[i]);
 					imprimir[i] = linha;
 					free(codigoTemp);
