@@ -30,4 +30,8 @@ LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes);
 /* Recebe uma filial e um cliente. Devolve um array com os códigos
  * dos 3 produtos em que o cliente gastou mais dinheiro durante o ano */
 char** tresProdsEmQueMaisGastou(Filial filial, Cliente c);
+
+void comprou(Filial filial, Cliente cliente, Produto produto, int * comprouN, int * comprouP);
+int numeroClientesCompraramProduto(Filial filial, char * produto, int * unidadesCompradas);
+
 #endif
