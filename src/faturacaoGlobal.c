@@ -687,8 +687,5 @@ char** NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial)
 		maisVendFilial[i] = fatNmaisVend[i]->prod;
 		free(fatNmaisVend[i]);
 	}
-	while(i < total)
-		apagaFatAnualProd(fatNmaisVend[i++]);
-
 	return maisVendFilial;
 }
