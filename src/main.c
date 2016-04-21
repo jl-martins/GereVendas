@@ -845,8 +845,7 @@ static int query10()
 {
 	/* fazer tabela em vez de LString */
 	int n, i, j, filial, nClientes, nUnidades;
-	Produto * produtos; 
-	char ** imprimir;
+	char ** imprimir, ** produtos;
 	char * linha, * codigoTemp;
 	LStrings resultados[N_FILIAIS+1] = {NULL};
 
@@ -855,27 +854,21 @@ static int query10()
 
 	do{
 		printf("Existem resultados para %d filiais. Insira o numero da filial ou %d para sair\n", N_FILIAIS, N_FILIAIS+1);
-		n = leInt();
-		if(n > 0 && n <= (N_FILIAIS + 1)){
-			if(resultados[n]){
-				produtos = /*funçao que devolve os N mais vendidos*/ /*obterArrNmaisVendidos(fatAnualProd,n)*/; 
-				imprimir = malloc(sizeof(char *) * n);
+		filial = leInt();
+		if(filial > 0 && filial <= N_FILIAIS){
+			if(resultados[filial] == NULL){
+				produtos = NmaisVendidosFilial(faturacaoGlobal, n, filial); /*funçao que devolve os N mais vendidos*/ /*obterArrNmaisVendidos(fatAnualProd,n)*/ 
 				for(i = 0; i < n; i++){
-					codigoTemp = obterCodigoProduto(produtos[i]);
-					linha = malloc(sizeof(char *) * (strlen(codigoTemp)+50));	
-					nClientes = numeroClientesCompraramProduto(filiais[n], produtos[i], &nUnidades);
-					sprintf(linha, "%s, Numero clientes: %d, Numero unidades vendidas %d", codigoTemp, nClientes, nUnidades);
-					apagaProduto(produtos[i]);
-					imprimir[i] = linha;
-					free(codigoTemp);
+					linha = malloc(sizeof(char *) * (strlen(produtos[i])+150));	/* valor exagerado*/
+					/*nClientes = numeroClientesCompraramProduto(filiais[n], produtos[i], &nUnidades);*/
+					sprintf(linha, "%s, Numero clientes: %d, Numero unidades vendidas %d", produtos[i], nClientes, nUnidades);
 				}
-				free(produtos);
-
-				resultados[n] = criaLStrings(n, imprimir);
+				resultados[n] = criaLStrings(n, produtos);
 			}
 			navega(resultados[n]);
 		} else printf("Opção Inválida\n");
 	} while (n);
+	/* limpa memoria */
 	return 0;
 }
 
