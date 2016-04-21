@@ -185,33 +185,6 @@ LStrings naoCompradosGlobal(const FaturacaoGlobal fg);
  */
 LStrings* naoCompradosPorFilial(const FaturacaoGlobal fg);
 
-/**
- * @brief Devolve informação sobre a faturação anual dos N produtos mais vendidos.
- * @param fg Faturação global a consultar.
- * @param N Número de produtos no top de vendas pretendido.
- * @return Array de comprimento N (ou de comprimento igual ao nº total de produtos,
- * se N for maior que esse número), em que cada posição @c i tem informação sobre a
- * faturação anual do iesimo produto globalmente mais vendido.
- * @warning Se ocorrer uma falha de alocação, é devolvido NULL.
- */
-FatAnualProd* fatNmaisVendidos(const FaturacaoGlobal fg, int N);
-
-/**
- * @brief Liberta a memória alocada para cada um dos elementos 
- * do array devolvido pela função fatNmaisVendidos()
- * @param fAnualProd FatAnualProd a apagar.
- * @return É sempre devolvido @c NULL
- */
-FatAnualProd apagaFatAnualProd(FatAnualProd fAnualProd);
-
-/**
- * @brief Produz um array de valore do tipo Produto, com os N produtos
- * mais vendidos, ordenados decrescentemente pelo total de vendas.
- * @param fatNmaisVend Array produzido pela função fatNmaisVendidos()
- * @param N Comprimento do array fatNmaisVend.
- */
-Produto* obterArrNmaisVendidos(const FatAnualProd fatNmaisVend[], int N);
-
-int* vendasPorFilialProdAno(const FatAnualProd fAnualProd);
+Produto* NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial);
 
 #endif

@@ -642,58 +642,51 @@ static LStrings listaNaoCompradosFilial(FatAnualProd arrTodosProdutos[], int tot
 
 /* Funções utilizadas na query10 */
 
-FatAnualProd* fatNmaisVendidos(const FaturacaoGlobal fg, int N)
+#define compVendasAnuais(filial) \
+	static int compVendasAnuaisFilial##filial(const void* v1, const void* v2) \
+	{																		  \
+		int totalVendas1 = (*(FatAnualProd *) v1)->totalVendas[filial];		  \
+		int totalVendas2 = (*(FatAnualProd *) v2)->totalVendas[filial];		  \
+																			  \
+		return totalVendas2 - totalVendas1;									  \
+	}																		  \
+
+compVendasAnuais(1)
+compVendasAnuais(2)
+compVendasAnuais(3)
+
+static int (*arrFunCompara[N_FILIAIS+1]) (const void*, const void*) = {
+	NULL,
+	compVendasAnuaisFilial1,
+	compVendasAnuaisFilial2,
+	compVendasAnuaisFilial3
+};
+
+Produto* NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial)
 {
-	int total;
+	int i, total;
 	FatAnualProd* arrTodosProdutos;
 	FatAnualProd* fatNmaisVend;
+	Produto* maisVendFilial = malloc(N * sizeof(Produto));
+
+	if(maisVendFilial == NULL)
+		return NULL;
 
 	total = tamanhoAVL(fg->todosProdutos);
 	arrTodosProdutos = (FatAnualProd *) inorderAVL(fg->todosProdutos);
-	if(arrTodosProdutos == NULL) /* a inorderAVL() não conseguiu criar cópias dos elementos da AVL */
+	if(arrTodosProdutos == NULL){ /* a inorderAVL() não conseguiu criar cópias dos elementos da AVL */
+		free(maisVendFilial);
 		return NULL;
+	}
 	
 	/* ordena array por ordem decrescente do nº total de vendas anuais */
-	qsort(arrTodosProdutos, total, sizeof(FatAnualProd), comparaVendasAnuais);
+	qsort(arrTodosProdutos, total, sizeof(FatAnualProd), arrFunCompara[filial]);
 	fatNmaisVend = realloc(arrTodosProdutos, N * sizeof(FatAnualProd));
-	return fatNmaisVend;
-}
-
-/* Função de comparação passada para qsort() para se obter o array
- * ordenado decrescentemente pelo total de vendas anuais dos produtos */
-static int comparaVendasAnuais(const void* v1, const void* v2)
-{	
-	int totalVendas1 = obterTotalVendasAnuaisProd(*(FatAnualProd *) v1);
-	int totalVendas2 = obterTotalVendasAnuaisProd(*(FatAnualProd *) v2);
-	/* trocar a posição dos termos da subtração permite que qsort ordene
-	 * os produtos por ordem decrescente do total de vendas anuais */
-	return totalVendas2 - totalVendas1;
-}
-
-Produto* obterArrNmaisVendidos(const FatAnualProd fatNmaisVend[], int N)
-{	
-	int i;
-	Produto* nMaisVend = malloc(N * sizeof(Produto));
-
-	if(nMaisVend == NULL)
-		return NULL;
-
+	/* libertar arrTodosProdutos */
 	for(i = 0; i < N; ++i){
-		nMaisVend[i] = criaProduto(fatNmaisVend[i]->prod);
-		if(nMaisVend[i] == NULL){ /* falha a criar o produto */
-			for( ; i >= 0; --i)
-				nMaisVend[i] = apagaProduto(nMaisVend[i]);
-			return NULL;
-		}
+		maisVendFilial[i] = criaProduto(fatNmaisVend[i]->prod);
+		free(fatNmaisVend[i]);
 	}
-	return nMaisVend;
-}
 
-int* vendasPorFilialProdAno(const FatAnualProd fAnualProd)
-{
-	int* vendasPorFilial = malloc((N_FILIAIS + 1) * sizeof(int));
-
-	if(vendasPorFilial != NULL)
-		vendasPorFilial = memcpy(vendasPorFilial, fAnualProd->totalVendas, N_FILIAIS+1);
-	return vendasPorFilial;
+	return maisVendFilial;
 }
