@@ -858,12 +858,14 @@ static int query10()
 		if(filial > 0 && filial <= N_FILIAIS){
 			if(resultados[filial] == NULL){
 				produtos = NmaisVendidosFilial(faturacaoGlobal, n, filial); /*funçao que devolve os N mais vendidos*/ /*obterArrNmaisVendidos(fatAnualProd,n)*/ 
+				imprimir = malloc(sizeof(char *) * n);
 				for(i = 0; i < n; i++){
 					linha = malloc(sizeof(char *) * (strlen(produtos[i])+150));	/* valor exagerado*/
 					nClientes = numeroClientesCompraramProduto(filiais[filial], produtos[i], &nUnidades);
 					sprintf(linha, "%s, Numero clientes: %d, Numero unidades vendidas %d", produtos[i], nClientes, nUnidades);
+					imprimir[i] = linha;
 				}
-				resultados[filial] = criaLStrings(n, linha);
+				resultados[filial] = criaLStrings(n, imprimir);
 			}
 			navega(resultados[filial]);
 		} else if(filial != N_FILIAIS + 1) printf("Opção Inválida\n");
