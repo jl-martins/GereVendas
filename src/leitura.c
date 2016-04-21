@@ -19,7 +19,8 @@ char* leLinha(int tamanho)
 		linha = NULL;
 	}
 	else{
-		/* índice do 1º carater de linha que pertence à string "\r\n" ou do '\0', se a string não tiver nem '\r' nem '\n' */
+		/* índice do 1º carater de linha que pertence à string "\r\n" ou do '\0'. 
+		 * Se a string não tiver nem '\r' nem '\n' */
 		int i = strcspn(linha, "\r\n");
 		
 		if(linha[i] == '\0') /* não foi encontrado \r nem \n. Ficaram carateres no buffer do stdin */
@@ -45,9 +46,14 @@ int leInt()
 {
 	int r = 0;
 	char buffer[LE_INT_BUFF];
-	/* ver quando é preciso fazer flush do stdin */
-	if(fgets(buffer, LE_INT_BUFF, stdin))
+	
+	if(fgets(buffer, LE_INT_BUFF, stdin)){
+		int i = strcspn(buffer, "\r\n");
+		
+		if(buffer[i] == '\0') /* ficaram carateres no buffer do stdin */
+			FLUSH_STDIN();
 		r = atoi(buffer);
+	}
 	return r;
 }
 
@@ -55,8 +61,13 @@ double leDouble()
 {
 	double r = 0;
 	char buffer[LE_DOUBLE_BUFF];
-	/* ver quando é preciso fazer flush do stdin */
-	if(fgets(buffer, LE_INT_BUFF, stdin))
-		r = atoi(buffer);
+
+	if(fgets(buffer, LE_DOUBLE_BUFF, stdin)){
+		int i = strcspn(buffer, "\r\n");
+		
+		if(buffer[i] == '\0') /* ficaram carateres no buffer do stdin */
+			FLUSH_STDIN();
+		r = atof(buffer);
+	}
 	return r;
 }
