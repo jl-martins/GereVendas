@@ -847,60 +847,42 @@ static int query9()
 	return 0;
 }
 
-#define MAX_BUF 100
 static int query10()
 {
 	/* fazer tabela em vez de LString */
-	int n, i;
-	Produto * produtos;
+	int n, i, j, filial, nClientes, nUnidades;
+	Produtos * produtos; 
 	char ** imprimir;
-	FatAnualProd* fatAnualProd;
-	char * temp;
-	int unidadesVendidasPorFilial[N_FILIAIS+1];
+	char * linha, * codigoTemp;
 	int nClientes[N_FILIAIS+1];
-	char aux[16];
+	LStrings resultados[N_FILIAIS+1] = {NULL};
+
 	printf("Quantos produtos pretende consultar? ");
 	n = leInt();
 
-	fatAnualProd = fatNmaisVendidos(faturacaoGlobal, n);
-	if(fatAnualProd == NULL) return -1;
-	produtos = obterArrNmaisVendidos(fatAnualProd,n); 
-	imprimir = malloc(sizeof(char *) * n);
-	for(i = 0; i < n; i++){
-		int j;
-		char * linha = malloc(sizeof(char *) * MAX_BUF);
-		char * codigoTemp = obterCodigoProduto(produtos[i]);
-		int numeroTotalClientes;
-		/*
-		for(j = 1; j <= N_FILIAIS; j++){
-			unidadesVendidasPorFilial[j] = usar faturacao global para obter estes dados, apagar a unidadesVendidasNaFilial(filial[j], produtos[i]);;
-		}*/
-		/*numeroTotalClientes = quantosClientesCompraram(filialGlobal, produtos[i]);*/
-		for(j = 1; j <= N_FILIAIS; j++){
-			int nUnidades;
-			nClientes[j] = numeroClientesCompraramProduto(filiais[j], produtos[i], &nUnidades);	
-			unidadesVendidasPorFilial[j] = nUnidades;	
-		}
+	do{
+		printf("Existem resultados para %d filiais. Insira o numero da filial ou %d para sair\n", N_FILIAIS, N_FILIAIS+1);
+		n = leInt();
+		if(n > 0 && n <= (N_FILIAIS + 1)){
+			if(resultados[n]){
+				produtos = /*funçao que devolve os N mais vendidos*/ /*obterArrNmaisVendidos(fatAnualProd,n)*/; 
+				imprimir = malloc(sizeof(char *) * n);
+				for(i = 0; i < n; i++){
+					codigoTemp = obterCodigoProduto(produtos[i]);
+					linha = malloc(sizeof(char *) * (strlen(codigoTemp)+50));	
+					nClientes = numeroClientesCompraramProduto(filiais[n], produtos[i], &nUnidades);
+					sprintf(linha, "%s, Numero clientes: %d, Numero unidades vendidas %d", codigoTemp, nUnidades);
+					apagaProduto(produtos[i]);
+					imprimir[i] = linha;
+					free(codigoTemp);
+				}
+				free(produtos);
 
-		sprintf(linha, "%s ", codigoTemp);
-
-		for(j = 1; j <= N_FILIAIS; j++){
-			sprintf(aux, " %d ", unidadesVendidasPorFilial[j]);
-			strcat(linha, aux);
-		}
-
-		for(j = 1; j <= N_FILIAIS; j++){
-			sprintf(aux, " %d ", nClientes[j]);
-			strcat(linha, aux);
-		}
-		apagaProduto(produtos[i]);
-		imprimir[i] = linha;
-		free(codigoTemp);
-	}
-	free(produtos);
-
-	LStrings nova = criaLStrings(n, imprimir);
-	navega(nova);
+				resultados[n] = criaLStrings(n, imprimir);
+			}
+			navega(resultados[n]);
+		} else printf("Opção Inválida\n");
+	} while (n);
 	return 0;
 }
 
