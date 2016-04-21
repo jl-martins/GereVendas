@@ -21,17 +21,28 @@ static void atualiza(void *, void *);
 
 /* Funções que manipulam catálogos de produtos */
 
-CatProds criaCatProds() {	
+CatProds criaCatProds()
+{	
 	int i;
 	CatProds catP = malloc(sizeof(struct catProds));
 	
-	if(catP)
-		for(i = 0; i < MAX_AVL; ++i)
-			catP->catalogo[i] = criaAVL(atualiza, compara, duplica, NULL);
+	if(catP == NULL)
+		return NULL;
+
+	for(i = 0; i < MAX_AVL; ++i){
+		catP->catalogo[i] = criaAVL(atualiza, compara, duplica, NULL);
+		if(catP->catalogo[i] == NULL){ /* falha de alocação em criaAVL() */
+			for( ; i >= 0; --i)
+				apagaAVL(catP->catalogo[i]);
+			free(catP);
+			return NULL;
+		}
+	}
 	return catP;
 }
 
-CatProds insereProduto(CatProds catP, Produto p) {	
+CatProds insereProduto(CatProds catP, Produto p)
+{	
 	if(catP){
 		AVL nova;
 		int i = calculaPos(p);
@@ -45,11 +56,13 @@ CatProds insereProduto(CatProds catP, Produto p) {
 			catP = NULL;
 		else
 			catP->catalogo[i] = nova;
+		free(codProd);
 	}
 	return catP;
 }
 
-bool existeProduto(CatProds catP, Produto p) {
+bool existeProduto(CatProds catP, Produto p)
+{
 	bool existe = FALSE;
 
 	if(catP){ /* temos um catálogo */
@@ -58,18 +71,20 @@ bool existeProduto(CatProds catP, Produto p) {
 
 		if(codProd != NULL)
 			existe = existeAVL(catP->catalogo[i], codProd);
+		free(codProd);
 	}
 	return existe;
 }
 
-/* onde é usada??*/
-int totalProdutosLetra(CatProds catP, char l) {
+int totalProdutosLetra(CatProds catP, char l)
+{
 	int i = isupper(l) ? l - 'A' : -1; /* validação da letra */
 	
 	return (i == -1) ? 0 : tamanhoAVL(catP->catalogo[i]);
 }
 
-int totalProdutos(CatProds catP) {
+int totalProdutos(CatProds catP)
+{
 	int total = 0;
 
 	if(catP){
@@ -81,7 +96,8 @@ int totalProdutos(CatProds catP) {
 	return total;
 }
 
-CatProds apagaCatProds(CatProds catP) {
+CatProds apagaCatProds(CatProds catP)
+{
  	if(catP){
  		int i;
 
@@ -92,7 +108,8 @@ CatProds apagaCatProds(CatProds catP) {
 	return NULL;
 }
 
-LStrings prodsPorLetra(CatProds catP, char l) {	
+LStrings prodsPorLetra(CatProds catP, char l)
+{	
 	LStrings lProdsPorLetra = NULL;
 
 	if(isupper(l)){ 

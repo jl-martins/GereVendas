@@ -1,4 +1,4 @@
-/* Nao libertar memoria dos campos das avls e dos tipos devolvidos a nao ser por funções da api */
+/* Módulo de árvores AVL genéricas */
 #include "avl.h"
 #include <assert.h>
 #include <stdlib.h>

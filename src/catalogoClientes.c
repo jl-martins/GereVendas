@@ -22,9 +22,18 @@ CatClientes criaCatClientes()
 	int i;
 	CatClientes catC = malloc(sizeof(struct catClientes));
 	
-	if(catC) 
-		for(i = 0; i < MAX_AVL; ++i) /* agora que estamos a guardar strings, não precisamos de passar uma função de libertação */
-			catC->catalogo[i] = criaAVL(atualiza, compara, duplica, NULL);
+	if(catC == NULL)
+		return NULL;
+
+	for(i = 0; i < MAX_AVL; ++i){
+		catC->catalogo[i] = criaAVL(atualiza, compara, duplica, NULL);
+		if(catC->catalogo[i] == NULL){ /* falha de alocação em criaAVL() */
+			for( ; i >= 0; --i)
+				apagaAVL(catC->catalogo[i]);
+			free(catC);
+			return NULL;
+		}
+	}
 	return catC;
 }
 
@@ -43,6 +52,7 @@ CatClientes insereCliente(CatClientes catC, Cliente c)
 			catC = NULL;
 		else
 			catC->catalogo[i] = nova;
+		free(codCliente);
 	}
 	return catC;
 }
@@ -57,6 +67,7 @@ bool existeCliente(CatClientes catC, Cliente c)
 
 		if(codCliente != NULL)
 			existe = existeAVL(catC->catalogo[i], codCliente);
+		free(codCliente);
 	}
 	return existe;
 }
@@ -103,9 +114,15 @@ Cliente* todosClientes(CatClientes catC)
 	iclientes = 0;
 	for(i = 0; i < MAX_AVL; ++i){
 		char** temp = (char **) inorderAVL(catC->catalogo[i]);
-		/* fazer função de limpeza em caso de erros */
+
+		if(temp == NULL){ /* falha de alocação em inorderAVL() */
+			--iclientes;
+			while(iclientes >= 0)
+				apagaCliente(clientes[iclientes--]);
+			return NULL;
+		}
 		quantos = tamanhoAVL(catC->catalogo[i]);
-		for(j = 0; j < quantos; ++j)
+		for(j = 0; j < quantos; ++j) /* acrescenta clientes ao array de todos os clientes */
 			clientes[iclientes++] = criaCliente(temp[j]);
 		
 		apagaArray((void**) temp, quantos, free);
