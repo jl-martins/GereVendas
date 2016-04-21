@@ -62,11 +62,12 @@ bool existeCliente(CatClientes catC, Cliente c)
 	bool existe = FALSE;
 
 	if(catC){
-		int i = calculaPos(c);
 		char* codCliente = obterCodigoCliente(c);
 
-		if(codCliente != NULL)
+		if(codCliente != NULL && codCliente[0] >= 'A' && codCliente[0] <= 'Z'){
+			int i = calculaPos(c);
 			existe = existeAVL(catC->catalogo[i], codCliente);
+		}
 		free(codCliente);
 	}
 	return existe;

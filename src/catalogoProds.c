@@ -66,11 +66,12 @@ bool existeProduto(CatProds catP, Produto p)
 	bool existe = FALSE;
 
 	if(catP){ /* temos um catálogo */
-		int i = calculaPos(p);
 		char* codProd = obterCodigoProduto(p);
 
-		if(codProd != NULL)
+		if(codProd != NULL && codProd[0] >= 'A' && codProd[0] <= 'Z'){
+			int i = calculaPos(p);
 			existe = existeAVL(catP->catalogo[i], codProd);
+		}
 		free(codProd);
 	}
 	return existe;

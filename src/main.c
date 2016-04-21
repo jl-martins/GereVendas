@@ -4,20 +4,22 @@
  * das queries interativas são feitas neste módulo.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include "cliente.h"
 #include "produto.h"
 #include "catalogoProds.h"
 #include "catalogoClientes.h"
 #include "faturacaoGlobal.h"
 #include "filial.h"
-#include "LStrings.h"
 #include "leitura.h"
+#include "LStrings.h"
+#include "memUtils.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 #include <time.h>
 
+/* >>> Sugestão: Mudar estas definições para um ficheiro gereVendasDef.h */
 #define N_FILIAIS 3
 #define N_QUERIES 12
 #define N_OPCOES (N_QUERIES + 1)
@@ -30,33 +32,36 @@
 	#define CLEAR "clear"
 #endif
 
-/* Tamanho máximo da linha do interpretador de comandos */
-#define MAXLINHA 32
+/* Tamanho máximo das linhas lidas com a função fgets() */
+#define MAXLINHA 64
 
 /* Valores de retorno de interpreta() e interpretador() */
-#define ERRO -1
+#define ERRO_MEM -1
+#define ERRO_FICH -2
+#define INPUT_INVAL -3
 #define SAIR 0
 #define CONTINUAR 1
 #define CMD_INVAL 127
 
-/*endereço padrão dos ficheiros */
-#define FCLIENTES "data/Clientes.txt" /* caminho do ficheiro de clientes */
-#define FPRODUTOS "data/Produtos.txt" /* caminho do ficheiro de produtos */
-#define FVENDAS "data/Vendas_1M.txt"     /* caminho do ficheiro de vendas */
+/* Endereços padrão dos ficheiros */
+#define FCLIENTES "data/Clientes.txt"
+#define FPRODUTOS "data/Produtos.txt"
+#define FVENDAS "data/Vendas_1M.txt"
 
-/* Macros utilizadas na navegação e leitura de dados */
+/* Macros utilizadas na navegação, leitura e validação de dados */
 #define ENTER_PARA_CONTINUAR() printf("Prima ENTER para continuar: "); getchar()
 #define IMPRIME_OPCOES_NAVEGA() \
 	printf("1) Pag. ant. | 2) Pag. seg. | 3) Selec. pag. | 4) Prim. pag. | 5) Ult. pag. | 6) Info. | 7) Sair\n")
 #define MSG_ERRO(msg) {fputs(msg, stderr); ENTER_PARA_CONTINUAR();}
-#define LE_INT_BUFF 16
+#define MES_VALIDO(mes) ((mes) >= 1 && (mes) <= 12)
+#define FILIAL_VALIDA(filial) ((filial) >= 1 && (filial) <= N_FILIAIS)
 
 /* Imprime os tempos se estiver ativado */
 #define MODO_MEDICAO_TEMPOS 1
 #ifdef MODO_MEDICAO_TEMPOS 
 	#define IMPRIME_TEMPOS(s, x) printf("Tempo na %s: %f\n", s, x)
 #else
-	#define IMPRIME_TEMPOS(x)
+	#define IMPRIME_TEMPOS(s, x)
 #endif
 
 typedef int (*Query) (void);
@@ -65,17 +70,20 @@ typedef void (*opcaoNavega) (LStrings);
 /* Definição das estruturas necessárias ao programa */
 static CatClientes catClientes = NULL;
 static CatProds catProds = NULL;
-static Filial filiais[N_FILIAIS+1] = {NULL}; /* a cada elemento de indice i do vetor faz corresponder a filial i. */
-#define filialGlobal filiais[0] /* o indice 0 da filial vai guardar informação relativa a todas as compras em todas as filiais,
-				   permite fazer as queries de forma muito mais rapida */ 
 static FaturacaoGlobal faturacaoGlobal = NULL;
+static Filial filiais[N_FILIAIS+1] = {NULL}; /* a cada elemento de indice i do vetor faz corresponder a filial i. */
+static bool fichCarregados = FALSE; /* indica se os ficheiros já foram carregados */
+
+/* o indice 0 da filial guarda informação relativa a todas as compras em 
+   todas as filiais. Deste modo, podemos responder às queries mais rapidamente. */ 
+#define filialGlobal filiais[0]
 
 /* Opções do interpretador de comandos */
 /* A opção de sair deve ser a última apresentada mas deve ter código 0 */
 static const char* opcoes[] = {
 		NULL,
 		"Ler ficheiros",
-		"Listar produtos começados por uma letra (maiúscula)",
+		"Listar produtos começados por uma letra",
 		"Apresentar vendas e faturação totais de um produto, num dado mês",
 		"Listar ordenadamente códigos dos produtos que ninguém comprou",
 		"Mostrar tabela com as compras efetuadas por um cliente",
@@ -92,13 +100,13 @@ static const char* opcoes[] = {
 void splashScreen();
 int interpretador();
 int interpreta(char linha[]);
-/* Funções de navegação exportadas */
+/* Funções de navegação */
 void navegaVarias(LStrings lStrArr[], int tamanho);
 void navega(LStrings lStr);
+/* Recebe um array de strings com opções. Imprime uma opção por linha */
 static void imprimeOpcoes(const char *opcoes[N_OPCOES]);
 /* Apresentação de mensagens de erro */
 static void opcaoInvalida(char opcao[]);
-static void erroNaoLeuFich();
 
 static int query1();
 static int query2();
@@ -128,7 +136,7 @@ static void imprimeInformacaoLStrings(LStrings);
 
 Query queries[] = {NULL, query1, query2, query3, query4, query5, query6, query7, query8,
 		     query9, query10, query11, query12, sair};
-
+/* array de apontadores para as funções de navegação de LStrings */
 static opcaoNavega opsNavega[] = {
 	NULL,
 	pagAnt,
@@ -172,30 +180,36 @@ int interpretador()
 		linha = leLinha(MAXLINHA);
 		r = (linha == NULL) ? SAIR : interpreta(linha); /* se falhar deve-se sair? */
 		free(linha);
-	}while(r == CONTINUAR || r == CMD_INVAL); /* enquanto não houver erro ou ordem para sair */
+		if(r == ERRO_MEM)
+			MSG_ERRO("Não foi possível alocar memória\n");
+	}while(r != SAIR); /* enquanto não houver erro ou ordem para sair */
 	
 	return r;
 }
 
 int interpreta(char linha[])
 {
-	int r;
 	int i;
+	int r = CONTINUAR;
 
 	linha = avancaEspacosInicio(linha);
 	if(linha[0] == '\0') /* foi introduzida uma linha em branco */
-		r = CONTINUAR;
+		return CONTINUAR;
+	
+	i = atoi(linha);
+	if(i > 0 && i < N_OPCOES){
+		if(i == 1)
+			r = queries[1]();
+		else if(fichCarregados == FALSE) /* i > 1 && i < N_OPCOES */
+			MSG_ERRO("Erro: Ainda não leu os ficheiros de dados\n")
+		else
+			r = queries[i]();
+	}
+	else if(i == N_OPCOES)
+		r = SAIR;
 	else{
-		i = atoi(linha);
-		if(i > 0 && i <= N_OPCOES){ /* o utilizador introduziu um comando válido */
-			queries[i]();
-			r = (i == N_OPCOES) ? SAIR : CONTINUAR; /* se for inserida a ultima opção, o programa deve sair */
-		}
-		else{
-			opcaoInvalida(linha);
-			r = CMD_INVAL;
-		}
-		ENTER_PARA_CONTINUAR();
+		opcaoInvalida(linha);
+		r = CMD_INVAL;
 	}
 	return r;
 }
@@ -213,7 +227,7 @@ static void imprimeOpcoes(const char *opcoes[N_OPCOES])
 
 /* Mensagem de opção inválida */
 static void opcaoInvalida(char opcao[])
-{	/* vamos ter que fazer strtok(opcao, "\r\n") de opcao[] porque esta vem com '\n' */
+{
 	fprintf(stderr, "A opção '%s' é inválida\n\n", opcao);
 }
 
@@ -246,10 +260,9 @@ void navega(LStrings lStr)
 		ENTER_PARA_CONTINUAR();
 	}
 	else{
-		int numTotalPags = obterNumTotalPags(lStr);
-		int opcao;
 		Pagina pag;
 		bool sair = FALSE;
+		int opcao, numTotalPags = obterNumTotalPags(lStr);
 		
 		imprimeInformacaoLStrings(lStr);
 		do{
@@ -317,14 +330,14 @@ static FILE* perguntaAbreFicheiro(char* ficheiroPadrao, char linha[TAM_LINHA], c
 
 	if(caminho != NULL)
 		caminho = avancaEspacosInicio(caminho);
-	if(caminho == NULL || caminho == '\0') 
+	if(caminho == NULL || caminho[0] == '\0') 
 		caminho = ficheiroPadrao;
 
 	fp = fopen(caminho, "r");
 	if(fp == NULL)
 		fprintf(stderr, "Nao foi possivel abrir o ficheiro %s\n", caminho);
-	else /* imprimir esta mensagem só depois de se ter percorrido o ficheiro todo */
-		printf("Ficheiro lido: %s\n", caminho);
+	else
+		printf("A ler o ficheiro: %s\n", caminho);
 	return fp;	
 }
 
@@ -341,25 +354,26 @@ int leCatalogoProdutos(){
 	fp = perguntaAbreFicheiro(FPRODUTOS, linha, "produtos");
 	inicio = time(NULL); 
 	if(fp == NULL)
-		return ERRO;
+		return ERRO_FICH;
+	
 	while(fgets(linha, TAM_LINHA, fp)){
 		linhaLimpa = strtok(linha, "\r\n");
 		p = criaProduto(linhaLimpa);
 		if(p == NULL) /* falha de alocação ao criar o produto */
-			return ERRO; 
+			return ERRO_MEM; 
 		
 		novoCatP = insereProduto(catProds, p);
 		if(novoCatP == NULL) /* falha de alocação a inserir o produto */
-			return ERRO;
+			return ERRO_MEM;
 		else
 			catProds = novoCatP;
 		
 		novaFatG = registaProduto(faturacaoGlobal, p);
 		if(novaFatG == NULL)
-			return ERRO;
+			return ERRO_MEM;
 		else
 			faturacaoGlobal = novaFatG; 
-		quantos++;
+		++quantos;
 		apagaProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
 	fim = time(NULL);
@@ -380,15 +394,16 @@ int leCatalogoClientes(){
 	fp = perguntaAbreFicheiro(FCLIENTES, linha, "clientes");
 	inicio = time(NULL); 
 	if(fp == NULL)
-		return ERRO;
+		return ERRO_FICH;
+	
 	while(fgets(linha, TAM_LINHA, fp)){
 		linhaLimpa = strtok(linha, "\r\n");
 		c = criaCliente(linhaLimpa);
 		if(c == NULL) /* falha de alocação ao criar o cliente */
-			return ERRO;
+			return ERRO_MEM;
 		novoCatC = insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
 		if(novoCatC == NULL)
-			return ERRO;
+			return ERRO_MEM;
 		else
 			catClientes = novoCatC;
 		apagaCliente(c);
@@ -402,7 +417,6 @@ int leCatalogoClientes(){
 
 /* por get e verifica na mesma macro */
 #define GET strtok(NULL," \r\n");
-#define VERIFICA(p) {if ((p) == NULL) return ERRO;}
 
 #define MAX_UNIDADES 200
 #define MAX_PRECO 999.99
@@ -417,31 +431,24 @@ int insereSeValida(char linha[TAM_LINHA]){
 	char* it;
 
 	it = strtok(linha, " ");
-	VERIFICA(it);
 	produto = criaProduto(it);
 
 	it = GET;
-	VERIFICA(it);
 	preco = atof(it);
 
 	it = GET;
-	VERIFICA(it);
 	unidades = atoi(it);
 
 	it = GET;
-	VERIFICA(it);
 	tipoVenda = it[0] == 'P' ? P : N;
 
 	it = GET;
-	VERIFICA(it);
 	cliente = criaCliente(it);
 
 	it = GET;
-	VERIFICA(it);
 	mes = atoi(it);
 
 	it = GET;
-	VERIFICA(it);
 	nfilial = atoi(it);
 			
 	if(existeProduto(catProds, produto) && 
@@ -450,7 +457,6 @@ int insereSeValida(char linha[TAM_LINHA]){
 	   mes > 0 && mes < 13 &&
 	   preco >= 0 && preco <= 999.99 
 	   && nfilial > 0 && nfilial <= N_FILIAIS)
-
 	{
 		filiais[nfilial] = registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
 		filialGlobal = registaCompra(filialGlobal, cliente, produto, mes, tipoVenda, unidades, preco);
@@ -463,7 +469,6 @@ int insereSeValida(char linha[TAM_LINHA]){
 }
 
 #undef GET
-#undef VERIFICA
 
 int carregaVendasValidas(){
 	time_t inicio, fim;
@@ -473,7 +478,7 @@ int carregaVendasValidas(){
 
 	fp = perguntaAbreFicheiro(FVENDAS, linha, "vendas");
 	if(fp == NULL)
-		return ERRO;
+		return ERRO_FICH;
 
 	inicio = time(NULL);
 	while(fgets(linha, TAM_LINHA, fp)){
@@ -491,69 +496,93 @@ static int query1()
 {
 	/* apaga os dados de uma execuçao anterior do programa */
 	int i, produtosLidos, vendasValidas, clientesLidos;
+	
 	catProds = apagaCatProds(catProds);
 	catClientes = apagaCatClientes(catClientes);
 	faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
+	fichCarregados = FALSE;
 	 
 	for(i = 1; i <= N_FILIAIS; i++)    
 		filiais[i] = apagaFilial(filiais[i]); 
-	/*ver verificacao de erros */
 
 	catProds = criaCatProds();
-	catClientes = criaCatClientes();	
+	if(catProds == NULL){ /* falha de alocação a criar o catálogo de produtos */
+		MSG_ERRO("Erro a criar o catálogo de produtos\n");
+		return ERRO_MEM;
+	}
+	
+	catClientes = criaCatClientes();
+	if(catClientes == NULL){ /* falha de alocação a criar o catálogo de clientes */
+		catProds = apagaCatProds(catProds);
+		MSG_ERRO("Erro a criar o catálogo de clientes\n");
+		return ERRO_MEM;
+	}	
+	
 	faturacaoGlobal = criaFaturacaoGlobal();
+	if(faturacaoGlobal == NULL){ /* falha de alocação a criar a faturação global */
+		catProds = apagaCatProds(catProds);
+		catClientes = apagaCatClientes(catClientes);
+		MSG_ERRO("Erro a criar a faturação global\n");
+		return ERRO_MEM;
+	}
 
 	/* alocar espaço no 0 para a globlal */
-	for(i = 0; i <= N_FILIAIS; i++)    
-		filiais[i] = criaFilial(); 
-
+	for(i = 0; i <= N_FILIAIS; i++){   
+		filiais[i] = criaFilial();
+		if(filiais[i] == NULL){
+			catProds = apagaCatProds(catProds); catClientes = apagaCatClientes(catClientes);
+			for( ; i >= 0; --i)
+				apagaFilial(filiais[i]);
+			MSG_ERRO("Erro a criar as filiais\n");
+			return ERRO_MEM;
+		}
+	}
 	clientesLidos = leCatalogoClientes();
-	produtosLidos = leCatalogoProdutos();		
+	produtosLidos = leCatalogoProdutos();
 	vendasValidas = carregaVendasValidas();
+	fichCarregados = TRUE;
 		
-	printf("Nº de clientes lidos: %d\nNº de Produtos lidos: %d\nNº de vendas validas: %d\n", clientesLidos, produtosLidos, vendasValidas);
-
-	return 0;
+	printf("Nº de clientes lidos: %d\n"
+		   "Nº de Produtos lidos: %d\n"
+		   "Nº de vendas validas: %d\n", clientesLidos, produtosLidos, vendasValidas);
+	ENTER_PARA_CONTINUAR();
+	return CONTINUAR;
 }
 
 static int query2()
 {
-	int erro = 0;
+	int r = CONTINUAR;
+	char letra;
 
-	if(catProds)
-	{
-		char letra;
-		LStrings lProdsLetra;
+	printf("Introduza a 1ª letra dos códigos de produto que pretende consultar: ");
 
-		printf("Introduza a 1ª letra dos códigos de produto que pretende consultar: ");
+	letra = toupper(getchar());
+	FLUSH_STDIN();
 
-		letra = toupper(getchar());
-		FLUSH_STDIN();
-		lProdsLetra = prodsPorLetra(catProds, letra);
+	if(isalpha(letra)){
+		LStrings lProdsLetra = prodsPorLetra(catProds, letra);
 
 		if(lProdsLetra){
 			navega(lProdsLetra);
 			apagaLStrings(lProdsLetra);
 		}
 		else
-			erro = 1;
+			r = ERRO_MEM;
 	}
-	return erro;
+	else{
+		fprintf(stderr, "O caratere '%c' é inválido\n", letra);
+		r = INPUT_INVAL;
+	}
+	ENTER_PARA_CONTINUAR();
+	return r;
 }
 
-/* Recebe o tipo do código a ler (i.e.: produto ou cliente) e o tamanho
- * máximo do mesmo e lê o código do stdin. Se a leitura tiver sucesso,
- * é devolvido o código lido, se não é devolvido NULL. O código devolvido
- * deve ser libertado com a função free(), quando já não for necessário. */
 static char* leCodigo(const char tipo[], int tamanho)
 {	
 	printf("Introduza o código de %s: ", tipo);
 	return leLinha(tamanho);
 }
 
-/* Pergunta ao utilizador se pretende um resultado global (G)
- * ou por filial (F) e lê um carater com a resposta. A validação
- * do carater lido deve ser feita na função chamadora. */
 static char obterModoRes()
 {	
 	char c;
@@ -565,33 +594,51 @@ static char obterModoRes()
 }
 
 static int query3()
-{
-	int mes;
+{	
 	char modo;
-	char *codigoProd; /* mudar este nome */
+	char *codigoProd; /* >>> mudar este nome??? */
 	Produto p;
 	FatProdMes fProdMes;
+	int mes, r = CONTINUAR;
 
 	codigoProd = leCodigo("produto", MAX_CODIGO_PROD);
-	printf("Mês: "); mes = leInt();
-	modo = obterModoRes();
-
 	p = criaProduto(codigoProd);
-	fProdMes = obterFatProdMes(faturacaoGlobal, p, mes);
-	free(codigoProd); apagaProduto(p);/* já não precisamos do produto nem do código */
 
-	switch(modo){
-		case 'G':
-			resultadosGlobaisQuery3(fProdMes);
-			break;
-		case 'F':
-			resultadosFiliaisQuery3(fProdMes);
-			break;
-		default:
-			MSG_ERRO("Erro: Modo inválido\nModos válidos: G | F\n");
-			break;
+	if(p == NULL) /* falha de alocação a criar o produto */
+		return ERRO_MEM;
+	if(existeProduto(catProds, p)){
+		printf("Mês: "); mes = leInt();
+		if(MES_VALIDO(mes)){
+			modo = obterModoRes();
+			fProdMes = obterFatProdMes(faturacaoGlobal, p, mes);
+
+			switch(modo){
+				case 'G':
+					resultadosGlobaisQuery3(fProdMes);
+					break;
+				case 'F':
+					resultadosFiliaisQuery3(fProdMes);
+					break;
+				default:
+					MSG_ERRO("Erro: Modo inválido\nModos válidos: G | F\n");
+					r = INPUT_INVAL;
+					break;
+			}
+			apagaFatProdMes(fProdMes);
+		}
+		else{ /* o mês introduzido é inválido */
+			fprintf(stderr, "O mês '%d' é inválido\n", mes);
+			r = INPUT_INVAL;
+		}
+		free(codigoProd); apagaProduto(p);/* já não precisamos do produto */
 	}
-	return 0;
+	else{ /* o código de produto introduzido é inválido */
+		fprintf(stderr, "O código de produto '%s' não consta no catálogo de produtos\n", codigoProd);
+		free(codigoProd);
+		r = INPUT_INVAL;
+	}
+	ENTER_PARA_CONTINUAR();
+	return r;
 }
 
 /* calcula e apresenta os resultados globais da query3 */
@@ -636,7 +683,7 @@ static void resultadosFiliaisQuery3(FatProdMes fProdMes)
 static int query4()
 {
 	char modo = obterModoRes();
-	int erro = 0;
+	int r = CONTINUAR;
 
 	if(modo == 'G'){
 		LStrings naoCompradosG = naoCompradosGlobal(faturacaoGlobal);
@@ -645,7 +692,7 @@ static int query4()
 			apagaLStrings(naoCompradosG);
 		}
 		else
-			erro = 1;
+			r = ERRO_MEM;
 	}
 	else if(modo == 'F'){
 		LStrings* naoCompradosF = naoCompradosPorFilial(faturacaoGlobal);
@@ -655,52 +702,63 @@ static int query4()
 			for(i = 1; i <= N_FILIAIS; ++i)
 				apagaLStrings(naoCompradosF[i]);
 		}
-		else erro = 1; /* definir macros de erros */
+		else
+			r = ERRO_MEM;
 	}
 	else{
 		MSG_ERRO("Erro: Modo inválido\nModos válidos: G | F\n");
-		erro = 2;
+		r = INPUT_INVAL;
 	}
-	return erro;
+	return r;
 }
 
 #define IMPRIME_SEPARADOR printf("----------------------------------------------------------------\n");
 static int query5()
 {
-	char buff[16]; /*definir tamanho numa macro */
-	char * tok;
+	char buff[16]; /* >>> definir tamanho numa macro */
+	char* codigoCliente;
+	int r = CONTINUAR;
 	Cliente cliente;
-	int totalMes, i, j;
-	int * comprasPorFilial[N_FILIAIS+1]; /* ao indice i (!= 0), correspondem as vendas na filial i */	
+
 	printf("Insira um código de cliente: ");
 	fgets(buff, 16, stdin);
 	/* mover strtok para a criaProdutos? e parte que avanca codigo em branco*/
 	/* versao para testar, sem cuidados para erros */
-	tok = strtok(buff, " \r\n");
-	cliente = criaCliente(tok);
-	/*validar codigo de cliente */
+	codigoCliente = strtok(buff, " \r\n");
+	if((cliente = criaCliente(codigoCliente)) == NULL) /* falha de alocação */
+		return ERRO_MEM;
+	
+	if(existeCliente(catClientes, cliente)){
+		int i, j, totalMes;
+		int* comprasPorFilial[N_FILIAIS+1]; /* ao indice i (!= 0), correspondem as vendas na filial i */
 
-	for(i = 1; i <= N_FILIAIS; i++)
-		comprasPorFilial[i] = unidadesClientePorMes(filiais[i], cliente); 	
-	/* ver o que acontece se for NULL */	
-	IMPRIME_SEPARADOR;
-	printf("|--Meses--|");
-	for(i = 1; i <= N_FILIAIS; i++)
-		printf("|--Filial %d--|", i);	
-	printf("|--Total--|\n");
-	IMPRIME_SEPARADOR;
-
-	for(j = 1; j < 13; j++){
-		totalMes = 0;
-		printf("|%8d |", j);
-		for(i = 1 ; i <= N_FILIAIS; i++){
-			printf("|%11d |", comprasPorFilial[i][j]);
-			totalMes += comprasPorFilial[i][j];
-		}
-		printf("|%8d |\n", totalMes);	
+		for(i = 1; i <= N_FILIAIS; i++)
+			comprasPorFilial[i] = unidadesClientePorMes(filiais[i], cliente); 	
+		/* ver o que acontece se for NULL */	
 		IMPRIME_SEPARADOR;
-	}		
-	return 0;
+		printf("|--Meses--|");
+		for(i = 1; i <= N_FILIAIS; i++)
+			printf("|--Filial %d--|", i);	
+		printf("|--Total--|\n");
+		IMPRIME_SEPARADOR;
+
+		for(j = 1; j < 13; j++){ /* usar macro N_MESES */
+			totalMes = 0;
+			printf("|%8d |", j);
+			for(i = 1 ; i <= N_FILIAIS; i++){
+				printf("|%11d |", comprasPorFilial[i][j]);
+				totalMes += comprasPorFilial[i][j];
+			}
+			printf("|%8d |\n", totalMes);	
+			IMPRIME_SEPARADOR;
+		}
+	}
+	else{ /* o código de cliente é inválido */
+		fprintf(stderr, "O código de cliente '%s' não consta no catálogo de clientes\n", codigoCliente);
+		r = INPUT_INVAL;
+	}
+	ENTER_PARA_CONTINUAR();
+	return r;
 }
 
 #undef IMPRIME_SEPARADOR
@@ -708,20 +766,26 @@ static int query5()
 static int query6()
 {	
 	int inicio, fim;
-	int totalVendas;
-	double totalFaturado;
+	int r = CONTINUAR;
 
 	puts("Introduza um intervalo fechado de meses");
 	printf("Inicio: "); inicio = leInt();
 	printf("Fim: "); fim = leInt();
 
-	totalVendas = totalVendasIntervMeses(faturacaoGlobal, inicio, fim);
-	totalFaturado = totalFatIntervMeses(faturacaoGlobal, inicio, fim);
+	if(MES_VALIDO(inicio) && MES_VALIDO(fim)){
+		int totalVendas = totalVendasIntervMeses(faturacaoGlobal, inicio, fim);
+		double totalFaturado = totalFatIntervMeses(faturacaoGlobal, inicio, fim);
 
-	printf("Intervalo de meses = [%d,%d]\n", inicio, fim);
-	printf("Total de unidades vendidas = %d\n"
-			"Total faturado = %.2f\n\n", totalVendas, totalFaturado);
-	return 0; /* introduzir verificação de erros */
+		printf("Intervalo de meses = [%d,%d]\n", inicio, fim);
+		printf("Total de unidades vendidas = %d\n"
+			   "Total faturado = %.2f\n\n", totalVendas, totalFaturado);
+		ENTER_PARA_CONTINUAR();
+	}
+	else{
+		MSG_ERRO("Pelo menos um dos meses introduzidos é inválido\n");
+		r = INPUT_INVAL;
+	}
+	return r;
 }
 
 static bool comprouTodasFiliais(Cliente c){
@@ -736,18 +800,24 @@ static bool comprouTodasFiliais(Cliente c){
 
 int query7()
 {
-	Cliente * clientes;
-	char ** codigosClientes;
-	int nClientes, i, j;
+	Cliente* clientes;
+	char** codigosClientes;
+	int i, j, nClientes;
 	LStrings lista;
-
-	i = 0; j = 0;	
-	/* impedir que leia se os ficheiros nao tiverem sido carregados */
+	
 	nClientes = totalClientes(catClientes);
 	clientes = todosClientes(catClientes);
-	/* if(clientes == NULL) ... */
+	if(clientes == NULL) /* falha de alocação */
+		return ERRO_MEM;
+
 	codigosClientes = malloc(nClientes * sizeof(char *));
-	for(i = 0; i < nClientes; i++){
+	if(codigosClientes == NULL){ /* falha a alocar o array 'codigosClientes' */
+		for(i = 0; i < nClientes; ++i);
+			apagaCliente(clientes[i]);
+		return ERRO_MEM;
+	}
+
+	for(i = 0, j = 0; i < nClientes; i++){
 		if(comprouTodasFiliais(clientes[i])){
 			codigosClientes[j++] = obterCodigoCliente(clientes[i]);
 		}
@@ -755,159 +825,197 @@ int query7()
 	}
 	free(clientes);
 
-	/*fazer um realloc do codigosClientes para gastar menos espaço??*/
-	lista = criaLStrings(j, codigosClientes);		
+	lista = criaLStrings(j, codigosClientes);
+	apagaArray((void **) codigosClientes, j, free); /* os códigos de clientes já estão na LStrings 'lista' */
 	navega(lista);
+	apagaLStrings(lista);
 
-	/* Limpeza das estruturas usadas na função */
-	for(i = 0; i < j; i++)
-		free(codigosClientes[i]);
-	free(codigosClientes);
-	apagaLStrings(lista);	
-
-	return 0;
+	return CONTINUAR;
 }
 
 int query8(){
-	int filial, ret, indexP, indexN, i;
-	Cliente * clientes;
-	Produto produto;
-	int nClientes;
-	char ** quemComprouN, ** quemComprouP;
-	char * codigo;
+	int i, indexP, indexN;
+	int filial, nClientes, r = CONTINUAR;
 	char c;
+	char* codigo;
+	char** quemComprouN, **quemComprouP;
 	bool comprouN, comprouP;
+	Cliente* clientes;
+	Produto produto;
 	LStrings compraramN, compraramP;
 
-	printf("Insira o código de Produto: ");
-	codigo = leLinha(MAX_CODIGO_PROD+1);
-	codigo = strtok(codigo, " \t\r\n");	
-	printf("%s\n", codigo)
+	printf("Insira o código de Produto: "); /* falta validar o produto */
+	codigo = leLinha(MAX_CODIGO_PROD); /* >>> MAX_CODIGO_PROD já não é um valor fixo */
+	codigo = strtok(codigo, " \t\r\n");
 	/* funçoes de leitura de Produto e caso a strtok ou leLinha falhem */;
 	/*verificar se o codigo é valido*/
 	produto = criaProduto(codigo);
-	free(codigo);
-
-	printf("Insira a filial que pretende consultar:");
-	filial = leInt();
-	indexP = indexN = 0;	
-	if(filial > 0 && filial <= N_FILIAIS){
-		nClientes = totalClientes(catClientes);
-		clientes = todosClientes(catClientes);
-		/* ver se o tamanho esta certo */
-		quemComprouN = malloc(sizeof(char *) * nClientes); 	
-		quemComprouP = malloc(sizeof(char *) * nClientes); 	
-		for(i = 0; i < nClientes; i++){
-			comprou(filiais[filial], clientes[i], produto, &comprouN, &comprouP); 
-			if(comprouN){
-				quemComprouN[indexN++] = obterCodigoCliente(clientes[i]);
+	if(existeProduto(catProds, produto)){
+		printf("Insira a filial que pretende consultar: ");
+		filial = leInt();
+		indexP = indexN = 0;	
+		if(FILIAL_VALIDA(filial)){
+			nClientes = totalClientes(catClientes);
+			clientes = todosClientes(catClientes);
+			/* ver se o tamanho esta certo */
+			quemComprouN = malloc(sizeof(char *) * nClientes); 	
+			quemComprouP = malloc(sizeof(char *) * nClientes); 	
+			for(i = 0; i < nClientes; i++){
+				comprou(filiais[filial], clientes[i], produto, &comprouN, &comprouP); 
+				if(comprouN){
+					quemComprouN[indexN++] = obterCodigoCliente(clientes[i]);
+				}
+				if(comprouP){
+					quemComprouP[indexP++] = obterCodigoCliente(clientes[i]);
+				}
+				apagaCliente(clientes[i]);
 			}
-			if(comprouP){
-				quemComprouP[indexP++] = obterCodigoCliente(clientes[i]);
-			}
-			apagaCliente(clientes[i]);
-		}
-		compraramN = criaLStrings(indexN, quemComprouN);
-		compraramP = criaLStrings(indexP, quemComprouP);
-		
-		do {
-			printf("%d clientes compraram o produto em modo normal\n", indexN); 
-			printf("%d clientes compraram o produto em Promocao\n", indexP); 
-
-			printf("Insira o modo que pretende consultar(P ou N) ou S para sair: ");
-			/* substituir getchar por outra coisa qq */		
-			c = getchar();
-			if(c == 'P') navega(compraramP);
-			else if(c == 'N') navega(compraramN);
-		} while(c != 'S');				
-
-		/* libertar tudo*/	
-		ret = 0;
-		/* limpar estruturas */
+			/* >>> a alocação de memória para as LStrings pode falhar */
+			compraramN = criaLStrings(indexN, quemComprouN);
+			compraramP = criaLStrings(indexP, quemComprouP);
+			apagaProduto(produto);
+			apagaArray((void **) quemComprouN, indexN, free);
+			apagaArray((void **) quemComprouP, indexP, free);
 			
-	}else{
-		printf("Filial inválida\n");
-		ret = 1;
-	}	
-	return ret;
+			do {
+				printf("%d clientes compraram o produto em modo normal\n", indexN); 
+				printf("%d clientes compraram o produto em Promocao\n", indexP); 
+
+				printf("Insira o modo que pretende consultar (P ou N) ou S para sair: ");
+				/* substituir getchar por outra coisa qq */		
+				c = getchar();
+				if(c == 'P')
+					navega(compraramP);
+				else if(c == 'N')
+					navega(compraramN);
+			} while(c != 'S');						
+		}
+		else{ /* a filial introduzida é inválida */
+			MSG_ERRO("Filial inválida\n");
+			r = INPUT_INVAL;
+		}
+	}
+	else{
+		fprintf(stderr, "O código de produto '%s' não consta no catálogo de produtos\n", codigo);
+		r = INPUT_INVAL;
+		ENTER_PARA_CONTINUAR();
+	}
+	free(codigo);
+	return r;
 }
 
 static int query9()
 {	
-	int mes;
+	int mes, r = CONTINUAR;
 	char* codigoCliente;
 	Cliente c;
-	LStrings lStr;
 
 	printf("Introduza o código do cliente: ");
-	codigoCliente = leLinha(MAX_CODIGO_CLIENTE); /* falta verificar se a linha nao é NULL */
+	codigoCliente = leLinha(MAX_CODIGO_CLIENTE); /* >>> MAX_CODIGO_CLIENTE já não é fixo */
 	c = criaCliente(codigoCliente);
-	free(codigoCliente); /* já temos o código do cliente em 'c' */
-	printf("Introduza o mês: ");
-	mes = leInt();
+	if(c == NULL)
+		return ERRO_MEM;
 
-	lStr = produtosClienteMaisComprou(filialGlobal, c, mes);
+	if(existeCliente(catClientes, c)){
+		printf("Introduza o mês: "); mes = leInt();
+		
+		if(MES_VALIDO(mes)){
+			LStrings lStr = produtosClienteMaisComprou(filialGlobal, c, mes);
+			navega(lStr);
+			apagaLStrings(lStr);
+		}
+		else{
+			fprintf(stderr, "O mês '%d' é inválido.\n", mes);
+			r = INPUT_INVAL;
+		}
+	}
+	else{
+		fprintf(stderr, "O cliente '%s' não consta no catálogo de clientes\n", codigoCliente);
+		r = INPUT_INVAL;
+		ENTER_PARA_CONTINUAR();
+	}
+	free(codigoCliente);
 	apagaCliente(c);
-	navega(lStr);
-	return 0;
+	
+	return r;
 }
-
+/* Limpar o código desta função */
 static int query10()
 {
 	/* fazer tabela em vez de LString */
-	int n, i, filial, nClientes, nUnidades;
-	char ** imprimir, ** produtos;
-	char * linha;
+	char* linha;
+	int N, i, filial, nClientes, nUnidades;
 	LStrings resultados[N_FILIAIS+1] = {NULL};
 
 	printf("Quantos produtos pretende consultar? ");
-	n = leInt();
+	N = leInt();
 
 	do{
 		printf("Existem resultados para %d filiais. Insira o numero da filial ou %d para sair\n", N_FILIAIS, N_FILIAIS+1);
 		filial = leInt();
-		if(filial > 0 && filial <= N_FILIAIS){
-			if(resultados[filial] == NULL){
-				produtos = NmaisVendidosFilial(faturacaoGlobal, n, filial); /*funçao que devolve os N mais vendidos*/ /*obterArrNmaisVendidos(fatAnualProd,n)*/ 
-				imprimir = malloc(sizeof(char *) * n);
-				for(i = 0; i < n; i++){
-					linha = malloc(sizeof(char *) * (strlen(produtos[i])+150));	/* valor exagerado*/
+		if(FILIAL_VALIDA(filial)){
+			if(resultados[filial] == NULL){ /* ainda não calculamos a LString com os resultados da filial pedida */
+				char** produtos = NmaisVendidosFilial(faturacaoGlobal, N, filial);
+				char** imprimir = malloc(sizeof(char *) * N);
+				if(imprimir == NULL) /* falha de alocação */
+					return ERRO_MEM;
+				
+				for(i = 0; i < N; i++){ /* cria as linhas a introduzir na LStrings */
+					linha = malloc(sizeof(char *) * (strlen(produtos[i]) + 150));	/* >>> valor exagerado */
 					nClientes = numeroClientesCompraramProduto(filiais[filial], produtos[i], &nUnidades);
+					/* >>> acrescentar larguras aos campos deste sprintf() */
 					sprintf(linha, "%s, Numero clientes: %d, Numero unidades vendidas %d", produtos[i], nClientes, nUnidades);
 					imprimir[i] = linha;
 				}
-				resultados[filial] = criaLStrings(n, imprimir);
+				resultados[filial] = criaLStrings(N, imprimir);
+				apagaArray((void **) imprimir, N, free);
 			}
 			navega(resultados[filial]);
-		} else if(filial != N_FILIAIS + 1) printf("Opção Inválida\n");
+		}
+		else if(filial != N_FILIAIS + 1)
+			MSG_ERRO("Opção inválida\n");
 	} while (filial != N_FILIAIS + 1);
-	/* limpa memoria */
-	return 0;
+	
+	for(filial = 1; filial <= N_FILIAIS; ++filial) /* liberta memória alocada para a(s) LStrings */
+		apagaLStrings(resultados[filial]);
+	
+	return CONTINUAR;
 }
 
 static int query11()
-{
-	char* codigoCliente;
+{	
+	int r = CONTINUAR;
 	Cliente c;
-	char** top3;
+	char* codigoCliente;
 
 	printf("Introduza o código do cliente: ");
-	codigoCliente = leLinha(MAX_CODIGO_CLIENTE);
+	codigoCliente = leLinha(MAX_CODIGO_CLIENTE); /* <<< O tamanho do código já não é fixo */
 	c = criaCliente(codigoCliente);
+	if(c == NULL)
+		return ERRO_MEM;
 
-	top3 = tresProdsEmQueMaisGastou(filialGlobal, c);
-	if(top3){
-		int i;
-		printf("Códigos dos 3 produtos em que o cliente %s gastou mais dinheiro\n", codigoCliente);
-		for(i = 0; i < 3; ++i)
-			printf("%dº: %s\n", i+1, top3[i]);
+	if(existeCliente(catClientes, c)){
+		char** top3 = tresProdsEmQueMaisGastou(filialGlobal, c);
+		if(top3){
+			int i;
+			printf("Códigos dos 3 produtos em que o cliente %s gastou mais dinheiro\n", codigoCliente);
+			for(i = 0; i < 3; ++i)
+				printf("%dº: %s\n", i+1, top3[i]);
+			apagaArray((void **) top3, 3, free);
+			ENTER_PARA_CONTINUAR();
+		}
+		else
+			r = ERRO_MEM;
+	}
+	else{
+		fprintf(stderr, "O cliente %s não consta no catálogo de clientes\n", codigoCliente);
+		r = INPUT_INVAL;
 	}
 	free(codigoCliente);
 	apagaCliente(c);
-	return 0;
+	return r;
 }
 
-/* !Falta o tratamento de erros */
 static int query12()
 {
 	int nClientesNaoCompr = 0;
@@ -917,21 +1025,23 @@ static int query12()
 	nProdsNaoVendidos = quantosNaoComprados(faturacaoGlobal);
 	printf("Número de clientes que não compraram: %d\n", nClientesNaoCompr);
 	printf("Número de produtos não vendidos: %d\n", nProdsNaoVendidos);
-	return 0;
+	ENTER_PARA_CONTINUAR();
+
+	return CONTINUAR;
 }
 
 /* Liberta toda a memória alocada e devolve o valor SAIR para o interpretador */
-static int sair( /* faltam os args */ )
-{
+static int sair()
+{	
+	int i;
+
 	catProds = apagaCatProds(catProds);
 	catClientes = apagaCatClientes(catClientes);
 	faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
+	
+	for(i = 0; i <= N_FILIAIS; ++i)
+		filiais[i] = apagaFilial(filiais[i]);
+	
+	fichCarregados = FALSE;
 	return SAIR;
-}
-/* Função que apresenta uma mensagem de erro quando o utilizador 
- * tenta realizar uma query se ter lido os ficheiros de dados. */
-static void erroNaoLeuFich()
-{
-	fputs("Erro: Ainda não leu os ficheiros de dados\n"
-		  "Introduza '1' e prima ENTER para o fazer\n", stderr);
 }
