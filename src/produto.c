@@ -9,17 +9,19 @@ struct produto {
 Produto criaProduto(char* codigoProduto)
 {
 	Produto novo = malloc(sizeof(struct produto));
+	int len;
+
+	if(novo == NULL) /* falha de alocação */
+		return NULL;
 	
-	if(novo){
-		int len = strlen(codigoProduto);
-		
-		novo->codigoProduto = malloc((len + 1) * sizeof(char));
-		if(novo->codigoProduto != NULL)
-			strcpy(novo->codigoProduto, codigoProduto);
-		else{ /* falha de alocação */
-			free(novo);
-			novo = NULL;
-		}
+	len = strlen(codigoProduto);
+	novo->codigoProduto = malloc((len + 1) * sizeof(char));
+	
+	if(novo->codigoProduto != NULL)
+		strcpy(novo->codigoProduto, codigoProduto);
+	else{ /* falha de alocação de novo->codigoProduto */
+		free(novo);
+		novo = NULL;
 	}
 	return novo;
 }
@@ -27,22 +29,29 @@ Produto criaProduto(char* codigoProduto)
 Produto duplicaProduto(Produto p)
 {
 	Produto copia = malloc(sizeof(struct produto));
+	int len;
+
+	if(copia == NULL) /* falha de alocação */
+		return NULL;
+
+	len = strlen(p->codigoProduto);
+	copia->codigoProduto = malloc((len + 1) * sizeof(char));
 	
-	if(copia){
-		int len = strlen(p->codigoProduto);
-		
-		copia->codigoProduto = malloc((len + 1) * sizeof(char));
-		if(copia->codigoProduto != NULL)
-			strcpy(copia->codigoProduto, p->codigoProduto);
+	if(copia->codigoProduto != NULL)
+		strcpy(copia->codigoProduto, p->codigoProduto);
+	else{
+		free(copia);
+		copia = NULL;
 	}
 	return copia;
 }
 
 Produto apagaProduto(Produto p)
 {
-	if(p)
+	if(p){
 		free(p->codigoProduto);
-	free(p);
+		free(p);
+	}
 	return NULL;
 }
 
