@@ -9,13 +9,19 @@ struct cliente {
 Cliente criaCliente(char* codigoCliente)
 {
 	Cliente novo = malloc(sizeof(struct cliente));
+	int len;
 	
-	if(novo){
-		int len = strlen(codigoCliente);
-		novo->codigoCliente = malloc((len + 1) * sizeof(char));
+	if(novo == NULL)
+		return NULL;
 
-		if(novo->codigoCliente != NULL)
-			strcpy(novo->codigoCliente, codigoCliente);
+	len = strlen(codigoCliente);
+	novo->codigoCliente = malloc((len + 1) * sizeof(char));
+
+	if(novo->codigoCliente != NULL)
+		strcpy(novo->codigoCliente, codigoCliente);
+	else{ /* falha de alocação de novo->codigoCliente */
+		free(novo);
+		novo = NULL;
 	}
 	return novo;
 }
@@ -23,26 +29,29 @@ Cliente criaCliente(char* codigoCliente)
 Cliente duplicaCliente(Cliente c)
 {
 	Cliente copia = malloc(sizeof(struct cliente));
+	int len;
 	
-	if(copia){
-		int len = strlen(c->codigoCliente);
+	if(copia == NULL)
+		return NULL;
 
-		copia->codigoCliente = malloc((len + 1) * sizeof(char));
-		if(copia->codigoCliente != NULL)
-			strcpy(copia->codigoCliente, c->codigoCliente);
-		else{ /* falha de alocação */
-			free(copia);
-			copia = NULL;
-		}
+	len = strlen(c->codigoCliente);
+	copia->codigoCliente = malloc((len + 1) * sizeof(char));
+
+	if(copia->codigoCliente != NULL)
+		strcpy(copia->codigoCliente, c->codigoCliente);
+	else{ /* falha de alocação de copia->codigoCliente */
+		free(copia);
+		copia = NULL;
 	}
 	return copia;
 }
 
 Cliente apagaCliente(Cliente c)
 {
-	if(c)
+	if(c){
 		free(c->codigoCliente);
-	free(c);
+		free(c);
+	}
 	return NULL;
 }
 
