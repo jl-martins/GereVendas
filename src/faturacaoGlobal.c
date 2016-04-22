@@ -473,7 +473,7 @@ double* faturacaoPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo)
 	double* copiaFat;
 
 	if(fProdMes == NULL) /* o produto não foi vendido */
-		copiaFat = calloc(N_FILIAIS + 1, sizeof(int));
+		copiaFat = calloc(N_FILIAIS + 1, sizeof(double));
 	else{
 		copiaFat = malloc((N_FILIAIS + 1) * sizeof(double));
 		if(copiaFat != NULL)
