@@ -23,7 +23,6 @@
 #define N_FILIAIS 3
 #define N_QUERIES 12
 #define N_OPCOES (N_QUERIES + 1)
-#define TAM_LINHA 1024
 
 /* Definição do comando de limpar o ecrã com base no sistema operativo */
 #ifdef _WIN32
@@ -63,7 +62,7 @@
 /* Imprime os tempos se estiver ativado */
 #define MODO_MEDICAO_TEMPOS 1
 #ifdef MODO_MEDICAO_TEMPOS 
-	#define IMPRIME_TEMPOS(s, x) {printf("Tempo na %s: %f\n", s, x); ENTER_PARA_CONTINUAR();}
+	#define IMPRIME_TEMPOS(s, x) printf("Tempo na %s: %f\n", s, x)
 #else
 	#define IMPRIME_TEMPOS(s, x)
 #endif
@@ -613,17 +612,13 @@ static int query2()
 	int r = CONTINUAR;
 	char letra;
 	LStrings lProdsLetra;
-	time_t inicio, fim;
 
 	printf("Introduza a 1ª letra dos códigos de produto que pretende consultar: ");
 	letra = leChar();
 	
 	if(isalpha(letra)){
-		inicio = time(NULL);
 		letra = toupper(letra);
 		lProdsLetra = prodsPorLetra(catProds, letra);
-		fim = time(NULL);
-		IMPRIME_TEMPOS("Query 2", difftime(fim, inicio));
 
 		if(lProdsLetra){
 			navega(lProdsLetra);
@@ -879,7 +874,14 @@ int query7()
 
 	for(i = 0, j = 0; i < nClientes; i++){
 		if(comprouTodasFiliais(clientes[i])){
-			codigosClientes[j++] = obterCodigoCliente(clientes[i]);
+			codigosClientes[j] = obterCodigoCliente(clientes[i]);
+			if(codigosClientes[j] == NULL){
+				for(; j >= 0; j--)
+					free(codigosClientes[j]);
+				free(codigosClientes);
+				return ERRO_MEM;
+			}	
+			j++;
 		}
 		apagaCliente(clientes[i]);	
 	}
@@ -887,15 +889,16 @@ int query7()
 
 	lista = criaLStrings(j, codigosClientes);
 	apagaArray((void **) codigosClientes, j, free); /* os códigos de clientes já estão na LStrings 'lista' */
-	navega(lista);
-	apagaLStrings(lista);
-
-	return CONTINUAR;
+	if(lista){
+		navega(lista); 
+		lista = apagaLStrings(lista);
+		return CONTINUAR;
+	}
+	return ERRO_MEM;
 }
 
 int query8(){
-	int i, indexP, indexN;
-	int filial, nClientes, r = CONTINUAR;
+	int i, indexP, indexN, filial, nClientes, r = CONTINUAR;
 	char c;
 	char codigoProd[MAX_CODIGO_PROD];
 	char** quemComprouN, **quemComprouP;
@@ -909,6 +912,8 @@ int query8(){
 		return INPUT_INVAL;
 
 	produto = criaProduto(codigoProd);
+	if(produto == NULL) return ERRO_MEM;
+
 	if(existeProduto(catProds, produto)){
 		printf("Insira a filial que pretende consultar: ");
 		filial = leInt();
@@ -916,6 +921,10 @@ int query8(){
 		if(FILIAL_VALIDA(filial)){
 			nClientes = totalClientes(catClientes);
 			clientes = todosClientes(catClientes);
+			if(clientes == NULL){
+				apagaProduto(produto);
+				return ERRO_MEM;
+			}
 			/* ver se o tamanho esta certo */
 			quemComprouN = malloc(sizeof(char *) * nClientes); 	
 			quemComprouP = malloc(sizeof(char *) * nClientes); 	
@@ -932,9 +941,14 @@ int query8(){
 			/* >>> a alocação de memória para as LStrings pode falhar */
 			compraramN = criaLStrings(indexN, quemComprouN);
 			compraramP = criaLStrings(indexP, quemComprouP);
-			apagaProduto(produto);
 			apagaArray((void **) quemComprouN, indexN, free);
 			apagaArray((void **) quemComprouP, indexP, free);
+
+			if(compraramP == NULL || compraramN == NULL){
+				apagaLStrings(compraramP);
+				apagaLStrings(compraramN);
+				return ERRO_MEM;
+			}
 			
 			do {
 				printf("%d clientes compraram o produto em modo Normal\n", indexN); 
@@ -947,6 +961,9 @@ int query8(){
 				else if(c == 'N')
 					navega(compraramN);
 			} while(c != 'S');						
+
+			compraramP = apagaLStrings(compraramP);
+			compraramN = apagaLStrings(compraramN);
 		}
 		else{ /* a filial introduzida é inválida */
 			MSG_ERRO("Filial inválida\n");
@@ -958,6 +975,7 @@ int query8(){
 		r = INPUT_INVAL;
 		ENTER_PARA_CONTINUAR();
 	}
+	apagaProduto(produto);
 	return r;
 }
 
@@ -1002,6 +1020,8 @@ static int query10()
 	/* fazer tabela em vez de LString */
 	int N, i, filial, nClientes, nUnidades;
 	LStrings resultados[N_FILIAIS+1] = {NULL};
+	char ** produtos, **imprimir;
+	char * linha;
 
 	printf("Quantos produtos pretende consultar? ");
 	N = leInt();
@@ -1012,16 +1032,28 @@ static int query10()
 		filial = leInt();
 		if(FILIAL_VALIDA(filial)){
 			if(resultados[filial] == NULL){ /* ainda não calculamos a LString com os resultados da filial pedida */
-				char* linha;
-				char** produtos = NmaisVendidosFilial(faturacaoGlobal, N, filial);
-				char** imprimir = malloc(sizeof(char *) * N);
-				if(imprimir == NULL) /* falha de alocação */
+				imprimir = malloc(sizeof(char *) * N);
+				if(imprimir == NULL)
 					return ERRO_MEM;
+
+				produtos = NmaisVendidosFilial(faturacaoGlobal, N, filial);
+				if(produtos == NULL){ /* falha de alocação */
+					free(imprimir);	
+					return ERRO_MEM;		
+				}
 				
+				/* N = min(N, ...) */
+				/* preparar para o caso do N ser maior que o numero de ...*/	
 				for(i = 0; i < N; i++){ /* cria as linhas a introduzir na LStrings */
-					linha = malloc(sizeof(char *) * (MAX_BUFFER_VENDAS));	/* >>> valor exagerado */
+					linha = malloc(sizeof(char *) * (MAX_BUFFER_VENDAS));	
+					if(linha == NULL){
+						for(--i; i >= 0; i--)
+							free(imprimir[i]);
+						free(imprimir);
+						/* falta libertar produtos */		
+						return ERRO_MEM;
+					}
 					nClientes = numeroClientesCompraramProduto(filiais[filial], produtos[i], &nUnidades);
-					/* >>> acrescentar larguras aos campos deste sprintf() */
 					sprintf(linha, "%3s     #Clientes: %5d     #Unidades Vendidas: %8d", produtos[i], nClientes, nUnidades);
 					imprimir[i] = linha;
 				}
