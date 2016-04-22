@@ -73,8 +73,8 @@ static void apagaComprasPorCliente(void* p)
 	if(cpc != NULL){
 		free(cpc->cliente);	
 
-		for(i = 1; i < 13; i++)
-			/*apagaAVL(cpc->comprasPorMes[i]); a causar double frees*/
+		/*for(i = 0; i <= 13; i++)*/
+			/* apagaAVL(cpc->comprasPorMes[i]); a causar double frees */
 		free(cpc);
 	}
 }
@@ -373,8 +373,8 @@ char** tresProdsEmQueMaisGastou(Filial filial, Cliente c)
 	int i, imin, total;
 	ComprasPorCliente cpc;
 	char** codigosProds;
-	double totalGasto[3] = {0};
 	/* guarda na posição i o total gasto no produto cujo código está em codigosProds[i] */
+	double totalGasto[3] = {0};
 	ComprasDoProduto* arrComprasDoAno;
 
 	cpc = procuraClienteNasVendas(c, filial);
@@ -382,18 +382,13 @@ char** tresProdsEmQueMaisGastou(Filial filial, Cliente c)
 		return NULL;
 
 	codigosProds = calloc(3, sizeof(char *));
-	
-	if(codigosProds == NULL){
-		apagaComprasDoProduto(cpc);
+	if(codigosProds == NULL)
 		return NULL;
-	}
 	
 	total = tamanhoAVL(cpc->comprasPorMes[0]);
-
-	/*arrComprasDoAno = malloc(total * sizeof(ComprasDoProduto));*/
 	arrComprasDoAno = (ComprasDoProduto *) inorderAVL(cpc->comprasPorMes[0]);
 	if(arrComprasDoAno == NULL){ /* falha de alocação */
-		apagaComprasDoProduto(cpc); free(codigosProds);
+		free(codigosProds);
 		return NULL;
 	}
 
