@@ -32,8 +32,12 @@
 	#define CLEAR "clear"
 #endif
 
-/* Tamanho máximo das linhas lidas com a função fgets() */
-#define MAXLINHA 64
+/* Tamanho dos vários buffers usados */
+#define MAX_BUFFER_PROD 64
+#define MAX_BUFFER_CLIS 64
+#define MAX_BUFFER_VENDAS 128
+#define MAX_BUFFER_INTERP 128
+#define MAX_NOME_FICH 256
 
 /* Valores de retorno de interpreta() e interpretador() */
 #define ERRO_MEM -1
@@ -104,9 +108,9 @@ int interpreta(char linha[]);
 void navegaVarias(LStrings lStrArr[], int tamanho);
 void navega(LStrings lStr);
 /* Recebe um array de strings com opções. Imprime uma opção por linha */
-static void imprimeOpcoes(const char *opcoes[N_OPCOES]);
+static void imprimeOpcoes(const char* opcoes[N_OPCOES]);
 /* Apresentação de mensagens de erro */
-static void opcaoInvalida(char opcao[]);
+static void opcaoInvalida(const char opcao[]);
 
 static int query1();
 static int query2();
@@ -128,7 +132,6 @@ static void resultadosGlobaisQuery3(FatProdMes);
 static void resultadosFiliaisQuery3(FatProdMes);
 /* Funções de leitura */
 static char obterModoRes();
-static char* leCodigo(const char tipo[], int tamanho);
 
 static void perguntaPag(LStrings lStr);
 static void apresentaPag(Pagina pag);
@@ -172,14 +175,13 @@ void splashScreen()
 int interpretador()
 {
 	int r = CONTINUAR;
-	char *linha;
+	char buffer[MAX_BUFFER_INTERP];
 
 	do{
 		system(CLEAR);
 		imprimeOpcoes(opcoes);
-		linha = leLinha(MAXLINHA);
-		r = (linha == NULL) ? SAIR : interpreta(linha); /* se falhar deve-se sair? */
-		free(linha);
+		leLinha(buffer, MAX_BUFFER_INTERP, stdin);
+		r = (buffer == NULL) ? SAIR : interpreta(buffer);
 		if(r == ERRO_MEM)
 			MSG_ERRO("Não foi possível alocar memória\n");
 	}while(r != SAIR); /* enquanto não houver erro ou ordem para sair */
@@ -189,11 +191,11 @@ int interpretador()
 
 int interpreta(char linha[])
 {
-	int i;
+	int i, iPrimNaoEsp;
 	int r = CONTINUAR;
 
-	linha = avancaEspacosInicio(linha);
-	if(linha[0] == '\0') /* foi introduzida uma linha em branco */
+	iPrimNaoEsp = avancaEspacosInicio(linha);
+	if(linha[iPrimNaoEsp] == '\0') /* foi introduzida uma linha em branco */
 		return CONTINUAR;
 	
 	i = atoi(linha);
@@ -215,7 +217,7 @@ int interpreta(char linha[])
 }
 
 /* Imprime as opções do GereVendas */
-static void imprimeOpcoes(const char *opcoes[N_OPCOES])
+static void imprimeOpcoes(const char* opcoes[N_OPCOES])
 {
 	int i;
 
@@ -226,7 +228,7 @@ static void imprimeOpcoes(const char *opcoes[N_OPCOES])
 }
 
 /* Mensagem de opção inválida */
-static void opcaoInvalida(char opcao[])
+static void opcaoInvalida(const char opcao[])
 {
 	fprintf(stderr, "A opção '%s' é inválida\n\n", opcao);
 }
@@ -320,18 +322,21 @@ static void apresentaPag(Pagina pag)
 	}
 }
 
-static FILE* perguntaAbreFicheiro(char* ficheiroPadrao, char linha[TAM_LINHA], char* tipoDeElems){
+static FILE* perguntaAbreFicheiro(char* ficheiroPadrao, char buffer[MAX_NOME_FICH], char* tipoDeElems)
+{
 	FILE* fp;
 	char* caminho;
+	int iPrimNaoEsp; /* índice do primeiro caratere de buffer que não é um espaço */
 
 	printf("Insira o caminho do ficheiro de %s (Enter para abrir ficheiro padrao):", tipoDeElems);	
-	fgets(linha, TAM_LINHA, stdin);
-	caminho = strtok(linha, "\r\n");
+	if(leLinha(buffer, MAX_NOME_FICH, stdin) == NULL) /* chegamos ao EOF */
+		return NULL;
 
-	if(caminho != NULL)
-		caminho = avancaEspacosInicio(caminho);
-	if(caminho == NULL || caminho[0] == '\0') 
+	iPrimNaoEsp = avancaEspacosInicio(buffer);
+	if(buffer[iPrimNaoEsp] == '\0')
 		caminho = ficheiroPadrao;
+	else
+		caminho = &buffer[iPrimNaoEsp];
 
 	fp = fopen(caminho, "r");
 	if(fp == NULL)
@@ -343,22 +348,21 @@ static FILE* perguntaAbreFicheiro(char* ficheiroPadrao, char linha[TAM_LINHA], c
 
 int leCatalogoProdutos(){
 	time_t inicio, fim;
-	FILE* fp;	
-	char linha[TAM_LINHA];
-	char* linhaLimpa;
+	FILE* fp;
 	int quantos = 0;
+	char nomeFich[MAX_NOME_FICH];
+	char codigoProd[MAX_CODIGO_PROD];
 	Produto p;
 	CatProds novoCatP;
 	FaturacaoGlobal novaFatG;
 
-	fp = perguntaAbreFicheiro(FPRODUTOS, linha, "produtos");
+	fp = perguntaAbreFicheiro(FPRODUTOS, nomeFich, "produtos");
 	inicio = time(NULL); 
 	if(fp == NULL)
 		return ERRO_FICH;
 	
-	while(fgets(linha, TAM_LINHA, fp)){
-		linhaLimpa = strtok(linha, "\r\n");
-		p = criaProduto(linhaLimpa);
+	while(leLinha(codigoProd, MAX_CODIGO_PROD, fp)){ /* leLinha() já limpa a linha lida */
+		p = criaProduto(codigoProd);
 		if(p == NULL) /* falha de alocação ao criar o produto */
 			return ERRO_MEM; 
 		
@@ -383,31 +387,30 @@ int leCatalogoProdutos(){
 }
 
 int leCatalogoClientes(){
-	FILE* fp;	
-	char linha[TAM_LINHA];
-	char* linhaLimpa;
+	time_t inicio, fim;
+	FILE* fp;
 	int quantos = 0;
+	char nomeFich[MAX_NOME_FICH];
+	char codigoCliente[MAX_CODIGO_CLIENTE];
 	Cliente c;
 	CatClientes novoCatC;
-	time_t inicio, fim;
 
-	fp = perguntaAbreFicheiro(FCLIENTES, linha, "clientes");
+	fp = perguntaAbreFicheiro(FCLIENTES, nomeFich, "clientes");
 	inicio = time(NULL); 
 	if(fp == NULL)
 		return ERRO_FICH;
 	
-	while(fgets(linha, TAM_LINHA, fp)){
-		linhaLimpa = strtok(linha, "\r\n");
-		c = criaCliente(linhaLimpa);
+	while(leLinha(codigoCliente, MAX_CODIGO_CLIENTE, fp)){ /* leLinha() já limpa o(s) caratere(s) de newline */
+		c = criaCliente(codigoCliente);
 		if(c == NULL) /* falha de alocação ao criar o cliente */
 			return ERRO_MEM;
-		novoCatC = insereCliente(catClientes, c); /*mudar nome para ficar evidente que insere num catalogo */
+		novoCatC = insereCliente(catClientes, c);
 		if(novoCatC == NULL)
 			return ERRO_MEM;
 		else
 			catClientes = novoCatC;
 		apagaCliente(c);
-		quantos++;
+		++quantos;
 	}
 	fim = time(NULL);
 	fclose(fp);
@@ -422,7 +425,7 @@ int leCatalogoClientes(){
 #define MAX_PRECO 999.99
 
 /* Dada uma linha com informação da venda, a função processa a informação da venda e, se for válida, regista a compra */
-int insereSeValida(char linha[TAM_LINHA]){
+int insereSeValida(char linhaVenda[MAX_BUFFER_VENDAS]){
 	Cliente cliente;
 	Produto produto;
 	int unidades, mes, nfilial,  quantos = 0;
@@ -430,7 +433,7 @@ int insereSeValida(char linha[TAM_LINHA]){
 	TipoVenda tipoVenda;
 	char* it;
 
-	it = strtok(linha, " ");
+	it = strtok(linhaVenda, " ");
 	produto = criaProduto(it);
 
 	it = GET;
@@ -472,17 +475,17 @@ int insereSeValida(char linha[TAM_LINHA]){
 
 int carregaVendasValidas(){
 	time_t inicio, fim;
-	char linha[TAM_LINHA];
 	FILE* fp;
 	int validas = 0;
-
-	fp = perguntaAbreFicheiro(FVENDAS, linha, "vendas");
+	char linhaVenda[MAX_BUFFER_VENDAS];
+	
+	fp = perguntaAbreFicheiro(FVENDAS, linhaVenda, "vendas");
 	if(fp == NULL)
 		return ERRO_FICH;
 
 	inicio = time(NULL);
-	while(fgets(linha, TAM_LINHA, fp)){
-		validas += insereSeValida(linha);
+	while(leLinha(linhaVenda, MAX_BUFFER_VENDAS, fp)){
+		validas += insereSeValida(linhaVenda);
 	}
 	fim = time(NULL);
 	IMPRIME_TEMPOS("leitura de vendas", difftime(fim, inicio));
@@ -553,14 +556,14 @@ static int query2()
 {
 	int r = CONTINUAR;
 	char letra;
+	LStrings lProdsLetra;
 
 	printf("Introduza a 1ª letra dos códigos de produto que pretende consultar: ");
-
-	letra = toupper(getchar());
-	FLUSH_STDIN();
+	letra = leChar();
 
 	if(isalpha(letra)){
-		LStrings lProdsLetra = prodsPorLetra(catProds, letra);
+		letra = toupper(letra);
+		lProdsLetra = prodsPorLetra(catProds, letra);
 
 		if(lProdsLetra){
 			navega(lProdsLetra);
@@ -572,15 +575,9 @@ static int query2()
 	else{
 		fprintf(stderr, "O caratere '%c' é inválido\n", letra);
 		r = INPUT_INVAL;
+		ENTER_PARA_CONTINUAR();
 	}
-	ENTER_PARA_CONTINUAR();
 	return r;
-}
-
-static char* leCodigo(const char tipo[], int tamanho)
-{	
-	printf("Introduza o código de %s: ", tipo);
-	return leLinha(tamanho);
 }
 
 static char obterModoRes()
@@ -588,24 +585,26 @@ static char obterModoRes()
 	char c;
 
 	printf("Resultados globais[G] ou por filial[F]? ");
-	c = toupper(getchar());
-	FLUSH_STDIN();
-	return c;
+	c = leChar();
+	return toupper(c);
 }
 
 static int query3()
 {	
 	char modo;
-	char *codigoProd; /* >>> mudar este nome??? */
+	char codigoProd[MAX_CODIGO_PROD]; /* >>> mudar este nome??? */
 	Produto p;
 	FatProdMes fProdMes;
 	int mes, r = CONTINUAR;
 
-	codigoProd = leCodigo("produto", MAX_CODIGO_PROD);
-	p = criaProduto(codigoProd);
+	printf("Código de produto: ");
+	if(leLinha(codigoProd, MAX_CODIGO_PROD, stdin) == NULL)
+		return INPUT_INVAL;
 
+	p = criaProduto(codigoProd);
 	if(p == NULL) /* falha de alocação a criar o produto */
 		return ERRO_MEM;
+	
 	if(existeProduto(catProds, p)){
 		printf("Mês: "); mes = leInt();
 		if(MES_VALIDO(mes)){
@@ -630,11 +629,10 @@ static int query3()
 			fprintf(stderr, "O mês '%d' é inválido\n", mes);
 			r = INPUT_INVAL;
 		}
-		free(codigoProd); apagaProduto(p);/* já não precisamos do produto */
+		apagaProduto(p);/* já não precisamos do produto */
 	}
 	else{ /* o código de produto introduzido é inválido */
 		fprintf(stderr, "O código de produto '%s' não consta no catálogo de produtos\n", codigoProd);
-		free(codigoProd);
 		r = INPUT_INVAL;
 	}
 	ENTER_PARA_CONTINUAR();
@@ -715,16 +713,14 @@ static int query4()
 #define IMPRIME_SEPARADOR printf("----------------------------------------------------------------\n");
 static int query5()
 {
-	char buff[16]; /* >>> definir tamanho numa macro */
-	char* codigoCliente;
+	char codigoCliente[MAX_CODIGO_CLIENTE];
 	int r = CONTINUAR;
 	Cliente cliente;
 
 	printf("Insira um código de cliente: ");
-	fgets(buff, 16, stdin);
-	/* mover strtok para a criaProdutos? e parte que avanca codigo em branco*/
-	/* versao para testar, sem cuidados para erros */
-	codigoCliente = strtok(buff, " \r\n");
+	if(leLinha(codigoCliente, MAX_CODIGO_CLIENTE, stdin) == NULL)
+		return INPUT_INVAL;
+
 	if((cliente = criaCliente(codigoCliente)) == NULL) /* falha de alocação */
 		return ERRO_MEM;
 	
@@ -736,10 +732,10 @@ static int query5()
 			comprasPorFilial[i] = unidadesClientePorMes(filiais[i], cliente); 	
 		/* ver o que acontece se for NULL */	
 		IMPRIME_SEPARADOR;
-		printf("|--Meses--|");
+		printf("|  Meses  |");
 		for(i = 1; i <= N_FILIAIS; i++)
-			printf("|--Filial %d--|", i);	
-		printf("|--Total--|\n");
+			printf("|  Filial %d  |", i);	
+		printf("|  Total  |\n");
 		IMPRIME_SEPARADOR;
 
 		for(j = 1; j < 13; j++){ /* usar macro N_MESES */
@@ -837,19 +833,18 @@ int query8(){
 	int i, indexP, indexN;
 	int filial, nClientes, r = CONTINUAR;
 	char c;
-	char* codigo;
+	char codigoProd[MAX_CODIGO_PROD];
 	char** quemComprouN, **quemComprouP;
 	bool comprouN, comprouP;
 	Cliente* clientes;
 	Produto produto;
 	LStrings compraramN, compraramP;
 
-	printf("Insira o código de Produto: "); /* falta validar o produto */
-	codigo = leLinha(MAX_CODIGO_PROD); /* >>> MAX_CODIGO_PROD já não é um valor fixo */
-	codigo = strtok(codigo, " \t\r\n");
-	/* funçoes de leitura de Produto e caso a strtok ou leLinha falhem */;
-	/*verificar se o codigo é valido*/
-	produto = criaProduto(codigo);
+	printf("Insira o código de produto: "); /* falta validar o produto */
+	if(leLinha(codigoProd, MAX_CODIGO_PROD, stdin) == NULL)
+		return INPUT_INVAL;
+
+	produto = criaProduto(codigoProd);
 	if(existeProduto(catProds, produto)){
 		printf("Insira a filial que pretende consultar: ");
 		filial = leInt();
@@ -878,12 +873,11 @@ int query8(){
 			apagaArray((void **) quemComprouP, indexP, free);
 			
 			do {
-				printf("%d clientes compraram o produto em modo normal\n", indexN); 
-				printf("%d clientes compraram o produto em Promocao\n", indexP); 
+				printf("%d clientes compraram o produto em modo Normal\n", indexN); 
+				printf("%d clientes compraram o produto em Promoção\n", indexP); 
 
-				printf("Insira o modo que pretende consultar (P ou N) ou S para sair: ");
-				/* substituir getchar por outra coisa qq */		
-				c = getchar();
+				printf("Insira o modo que pretende consultar (N ou P) ou S para sair: ");
+				c = toupper(leChar());
 				if(c == 'P')
 					navega(compraramP);
 				else if(c == 'N')
@@ -896,24 +890,25 @@ int query8(){
 		}
 	}
 	else{
-		fprintf(stderr, "O código de produto '%s' não consta no catálogo de produtos\n", codigo);
+		fprintf(stderr, "O código de produto '%s' não consta no catálogo de produtos\n", codigoProd);
 		r = INPUT_INVAL;
 		ENTER_PARA_CONTINUAR();
 	}
-	free(codigo);
 	return r;
 }
 
 static int query9()
 {	
 	int mes, r = CONTINUAR;
-	char* codigoCliente;
+	char codigoCliente[MAX_CODIGO_CLIENTE];
 	Cliente c;
 
 	printf("Introduza o código do cliente: ");
-	codigoCliente = leLinha(MAX_CODIGO_CLIENTE); /* >>> MAX_CODIGO_CLIENTE já não é fixo */
+	if(leLinha(codigoCliente, MAX_CODIGO_CLIENTE, stdin) == NULL)
+		return INPUT_INVAL;
+
 	c = criaCliente(codigoCliente);
-	if(c == NULL)
+	if(c == NULL) /* falha de alocação */
 		return ERRO_MEM;
 
 	if(existeCliente(catClientes, c)){
@@ -934,16 +929,13 @@ static int query9()
 		r = INPUT_INVAL;
 		ENTER_PARA_CONTINUAR();
 	}
-	free(codigoCliente);
 	apagaCliente(c);
-	
 	return r;
 }
 /* Limpar o código desta função */
 static int query10()
 {
 	/* fazer tabela em vez de LString */
-	char* linha;
 	int N, i, filial, nClientes, nUnidades;
 	LStrings resultados[N_FILIAIS+1] = {NULL};
 
@@ -951,10 +943,12 @@ static int query10()
 	N = leInt();
 
 	do{
-		printf("Existem resultados para %d filiais. Insira o numero da filial ou %d para sair\n", N_FILIAIS, N_FILIAIS+1);
+		printf("Existem resultados para %d filiais."
+			   "Insira o numero da filial ou %d para sair\n>>> ", N_FILIAIS, N_FILIAIS+1);
 		filial = leInt();
 		if(FILIAL_VALIDA(filial)){
 			if(resultados[filial] == NULL){ /* ainda não calculamos a LString com os resultados da filial pedida */
+				char* linha;
 				char** produtos = NmaisVendidosFilial(faturacaoGlobal, N, filial);
 				char** imprimir = malloc(sizeof(char *) * N);
 				if(imprimir == NULL) /* falha de alocação */
@@ -986,12 +980,14 @@ static int query11()
 {	
 	int r = CONTINUAR;
 	Cliente c;
-	char* codigoCliente;
+	char codigoCliente[MAX_CODIGO_CLIENTE];
 
 	printf("Introduza o código do cliente: ");
-	codigoCliente = leLinha(MAX_CODIGO_CLIENTE); /* <<< O tamanho do código já não é fixo */
+	if(leLinha(codigoCliente, MAX_CODIGO_CLIENTE, stdin) == NULL)
+		return INPUT_INVAL;
+
 	c = criaCliente(codigoCliente);
-	if(c == NULL)
+	if(c == NULL) /* falha de alocação */
 		return ERRO_MEM;
 
 	if(existeCliente(catClientes, c)){
@@ -1011,7 +1007,6 @@ static int query11()
 		fprintf(stderr, "O cliente %s não consta no catálogo de clientes\n", codigoCliente);
 		r = INPUT_INVAL;
 	}
-	free(codigoCliente);
 	apagaCliente(c);
 	return r;
 }

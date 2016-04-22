@@ -1,43 +1,30 @@
 #include "leitura.h"
 #include <ctype.h>
 #include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #define LE_INT_BUFF 32
+#define LE_CHAR_BUFF 128
 #define LE_DOUBLE_BUFF 512
 
-char* leLinha(int tamanho)
+char* leLinha(char buffer[], int tamanho, FILE* stream)
 {	
-	char* linha = malloc((tamanho + 1) * sizeof(char)); /* (tamanho+1) porque o último carater é o '\0 */
+	char* linha = fgets(buffer, tamanho, stream);
 	
-	if(linha == NULL) /* falha de alocação */
-		return NULL;
-
-	if(fgets(linha, tamanho, stdin) == NULL){ /* chegamos ao EOF */
-		free(linha);
-		linha = NULL;
-	}
-	else{
-		/* índice do 1º carater de linha que pertence à string "\r\n" ou do '\0'. 
-		 * Se a string não tiver nem '\r' nem '\n' */
-		int i = strcspn(linha, "\r\n");
-		
-		if(linha[i] == '\0') /* não foi encontrado \r nem \n. Ficaram carateres no buffer do stdin */
-			FLUSH_STDIN();
-		else
-			linha[i] = '\0'; /* remove o carater de newline */
+	if(linha != NULL){
+		int i = strcspn(linha, "\r\n");	
+		linha[i] = '\0'; /* remove o carater de newline */
 	}
 	return linha;
 }
 
-char* avancaEspacosInicio(char str[])
+int avancaEspacosInicio(char str[])
 {
 	int i = 0;
 
 	while(str[i] != '\0' && isspace(str[i]))
 		++i;
-	return &str[i];
+	return i;
 }
 
 /* Lê um inteiro e devolve-o à função chamadora. Se o utilizador passar
@@ -47,13 +34,9 @@ int leInt()
 	int r = 0;
 	char buffer[LE_INT_BUFF];
 	
-	if(fgets(buffer, LE_INT_BUFF, stdin)){
-		int i = strcspn(buffer, "\r\n");
-		
-		if(buffer[i] == '\0') /* ficaram carateres no buffer do stdin */
-			FLUSH_STDIN();
+	if(fgets(buffer, LE_INT_BUFF, stdin))
 		r = atoi(buffer);
-	}
+
 	return r;
 }
 
@@ -62,12 +45,19 @@ double leDouble()
 	double r = 0;
 	char buffer[LE_DOUBLE_BUFF];
 
-	if(fgets(buffer, LE_DOUBLE_BUFF, stdin)){
-		int i = strcspn(buffer, "\r\n");
-		
-		if(buffer[i] == '\0') /* ficaram carateres no buffer do stdin */
-			FLUSH_STDIN();
+	if(fgets(buffer, LE_DOUBLE_BUFF, stdin))
 		r = atof(buffer);
-	}
 	return r;
+}
+
+int leChar()
+{
+	int c;
+	char buffer[LE_CHAR_BUFF];
+
+	if(fgets(buffer, LE_CHAR_BUFF, stdin))
+		c = buffer[0];
+	else
+		c = EOF;
+	return c;
 }
