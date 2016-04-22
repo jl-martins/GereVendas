@@ -406,8 +406,10 @@ int leCatalogoClientes(){
 		if(c == NULL) /* falha de alocação ao criar o cliente */
 			return ERRO_MEM;
 		novoCatC = insereCliente(catClientes, c);
-		if(novoCatC == NULL)
+		if(novoCatC == NULL){
+			apagaCliente(c);
 			return ERRO_MEM;
+		}
 		else
 			catClientes = novoCatC;
 		apagaCliente(c);
@@ -700,6 +702,7 @@ static int query4()
 			navegaVarias(naoCompradosF, N_FILIAIS);
 			for(i = 1; i <= N_FILIAIS; ++i)
 				apagaLStrings(naoCompradosF[i]);
+			free(naoCompradosF);
 		}
 		else
 			r = ERRO_MEM;
@@ -749,11 +752,14 @@ static int query5()
 			printf("|%8d |\n", totalMes);	
 			IMPRIME_SEPARADOR;
 		}
+		for(i = 1; i <= N_FILIAIS; ++i)
+			free(comprasPorFilial[i]);
 	}
 	else{ /* o código de cliente é inválido */
 		fprintf(stderr, "O código de cliente '%s' não consta no catálogo de clientes\n", codigoCliente);
 		r = INPUT_INVAL;
 	}
+	apagaCliente(cliente);
 	ENTER_PARA_CONTINUAR();
 	return r;
 }
