@@ -1,3 +1,5 @@
+/* Módulo com várias funções úteis para a leitura e processamento de input */
+
 #include "leitura.h"
 #include <ctype.h>
 #include <string.h>
@@ -13,7 +15,11 @@ char* leLinha(char buffer[], int tamanho, FILE* stream)
 	
 	if(linha != NULL){
 		int i = strcspn(linha, "\r\n");	
-		linha[i] = '\0'; /* remove o carater de newline */
+
+		if(linha[i] == '\0') /* ficaram carateres no stdin */
+			FLUSH_STDIN()
+		else
+			linha[i] = '\0'; /* remove o carater de newline, se este existir */
 	}
 	return linha;
 }
@@ -27,16 +33,18 @@ int avancaEspacosInicio(char str[])
 	return i;
 }
 
-/* Lê um inteiro e devolve-o à função chamadora. Se o utilizador passar
- * uma mensagem como argumento, leInt() apresenta-a antes de ler o inteiro */
 int leInt()
 {
 	int r = 0;
 	char buffer[LE_INT_BUFF];
 	
-	if(fgets(buffer, LE_INT_BUFF, stdin))
-		r = atoi(buffer);
+	if(fgets(buffer, LE_INT_BUFF, stdin)){
+		int i = strcspn(buffer, "\r\n");
 
+		if(buffer[i] == '\0')
+			FLUSH_STDIN()
+		r = atoi(buffer);
+	}
 	return r;
 }
 
@@ -45,8 +53,13 @@ double leDouble()
 	double r = 0;
 	char buffer[LE_DOUBLE_BUFF];
 
-	if(fgets(buffer, LE_DOUBLE_BUFF, stdin))
+	if(fgets(buffer, LE_DOUBLE_BUFF, stdin)){
+		int i = strcspn(buffer, "\r\n");
+
+		if(buffer[i] == '\0')
+			FLUSH_STDIN()
 		r = atof(buffer);
+	}
 	return r;
 }
 
@@ -55,8 +68,13 @@ int leChar()
 	int c;
 	char buffer[LE_CHAR_BUFF];
 
-	if(fgets(buffer, LE_CHAR_BUFF, stdin))
+	if(fgets(buffer, LE_CHAR_BUFF, stdin)){
+		int i = strcspn(buffer, "\r\n");
+
+		if(buffer[i] == '\0')
+			FLUSH_STDIN()
 		c = buffer[0];
+	}
 	else
 		c = EOF;
 	return c;
