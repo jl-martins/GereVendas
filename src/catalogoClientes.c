@@ -117,9 +117,8 @@ Cliente* todosClientes(CatClientes catC)
 		char** temp = (char **) inorderAVL(catC->catalogo[i]);
 
 		if(temp == NULL){ /* falha de alocação em inorderAVL() */
-			--iclientes;
-			while(iclientes >= 0)
-				apagaCliente(clientes[iclientes--]);
+			while(iclientes > 0)
+				apagaCliente(clientes[--iclientes]);
 			return NULL;
 		}
 		quantos = tamanhoAVL(catC->catalogo[i]);
@@ -170,5 +169,7 @@ static void* duplica(void* codCliente)
 
 static void atualiza(void* x, void* y)
 {
+	x = x; /* elimina warnings do compilador */
+	free(y); /* apaga elementos duplicados */
 	return;
 }

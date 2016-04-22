@@ -1,6 +1,5 @@
 /* Módulo de árvores AVL genéricas */
 #include "avl.h"
-#include <assert.h>
 #include <stdlib.h>
 
 /* Casos Possíveis de evolução das árvores: */
@@ -69,9 +68,6 @@ AVL insereAVL(AVL arvore, void * val)
 {
 	int modoInsercao;
 	
-	assert(arvore != NULL); /* pré-condição para inserir na AVL */
-	assert(val != NULL); /* pré-condição para inserir na AVL */
-
 	arvore->raiz = insereNodo(arvore->raiz, val, arvore->atualiza, arvore->compara, arvore->duplica, &modoInsercao);	
 	if(modoInsercao != ATUALIZOU)
 		arvore->tamanho++;
@@ -85,7 +81,11 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, void * val, Atualizador atualiza, Co
 	int comparacao;
 	
 	if(raiz == NULL){
-		ret = raiz = malloc(sizeof(AVL_NODO)); /* não estamos a verificar o retorno deste malloc() */
+		ret = raiz = malloc(sizeof(AVL_NODO));
+		if(raiz == NULL){
+			*modoInsercao = ATUALIZOU;  /* indica que o tamanho nao se alterou */
+			 return NULL; 
+		}
 		raiz->valor = (duplica != NULL) ? duplica(val) : val;
 		raiz->esquerda = raiz->direita = NULL;
 		raiz->fatorBalanco = EQ;
@@ -93,7 +93,7 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, void * val, Atualizador atualiza, Co
 	}
 	else if((comparacao = compara(val, raiz->valor)) < 0) /* raiz->valor > val */
 		ret = insereEsquerda(raiz, val, atualiza, compara, duplica, modoInsercao);
-	else if(atualiza != NULL && comparacao == 0){
+	else if(atualiza && comparacao == 0){
 		*modoInsercao = ATUALIZOU;
 		atualiza(raiz->valor, val);
 		ret = raiz;
@@ -212,9 +212,6 @@ static AVL_NODO* rodaEsquerda(AVL_NODO* raiz)
 {
 	AVL_NODO *aux;
 
-	assert(raiz != NULL);
-	assert(raiz->direita != NULL);
-
 	aux = raiz->direita;
 	raiz->direita = aux->esquerda;
 	aux->esquerda = raiz;
@@ -226,8 +223,6 @@ static AVL_NODO* rodaDireita(AVL_NODO* raiz)
 {
 	AVL_NODO* aux;
 	
-	assert(raiz != NULL && raiz->esquerda != NULL);
-
 	aux = raiz->esquerda;
 	raiz->esquerda = aux->direita;
 	aux->direita = raiz;

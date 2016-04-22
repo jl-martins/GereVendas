@@ -8,12 +8,17 @@
 #include "LStrings.h"
 
 typedef struct filial * Filial;
-/*typedef struct vendasAnuaisFilial * VendasAnuaisFilial;*/
 
+/* aloca espaço e inicializa uma Filial */
 Filial criaFilial();
+/* liberta o espaço de uma filial */
 Filial apagaFilial(Filial filial);
+/* regista os dados de uma compra numa filial */
 Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes, 
 		     TipoVenda tipoVenda, int unidades, double preco);
+
+/* devolve um array com 13 entradas(12 validas) que à entrada i faz 
+corresponder o numero de unidades compradas no mes i pelo cliente */
 int * unidadesClientePorMes(Filial filial, Cliente cliente);
 Cliente * clientesCompraramNaFilial(Filial filial);
 

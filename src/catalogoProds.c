@@ -150,5 +150,7 @@ static void* duplica(void* codProd)
 
 static void atualiza(void* prod1, void* prod2)
 {
+	prod1 = prod1; /* a prod1 mantem-se inalterada, esta instruçao apaga warnings do compilador */
+	free(prod2); /* apaga o elemento duplicado */
 	return;
 }

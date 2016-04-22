@@ -69,7 +69,7 @@ static void apagaComprasPorCliente(void* p)
 	int i;
 	ComprasPorCliente cpc = p;
 
-	if(cpc == NULL){
+	if(cpc != NULL){
 		free(cpc->cliente);
 
 		for(i = 1; i < 13; i++)
@@ -159,12 +159,11 @@ static ComprasDoProduto criaComprasDoProduto(Produto produto, int unidades, doub
 
 	novo->unidades = unidades;
 	novo->faturacao = preco * unidades;
-	novo->modoP = (tipoVenda == P); /* usar valores do bool.h ou definir macro toBool(x) (!!x) */
-	novo->modoN = (tipoVenda == N);
+	novo->modoP = (tipoVenda == P)? TRUE : FALSE; 
+	novo->modoN = (tipoVenda == N)? TRUE : FALSE;
 	return novo;
 }
 
-/* ver encapsulamento das funçoes */
 Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes, 
 				TipoVenda tipoVenda, int unidades, double preco)
 {
