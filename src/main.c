@@ -273,6 +273,7 @@ void navega(LStrings lStr)
 			
 			pag = obterPag(lStr); /* devolve a página atual */
 			apresentaPag(pag);
+			apagaPag(pag);
 			IMPRIME_OPCOES_NAVEGA();
 			printf("(%d/%d): ", obterNumPag(lStr), numTotalPags);
 			
