@@ -344,10 +344,11 @@ static void apagaNodos(AVL_NODO* raiz, LibertarNodo liberta)
 		AVL_NODO* dir = raiz->direita;
 
 		if(liberta != NULL)
-			liberta(raiz);
+			liberta(raiz->valor);
 		else
-			free(raiz);
-
+			free(raiz->valor);
+		raiz->valor = NULL;
+		free(raiz);
 		apagaNodos(esq, liberta);
 		apagaNodos(dir, liberta);
 	}
