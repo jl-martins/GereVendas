@@ -36,7 +36,7 @@ LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes);
  * dos 3 produtos em que o cliente gastou mais dinheiro durante o ano */
 char** tresProdsEmQueMaisGastou(Filial filial, Cliente c);
 
-void comprou(Filial filial, Cliente cliente, Produto produto, int * comprouN, int * comprouP);
+void comprou(Filial filial, Cliente cliente, Produto produto, bool * comprouN, bool * comprouP);
 int numeroClientesCompraramProduto(Filial filial, char * produto, int * unidadesCompradas);
 
 #endif
