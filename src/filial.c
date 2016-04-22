@@ -221,13 +221,15 @@ static ComprasPorCliente procuraClienteNasVendas(Cliente cliente, Filial filial)
 		return NULL;
 	
 	codigoCliente = obterCodigoCliente(cliente);
-	if(codigoCliente == NULL)
-		return NULL; /* fazer codigo de erros para terminar o programa?? */
+	if(codigoCliente == NULL){
+		free(ccliente);
+		return NULL;
+	}
 	posicao = codigoCliente[0] - 'A';
 
 	ccliente->cliente = codigoCliente;
 	nasVendas = procuraAVL(filial->clientesOrdenados[posicao], ccliente);
-	apagaComprasPorCliente(ccliente);
+	free(codigoCliente); free(ccliente);
 	return nasVendas;
 }
 

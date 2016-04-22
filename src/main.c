@@ -504,10 +504,12 @@ static int query1()
 	/* apaga os dados de uma execuçao anterior do programa */
 	int i, produtosLidos, vendasValidas, clientesLidos;
 	
-	catProds = apagaCatProds(catProds);
-	catClientes = apagaCatClientes(catClientes);
-	faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
-	fichCarregados = FALSE;
+	if(fichCarregados == TRUE){
+		catProds = apagaCatProds(catProds);
+		catClientes = apagaCatClientes(catClientes);
+		faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
+		fichCarregados = FALSE;
+	}
 	 
 	for(i = 1; i <= N_FILIAIS; i++)    
 		filiais[i] = apagaFilial(filiais[i]); 
@@ -1012,7 +1014,7 @@ static int query11()
 			r = ERRO_MEM;
 	}
 	else{
-		fprintf(stderr, "O cliente %s não consta no catálogo de clientes\n", codigoCliente);
+		fprintf(stderr, "O código de cliente '%s' não consta no catálogo de clientes\n", codigoCliente);
 		r = INPUT_INVAL;
 		ENTER_PARA_CONTINUAR();
 	}

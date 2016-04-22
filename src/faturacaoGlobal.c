@@ -83,9 +83,6 @@ static LStrings listaNaoCompradosFilial(FatAnualProd arrTodosProdutos[], int tot
 static int obterTotalVendasAnuaisProd(const FatAnualProd fAnualProd);
 static bool naoComprado(const FatAnualProd fAnualProd);
 
-/* Compara o nº total de vendas anuais de dois produtos */
-static int comparaVendasAnuais(const void* v1, const void* v2);
-
 /* Funções de libertação dos tipos de dados não exportados */
 static void apagaFatMensalInterv(FatMes fMes[], int inicio, int fim);
 static void apagaFatMes(FatMes fMes);
