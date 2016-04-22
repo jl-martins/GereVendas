@@ -71,10 +71,10 @@ static void apagaComprasPorCliente(void* p)
 	ComprasPorCliente cpc = p;
 
 	if(cpc != NULL){
-		free(cpc->cliente);	
+		free(cpc->cliente);
 
-		/*for(i = 0; i <= 13; i++)*/
-			/* apagaAVL(cpc->comprasPorMes[i]); a causar double frees */
+		for(i = 0; i < 13; i++)
+			apagaAVL(cpc->comprasPorMes[i]); /* a causar double frees */
 		free(cpc);
 	}
 }
@@ -130,6 +130,7 @@ Filial criaFilial(){
 		if(nova->clientesOrdenados[i] == NULL){
 			for (j = 0; j < i; j++)
 				apagaAVL(nova->clientesOrdenados[j]);
+			nova = NULL; /* faltava acrescentar esta linha */
 			break;
 		}
 	}
@@ -177,7 +178,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	if(filial == NULL)
 		return NULL;
 
-	ccliente = malloc(sizeof(struct comprasPorCliente));
+	ccliente = calloc(1, sizeof(struct comprasPorCliente)); /* mudei malloc() para calloc() */
 	if(ccliente == NULL) return NULL;
 
 	comprasAux = criaComprasDoProduto(produto, unidades, preco, tipoVenda);
@@ -191,6 +192,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	if(ccliente->cliente == NULL){
 		apagaComprasDoProduto(comprasAux);
 		free(ccliente);
+		return NULL; /* faltava este return NULL */
 	}
 
 	posicao = ccliente->cliente[0] - 'A'; /* <=> 1a letra do cliente - 'A' */
@@ -205,7 +207,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 				free(ccliente->cliente);
 				free(ccliente);	
 				for(j = 0; j < i; j++)
-					apagaAVL(ccliente->comprasPorMes[j]);
+					apagaAVL(ccliente->comprasPorMes[j]); /* falta fazer return NULL */
 			}
 
 		}
