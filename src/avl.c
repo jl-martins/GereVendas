@@ -348,7 +348,7 @@ static void apagaNodos(AVL_NODO* raiz, LibertarNodo liberta)
 		else
 			free(raiz->valor);
 		raiz->valor = NULL;
-		free(raiz);
+		free(raiz); raiz = NULL;
 		apagaNodos(esq, liberta);
 		apagaNodos(dir, liberta);
 	}
