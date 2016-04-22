@@ -1014,6 +1014,7 @@ static int query11()
 	else{
 		fprintf(stderr, "O cliente %s não consta no catálogo de clientes\n", codigoCliente);
 		r = INPUT_INVAL;
+		ENTER_PARA_CONTINUAR();
 	}
 	apagaCliente(c);
 	return r;
