@@ -110,13 +110,20 @@ double totalFatIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
 FatProdMes obterFatProdMes(const FaturacaoGlobal fg, const Produto p, int mes);
 
 /**
+ * @brief Liberta a memória alocada para guardar o resultado de obterFatProdMes().
+ * @param fProdMes FatProdMes a apagar.
+ * @return É sempre retornado @c NULL.
+ */
+FatProdMes apagaFatProdMes(FatProdMes fProdMes);
+
+/**
  * @brief A partir da faturação de um produto num mês (obtida com @c obterFatProdMes()),
  * calcula o total de vendas do tipo especificado (N ou P).
  * @param fProdMes Faturação de um produto num mês, obtida com obterFatProdMes().
  * @param tipo Tipo de venda pretendido (N ou P)
  * @return Total de vendas registadas em 'fProdMes', para o tipo especificado.
  */
-int vendasTotaisProdMes(const FatProdMes fProdMes, TipoVenda tipo);
+int totalUnidsProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
 /**
  * @brief A partir da faturação de um produto num mês (obtida com @c obterFatProdMes())
@@ -127,7 +134,7 @@ int vendasTotaisProdMes(const FatProdMes fProdMes, TipoVenda tipo);
  * em 'fProdMes', para a filial i e para o tipo de venda especificado.
  * @warning Se ocorrer uma falha de alocação, é devolvido NULL
  */
-int* vendasPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo);
+int* unidsPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
 /**
  * @brief A partir da faturação de um produto num mês (obtida com @c obterFatProdMes()),
@@ -148,13 +155,6 @@ double faturacaoTotalProdMes(const FatProdMes fProdMes, TipoVenda tipo);
  * @warning Se ocorrer uma falha de alocação, é devolvido NULL
  */
 double* faturacaoPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo);
-
-/**
- * @brief Liberta a memória alocada para guardar o resultado de obterFatProdMes().
- * @param fProdMes FatProdMes a apagar.
- * @return É sempre retornado @c NULL.
- */
-FatProdMes apagaFatProdMes(FatProdMes fProdMes);
 
 /**
  * @brief Calcula o número total de produtos não comprados em nenhuma filial.

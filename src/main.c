@@ -334,7 +334,7 @@ static FILE* perguntaAbreFicheiro(char* ficheiroPadrao, char buffer[MAX_NOME_FIC
 	char* caminho;
 	int iPrimNaoEsp; /* índice do primeiro caratere de buffer que não é um espaço */
 
-	printf("Insira o caminho do ficheiro de %s (Enter para abrir ficheiro padrao):", tipoDeElems);	
+	printf("Insira o caminho do ficheiro de %s (Enter para abrir ficheiro padrao): ", tipoDeElems);	
 	if(leLinha(buffer, MAX_NOME_FICH, stdin) == NULL) /* chegamos ao EOF */
 		return NULL;
 
@@ -652,11 +652,10 @@ static char obterModoRes()
 static int query3()
 {	
 	char modo;
-	char codigoProd[MAX_CODIGO_PROD]; /* >>> mudar este nome??? */
+	char codigoProd[MAX_CODIGO_PROD];
 	Produto p;
 	FatProdMes fProdMes;
 	int mes, r = CONTINUAR;
-	time_t inicio, fim;
 
 	printf("Código de produto: ");
 	if(leLinha(codigoProd, MAX_CODIGO_PROD, stdin) == NULL)
@@ -670,10 +669,8 @@ static int query3()
 		printf("Mês: "); mes = leInt();
 		if(MES_VALIDO(mes)){
 			modo = obterModoRes();
-			inicio = time(NULL);
 			fProdMes = obterFatProdMes(faturacaoGlobal, p, mes);
-			fim = time(NULL);
-			IMPRIME_TEMPOS("Query 3", difftime(fim, inicio));
+
 			switch(modo){
 				case 'G':
 					resultadosGlobaisQuery3(fProdMes);
@@ -686,6 +683,7 @@ static int query3()
 					r = INPUT_INVAL;
 					break;
 			}
+			fProdMes = apagaFatProdMes(fProdMes);
 		}
 		else{ /* o mês introduzido é inválido */
 			fprintf(stderr, "O mês '%d' é inválido\n", mes);
@@ -696,7 +694,7 @@ static int query3()
 		fprintf(stderr, "O código de produto '%s' não consta no catálogo de produtos\n", codigoProd);
 		r = INPUT_INVAL;
 	}
-	apagaProduto(p);/* já não precisamos do produto */
+	apagaProduto(p); /* já não precisamos do produto */
 	ENTER_PARA_CONTINUAR();
 	return r;
 }
@@ -707,8 +705,8 @@ static void resultadosGlobaisQuery3(FatProdMes fProdMes)
 	int totalVendas[N_TIPOS_VENDA];
 	double totalFaturado[N_TIPOS_VENDA];
 
-	totalVendas[N] = vendasTotaisProdMes(fProdMes, N);
-	totalVendas[P] = vendasTotaisProdMes(fProdMes, P);
+	totalVendas[N] = totalUnidsProdMes(fProdMes, N);
+	totalVendas[P] = totalUnidsProdMes(fProdMes, P);
 	totalFaturado[N] = faturacaoTotalProdMes(fProdMes, N);
 	totalFaturado[P] = faturacaoTotalProdMes(fProdMes, P);
 
@@ -721,11 +719,11 @@ static void resultadosGlobaisQuery3(FatProdMes fProdMes)
 static void resultadosFiliaisQuery3(FatProdMes fProdMes)
 {
 	int filial;
-	int* vendasFilial[N_TIPOS_VENDA];
+	int* unidsFilial[N_TIPOS_VENDA];
 	double* faturacaoFilial[N_TIPOS_VENDA];
 
-	vendasFilial[N] = vendasPorFilialProdMes(fProdMes, N);
-	vendasFilial[P] = vendasPorFilialProdMes(fProdMes, P);
+	unidsFilial[N] = unidsPorFilialProdMes(fProdMes, N);
+	unidsFilial[P] = unidsPorFilialProdMes(fProdMes, P);
 	faturacaoFilial[N] = faturacaoPorFilialProdMes(fProdMes, N);
 	faturacaoFilial[P] = faturacaoPorFilialProdMes(fProdMes, P);
 
@@ -733,10 +731,10 @@ static void resultadosFiliaisQuery3(FatProdMes fProdMes)
 		printf(" ----------\n| Filial %d |\n ----------\n", filial);
 		printf("Vendas N = %d, Vendas P = %d\n"
 				"Faturação N = %.2f, Faturação P = %.2f\n\n",
-				vendasFilial[N][filial], vendasFilial[P][filial],
+				unidsFilial[N][filial], unidsFilial[P][filial],
 				faturacaoFilial[N][filial], faturacaoFilial[P][filial]);
 	}
-	free(vendasFilial[N]); free(vendasFilial[P]);
+	free(unidsFilial[N]); free(unidsFilial[P]);
 	free(faturacaoFilial[N]); free(faturacaoFilial[P]);
 }
 
@@ -1009,7 +1007,7 @@ static int query10()
 	N = leInt();
 
 	do{
-		printf("Existem resultados para %d filiais."
+		printf("Existem resultados para %d filiais. "
 			   "Insira o numero da filial ou %d para sair\n>>> ", N_FILIAIS, N_FILIAIS+1);
 		filial = leInt();
 		if(FILIAL_VALIDA(filial)){
@@ -1086,10 +1084,12 @@ static int query12()
 
 	nClientesNaoCompr = totalClientes(catClientes) - quantosClientesCompraram(filialGlobal);
 	nProdsNaoVendidos = quantosNaoComprados(faturacaoGlobal);
+	if(nProdsNaoVendidos == -1) /* falha de alocação em quantosNaoComprados() */
+		return ERRO_MEM;
+	
 	printf("Número de clientes que não compraram: %d\n", nClientesNaoCompr);
 	printf("Número de produtos não vendidos: %d\n", nProdsNaoVendidos);
 	ENTER_PARA_CONTINUAR();
-
 	return CONTINUAR;
 }
 
