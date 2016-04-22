@@ -23,7 +23,7 @@ LStrings criaLStrings(int total, char* strings[])
 	int i, len;
 	LStrings lStr = malloc(sizeof(struct lStrings));
 
-	if(lStr == NULL)
+	if(lStr == NULL) /* falha de alocação */
 		return NULL;
 	if(total <= 0){ /* cria uma LStrings com 0 elementos */
 		lStr->total = 0;
