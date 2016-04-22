@@ -74,7 +74,7 @@ static void apagaComprasPorCliente(void* p)
 		free(cpc->cliente);
 
 		for(i = 0; i < 13; i++)
-			apagaAVL(cpc->comprasPorMes[i]); /* a causar double frees */
+			cpc->comprasPorMes[i] = apagaAVL(cpc->comprasPorMes[i]); /* a causar double frees */
 		free(cpc);
 	}
 }
@@ -129,7 +129,7 @@ Filial criaFilial(){
 		nova->clientesOrdenados[i] = criaAVL(NULL, comparaComprasPorCliente, NULL, apagaComprasPorCliente);
 		if(nova->clientesOrdenados[i] == NULL){
 			for (j = 0; j < i; j++)
-				apagaAVL(nova->clientesOrdenados[j]);
+				nova->clientesOrdenados[j] = apagaAVL(nova->clientesOrdenados[j]);
 			nova = NULL; /* faltava acrescentar esta linha */
 			break;
 		}
@@ -142,7 +142,7 @@ Filial apagaFilial(Filial filial){
 
 	if(filial){
 		for(i = 0; i < 26; i++){
-			apagaAVL(filial->clientesOrdenados[i]);
+			filial->clientesOrdenados[i] = apagaAVL(filial->clientesOrdenados[i]);
 		}
 		free(filial);
 	}
@@ -192,7 +192,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	if(ccliente->cliente == NULL){
 		apagaComprasDoProduto(comprasAux);
 		free(ccliente);
-		return NULL; /* faltava este return NULL */
+		return NULL;
 	}
 
 	posicao = ccliente->cliente[0] - 'A'; /* <=> 1a letra do cliente - 'A' */
@@ -207,7 +207,8 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 				free(ccliente->cliente);
 				free(ccliente);	
 				for(j = 0; j < i; j++)
-					apagaAVL(ccliente->comprasPorMes[j]); /* falta fazer return NULL */
+					ccliente->comprasPorMes[j] = apagaAVL(ccliente->comprasPorMes[j]);
+				return NULL;
 			}
 
 		}
