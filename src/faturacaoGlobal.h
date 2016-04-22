@@ -22,8 +22,6 @@
 typedef struct fatGlobal* FaturacaoGlobal;
 /** @brief Referência de uma estrutura que guarda dados sobre a faturação de um produto num dado mês. */
 typedef struct fatProdMes* FatProdMes;
-/** @brief Referência de uma estrutura que tem informação sobre a faturação de um produto durante o ano. */
-typedef struct fatAnualProd* FatAnualProd;
 
 /**
  * @brief Cria a estrutura usada para guardar todas as informações da faturação global.
@@ -67,7 +65,7 @@ FaturacaoGlobal registaVenda(
 );
 
 /**
- * @brief Calcula o total de unidades vendidas num dado mês.
+ * @brief Calcula o total de vendas num dado mês.
  * @param fg Faturação global a consultar.
  * @param mes Mês para o qual se pretende calcular o total de unidades vendidas.
  */

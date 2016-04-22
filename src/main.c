@@ -691,12 +691,12 @@ static int query3()
 			fprintf(stderr, "O mês '%d' é inválido\n", mes);
 			r = INPUT_INVAL;
 		}
-		apagaProduto(p);/* já não precisamos do produto */
 	}
 	else{ /* o código de produto introduzido é inválido */
 		fprintf(stderr, "O código de produto '%s' não consta no catálogo de produtos\n", codigoProd);
 		r = INPUT_INVAL;
 	}
+	apagaProduto(p);/* já não precisamos do produto */
 	ENTER_PARA_CONTINUAR();
 	return r;
 }
@@ -839,7 +839,7 @@ static int query6()
 		double totalFaturado = totalFatIntervMeses(faturacaoGlobal, inicio, fim);
 
 		printf("Intervalo de meses = [%d,%d]\n", inicio, fim);
-		printf("Total de unidades vendidas = %d\n"
+		printf("Total de vendas = %d\n"
 			   "Total faturado = %.2f\n\n", totalVendas, totalFaturado);
 		ENTER_PARA_CONTINUAR();
 	}
@@ -1021,10 +1021,10 @@ static int query10()
 					return ERRO_MEM;
 				
 				for(i = 0; i < N; i++){ /* cria as linhas a introduzir na LStrings */
-					linha = malloc(sizeof(char *) * (strlen(produtos[i]) + 150));	/* >>> valor exagerado */
+					linha = malloc(sizeof(char *) * (MAX_BUFFER_VENDAS));	/* >>> valor exagerado */
 					nClientes = numeroClientesCompraramProduto(filiais[filial], produtos[i], &nUnidades);
 					/* >>> acrescentar larguras aos campos deste sprintf() */
-					sprintf(linha, "%s, Numero clientes: %d, Numero unidades vendidas %d", produtos[i], nClientes, nUnidades);
+					sprintf(linha, "%3s     #Clientes: %5d     #Unidades Vendidas: %8d", produtos[i], nClientes, nUnidades);
 					imprimir[i] = linha;
 				}
 				resultados[filial] = criaLStrings(N, imprimir);

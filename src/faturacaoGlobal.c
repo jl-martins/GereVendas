@@ -15,7 +15,7 @@
  *	 _FaturacaoGlobal_______________	   __FatAnualProd________________	  *
  *	|								|	  |								 |	  *
  *	|  AVL todosProdutos;			| ==> |	char* prod;				 	 |	  *
- *	|  FatMes fatMensal[N_MESES+1]; | 	  |	int totalVendas[N_FILIAIS+1];|	  *
+ *	|  FatMes fatMensal[N_MESES+1]; | 	  |	int totalUnids[N_FILIAIS+1]; |	  *
  *	|_______________________________|	  |______________________________|	  *
  *				 															  *
  *				 ||															  *
@@ -39,8 +39,9 @@
  *																			  *
  ******************************************************************************/
 
-/* FatMes é um tipo auxiliar (i.e.: não exportado) */
+/* Tipos auxiliares (i.e.: não exportados) */
 typedef struct fatMes* FatMes;
+typedef struct fatAnualProd* FatAnualProd;
 
 /* Faturação global */
 struct fatGlobal{
@@ -49,10 +50,10 @@ struct fatGlobal{
 };
 
 /* Armazena, para um dado produto, informação sobre o seu
- * total de vendas anuais em cada uma das filiais */
+ * total de unidades vendidas durante o ano, em cada uma das filiais */
 struct fatAnualProd{
 	char* prod;
-	int totalVendas[N_FILIAIS+1];
+	int totalUnids[N_FILIAIS+1];
 };
 
 struct fatMes{
@@ -71,16 +72,15 @@ struct fatProdMes{
 /* Funções privadas ao módulo */
 
 /* Funções privadas usadas na criação de estruturas de dados */
-static FatAnualProd criaFatAnualProd(char* codProd, int totalVendas[N_FILIAIS+1]);
-static FatProdMes criaFatProdMes(char* codProd, int quantidade, double totalFaturado,
-								 TipoVenda tipo, int filial);
+static FatAnualProd criaFatAnualProd(char* codProd, int totalUnids[N_FILIAIS+1]);
+static FatProdMes criaFatProdMes(char* codProd, double totalFaturado, TipoVenda tipo, int filial);
 
 /* Funções que auxiliam na obtenção dos produtos não comprados */
 static LStrings listaNaoCompradosGlobal(FatAnualProd arrTodosProdutos[], int total);
 static LStrings listaNaoCompradosFilial(FatAnualProd arrTodosProdutos[], int total, int filial);
 
-/* Funções que devolvem informações sobre as vendas anuais de um produto */
-static int obterTotalVendasAnuaisProd(const FatAnualProd fAnualProd);
+/* Funções que devolvem informações sobre o número de unidades vendidas para um dado produto */
+static int obterTotalUnidsAnuaisProd(const FatAnualProd fAnualProd);
 static bool naoComprado(const FatAnualProd fAnualProd);
 
 /* Funções de libertação dos tipos de dados não exportados */
@@ -122,7 +122,7 @@ static void atualizaFatAnualProd(void* p1, void* p2)
 	FatAnualProd adicional = p2;
 
 	for(i = 1; i <= N_FILIAIS; ++i)
-		atual->totalVendas[i] += adicional->totalVendas[i];
+		atual->totalUnids[i] += adicional->totalUnids[i];
 }
 /* Fim das funções de atualização dos nodos das AVLs */
 
@@ -143,7 +143,7 @@ static void* duplicaFatAnualProd(void* p)
 	}
 	strcpy(copia->prod, original->prod);
 	for(i = 1; i <= N_FILIAIS; ++i)
-		copia->totalVendas[i] = original->totalVendas[i];
+		copia->totalUnids[i] = original->totalUnids[i];
 	
 	return (void *) copia;
 }
@@ -261,16 +261,16 @@ FaturacaoGlobal apagaFaturacaoGlobal(FaturacaoGlobal fg)
 	return NULL;
 }
 
-/* Regista um produto na faturação global, guardando-o na AVL de total de vendas
- * anuais com um total de vendas nulo, para cada uma das filiais. */
+/* Regista um produto na faturação global, guardando-o na AVL de total de unidades
+ * vendidas, com um total de vendas nulo para cada uma das filiais. */
 FaturacaoGlobal registaProduto(FaturacaoGlobal fg, Produto p)
 {	
-	int arrTotalVendas[N_FILIAIS+1] = {0};
+	int arrTotalUnids[N_FILIAIS+1] = {0};
 	char* codProd = obterCodigoProduto(p);
 	FatAnualProd fAnualProd;
 	AVL nova;
 
-	fAnualProd = criaFatAnualProd(codProd, arrTotalVendas);
+	fAnualProd = criaFatAnualProd(codProd, arrTotalUnids);
 	if(fAnualProd == NULL)/* falha a criar a struct fatAnualProd */
 		return NULL;
 
@@ -284,15 +284,15 @@ FaturacaoGlobal registaProduto(FaturacaoGlobal fg, Produto p)
 	return fg;
 }
 
-/* Cria a estrutura de dados que guarda o total de
- * vendas anuais de um produto, para cada filial. */
-static FatAnualProd criaFatAnualProd(char* codProd, int arrTotalVendas[N_FILIAIS+1])
+/* Cria a estrutura de dados que guarda o total de unidades vendidas
+ * durante o ano para um dado produto e uma determinada filial. */
+static FatAnualProd criaFatAnualProd(char* codProd, int arrTotalUnids[N_FILIAIS+1])
 {	
 	FatAnualProd fAnualProd = malloc(sizeof(struct fatAnualProd));
 
 	if(fAnualProd != NULL){
 		fAnualProd->prod = codProd;
-		memcpy(fAnualProd->totalVendas, arrTotalVendas, (N_FILIAIS + 1) * sizeof(int));
+		memcpy(fAnualProd->totalUnids, arrTotalUnids, (N_FILIAIS + 1) * sizeof(int));
 	}
 	else
 		free(codProd);
@@ -306,15 +306,15 @@ FaturacaoGlobal registaVenda(FaturacaoGlobal fg, Produto p, double precoUnit,
 {
 	FatProdMes fProdMes;
 	FatAnualProd fAnualProd;
-	int arrTotalVendas[N_FILIAIS+1] = {0};
+	int arrTotalUnids[N_FILIAIS+1] = {0};
 	AVL retInsere; /* guarda valor de retorno da função insere() */
 
-	fProdMes = criaFatProdMes(obterCodigoProduto(p), quantidade, quantidade * precoUnit, tipo, filial);
+	fProdMes = criaFatProdMes(obterCodigoProduto(p), quantidade * precoUnit, tipo, filial);
 	if(fProdMes == NULL) /* falha a alocar memória na função criaFatProdMes() */
 		return NULL;
 	
-	arrTotalVendas[filial] = quantidade; 
-	fAnualProd = criaFatAnualProd(obterCodigoProduto(p), arrTotalVendas);
+	arrTotalUnids[filial] = quantidade; 
+	fAnualProd = criaFatAnualProd(obterCodigoProduto(p), arrTotalUnids);
 
 	if(fAnualProd == NULL){ /* falha a alocar memória na função criaFatAnualProd()*/
 		apagaFatProdMes((void*) fProdMes);
@@ -323,7 +323,7 @@ FaturacaoGlobal registaVenda(FaturacaoGlobal fg, Produto p, double precoUnit,
 
 	retInsere = insereAVL(fg->fatMensal[mes]->fatProds, fProdMes);
 	if(retInsere != NULL){
-		fg->fatMensal[mes]->totalVendas += quantidade;
+		++(fg->fatMensal[mes]->totalVendas);
 		fg->fatMensal[mes]->totalFaturado += (quantidade * precoUnit);
 		fg->fatMensal[mes]->fatProds = retInsere;
 		
@@ -340,7 +340,7 @@ FaturacaoGlobal registaVenda(FaturacaoGlobal fg, Produto p, double precoUnit,
 
 /* Cria estrutura de dados com informação 
  * sobre a faturação de um produto num dado mês. */
-static FatProdMes criaFatProdMes(char* codProd, int quantidade, double totalFaturado, TipoVenda tipo, int filial)
+static FatProdMes criaFatProdMes(char* codProd, double totalFaturado, TipoVenda tipo, int filial)
 {	
 	int i, j;
 	FatProdMes fProdMes;
@@ -358,7 +358,7 @@ static FatProdMes criaFatProdMes(char* codProd, int quantidade, double totalFatu
 			fProdMes->faturacao[i][j] = 0;
 		}
 	}
-	fProdMes->vendas[tipo][filial] = quantidade;
+	++(fProdMes->vendas[tipo][filial]);
 	fProdMes->faturacao[tipo][filial] = totalFaturado;
 	return fProdMes;
 }
@@ -375,6 +375,10 @@ FatProdMes obterFatProdMes(const FaturacaoGlobal fg, const Produto p, int mes)
 			return NULL;
 
 		tmp->prod = obterCodigoProduto(p);
+		if(tmp->prod == NULL){ /* falha a criar o produto */
+			free(tmp);
+			return NULL;
+		}
 		fProdMes = (FatProdMes) procuraAVL(fg->fatMensal[mes]->fatProds, tmp);
 		free(tmp->prod); free(tmp);
 	}
@@ -487,14 +491,14 @@ double* faturacaoPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo)
 /* Início das funções usadas na query4 */
 
 /* Devolve o número total de vendas anuais de um produto */
-static int obterTotalVendasAnuaisProd(const FatAnualProd fAnualProd)
+static int obterTotalUnidsAnuaisProd(const FatAnualProd fAnualProd)
 {
 	int total = 0;
 
 	if(fAnualProd){
 		int i;
 		for(i = 1; i <= N_FILIAIS; ++i)
-			total += fAnualProd->totalVendas[i];
+			total += fAnualProd->totalUnids[i];
 	}
 	return total;
 }
@@ -502,7 +506,7 @@ static int obterTotalVendasAnuaisProd(const FatAnualProd fAnualProd)
 /* Indica se um produto não teve vendas anuais */
 static bool naoComprado(const FatAnualProd fAnualProd)
 {	
-	return (obterTotalVendasAnuaisProd(fAnualProd) == 0);
+	return (obterTotalUnidsAnuaisProd(fAnualProd) == 0);
 }
 
 /* Query12 */
@@ -618,7 +622,7 @@ static LStrings listaNaoCompradosFilial(FatAnualProd arrTodosProdutos[], int tot
 	numNaoComp = 0;
 	for(i = 0; i < total; ++i){
 		FatAnualProd atual = arrTodosProdutos[i];
-		if(atual->totalVendas[filial] == 0){
+		if(atual->totalUnids[filial] == 0){
 			int len = strlen(atual->prod);
 			char* codigoProd = malloc((len + 1) * sizeof(char));
 
@@ -639,24 +643,24 @@ static LStrings listaNaoCompradosFilial(FatAnualProd arrTodosProdutos[], int tot
 
 /* Funções utilizadas na query10 */
 
-#define compVendasAnuais(filial) \
-	static int compVendasAnuaisFilial##filial(const void* v1, const void* v2) \
+#define compUnidsAnuais(filial) \
+	static int compUnidsAnuaisFilial##filial(const void* v1, const void* v2)  \
 	{																		  \
-		int totalVendas1 = (*(FatAnualProd *) v1)->totalVendas[filial];		  \
-		int totalVendas2 = (*(FatAnualProd *) v2)->totalVendas[filial];		  \
+		int totalUnids1 = (*(FatAnualProd *) v1)->totalUnids[filial];		  \
+		int totalUnids2 = (*(FatAnualProd *) v2)->totalUnids[filial];		  \
 																			  \
-		return totalVendas2 - totalVendas1;									  \
+		return totalUnids2 - totalUnids1;									  \
 	}																		  \
 
-compVendasAnuais(1)
-compVendasAnuais(2)
-compVendasAnuais(3)
+compUnidsAnuais(1)
+compUnidsAnuais(2)
+compUnidsAnuais(3)
 
 static int (*arrFunCompara[N_FILIAIS+1]) (const void*, const void*) = {
 	NULL,
-	compVendasAnuaisFilial1,
-	compVendasAnuaisFilial2,
-	compVendasAnuaisFilial3
+	compUnidsAnuaisFilial1,
+	compUnidsAnuaisFilial2,
+	compUnidsAnuaisFilial3
 };
 
 char** NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial)
