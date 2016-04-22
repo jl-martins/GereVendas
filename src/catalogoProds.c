@@ -33,7 +33,7 @@ CatProds criaCatProds()
 		catP->catalogo[i] = criaAVL(atualiza, compara, duplica, NULL);
 		if(catP->catalogo[i] == NULL){ /* falha de alocação em criaAVL() */
 			for( ; i >= 0; --i)
-				apagaAVL(catP->catalogo[i]);
+				catP->catalogo[i] = apagaAVL(catP->catalogo[i]);
 			free(catP);
 			return NULL;
 		}
@@ -103,7 +103,7 @@ CatProds apagaCatProds(CatProds catP)
  		int i;
 
  		for(i = 0; i < MAX_AVL; ++i)
- 			apagaAVL(catP->catalogo[i]);
+ 			catP->catalogo[i] = apagaAVL(catP->catalogo[i]);
  		free(catP);
  	}
 	return NULL;

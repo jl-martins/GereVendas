@@ -29,7 +29,7 @@ CatClientes criaCatClientes()
 		catC->catalogo[i] = criaAVL(atualiza, compara, duplica, NULL);
 		if(catC->catalogo[i] == NULL){ /* falha de alocação em criaAVL() */
 			for( ; i >= 0; --i)
-				apagaAVL(catC->catalogo[i]);
+				catC->catalogo[i] = apagaAVL(catC->catalogo[i]);
 			free(catC);
 			return NULL;
 		}
@@ -99,7 +99,7 @@ CatClientes apagaCatClientes(CatClientes catC)
 		int i;
 
 		for(i = 0; i < MAX_AVL; ++i)
-			apagaAVL(catC->catalogo[i]);
+			catC->catalogo[i] = apagaAVL(catC->catalogo[i]);
 		free(catC); 
 	}
 	return NULL;

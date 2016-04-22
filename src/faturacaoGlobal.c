@@ -244,7 +244,7 @@ static void apagaFatMensalInterv(FatMes fatMensal[], int inicio, int fim)
 static void apagaFatMes(FatMes fMes)
 {	
 	if(fMes != NULL)
-		apagaAVL(fMes->fatProds);
+		fMes->fatProds = apagaAVL(fMes->fatProds);
 	free(fMes);
 }
 
