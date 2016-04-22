@@ -225,6 +225,19 @@ FaturacaoGlobal criaFaturacaoGlobal()
 	return fg;
 }
 
+FaturacaoGlobal apagaFaturacaoGlobal(FaturacaoGlobal fg)
+{
+	if(fg != NULL){
+		int i;
+
+		for(i = 0; i <= N_MESES; ++i)
+			apagaFatMes(fg->fatMensal[i]);
+		fg->todosProdutos = apagaAVL(fg->todosProdutos);
+		free(fg);
+	}
+	return NULL;
+}
+
 /* Apaga um array de struct fatMes, desde 'inicio' até 'fim' (inclusivé) */
 static void apagaFatMensalInterv(FatMes fatMensal[], int inicio, int fim)
 {
@@ -243,19 +256,6 @@ static void apagaFatMes(FatMes fMes)
 		fMes->fatProds = apagaAVL(fMes->fatProds);
 		free(fMes);
 	}
-}
-
-FaturacaoGlobal apagaFaturacaoGlobal(FaturacaoGlobal fg)
-{
-	if(fg != NULL){
-		int i;
-
-		for(i = 0; i <= N_MESES; ++i)
-			apagaFatMes(fg->fatMensal[i]);
-		fg->todosProdutos = apagaAVL(fg->todosProdutos);
-		free(fg);
-	}
-	return NULL;
 }
 
 /* Regista um produto na faturação global, guardando-o na AVL de total de unidades
@@ -499,26 +499,6 @@ static bool naoComprado(const FatAnualProd fAnualProd)
 	return (obterTotalUnidsAnuaisProd(fAnualProd) == 0);
 }
 
-/* Query12 */
-int quantosNaoComprados(const FaturacaoGlobal fg)
-{
-	FatAnualProd* arrTodosProdutos;
-	int total = tamanhoAVL(fg->todosProdutos);
-	int quantos = 0;
-
-	arrTodosProdutos = (FatAnualProd *) inorderAVL(fg->todosProdutos);
-	if(arrTodosProdutos == NULL)
-		quantos = -1; /* sinaliza falha de alocação na inorder da AVL com todos os produtos */
-	else{
-		int i;
-		for(i = 0; i < total; ++i)
-			if(naoComprado(arrTodosProdutos[i]))
-				++quantos;
-		apagaArray((void **) arrTodosProdutos, total, apagaNodoFatAnualProd);
-	}
-	return quantos;
-}
-
 LStrings naoCompradosGlobal(const FaturacaoGlobal fg)
 {
 	FatAnualProd* arrTodosProdutos;
@@ -673,9 +653,29 @@ char** NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial)
 	qsort(arrTodosProdutos, total, sizeof(FatAnualProd), arrFunCompara[filial]);
 	
 	fatNmaisVend = realloc(arrTodosProdutos, N * sizeof(FatAnualProd));
-	for(i = 0; i < N; ++i){
+	for(i = 0; i < N && i < total; ++i){
 		maisVendFilial[i] = fatNmaisVend[i]->prod;
 		free(fatNmaisVend[i]);
 	}
 	return maisVendFilial;
+}
+
+/* Query12 */
+int quantosNaoComprados(const FaturacaoGlobal fg)
+{
+	FatAnualProd* arrTodosProdutos;
+	int total = tamanhoAVL(fg->todosProdutos);
+	int quantos = 0;
+
+	arrTodosProdutos = (FatAnualProd *) inorderAVL(fg->todosProdutos);
+	if(arrTodosProdutos == NULL)
+		quantos = -1; /* sinaliza falha de alocação na inorder da AVL com todos os produtos */
+	else{
+		int i;
+		for(i = 0; i < total; ++i)
+			if(naoComprado(arrTodosProdutos[i]))
+				++quantos;
+		apagaArray((void **) arrTodosProdutos, total, apagaNodoFatAnualProd);
+	}
+	return quantos;
 }
