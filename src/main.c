@@ -125,8 +125,6 @@ static int query10();
 static int query11();
 static int query12();
 
-/* Função invocada imediatamente antes de sair */
-static int sair();
 /* Funções auxiliares das queries */
 static void resultadosGlobaisQuery3(FatProdMes);
 static void resultadosFiliaisQuery3(FatProdMes);
@@ -136,6 +134,12 @@ static char obterModoRes();
 static void perguntaPag(LStrings lStr);
 static void apresentaPag(Pagina pag);
 static void imprimeInformacaoLStrings(LStrings);
+/* Funções auxiliares da query1 */
+static void apagaEstruturas();
+static int criaEstruturas();
+static int leFicheiros();
+/* Função invocada imediatamente antes de sair */
+static int sair();
 
 Query queries[] = {NULL, query1, query2, query3, query4, query5, query6, query7, query8,
 		     query9, query10, query11, query12, sair};
@@ -348,7 +352,8 @@ static FILE* perguntaAbreFicheiro(char* ficheiroPadrao, char buffer[MAX_NOME_FIC
 	return fp;	
 }
 
-int leCatalogoProdutos(){
+int leCatalogoProdutos()
+{
 	time_t inicio, fim;
 	FILE* fp;
 	int quantos = 0;
@@ -388,7 +393,8 @@ int leCatalogoProdutos(){
 	return quantos;
 }
 
-int leCatalogoClientes(){
+int leCatalogoClientes()
+{
 	time_t inicio, fim;
 	FILE* fp;
 	int quantos = 0;
@@ -429,7 +435,8 @@ int leCatalogoClientes(){
 #define MAX_PRECO 999.99
 
 /* Dada uma linha com informação da venda, a função processa a informação da venda e, se for válida, regista a compra */
-int insereSeValida(char linhaVenda[MAX_BUFFER_VENDAS]){
+int insereSeValida(char linhaVenda[MAX_BUFFER_VENDAS])
+{
 	Cliente cliente;
 	Produto produto;
 	int unidades, mes, nfilial,  quantos = 0;
@@ -477,7 +484,8 @@ int insereSeValida(char linhaVenda[MAX_BUFFER_VENDAS]){
 
 #undef GET
 
-int carregaVendasValidas(){
+int carregaVendasValidas()
+{
 	time_t inicio, fim;
 	FILE* fp;
 	int validas = 0;
@@ -501,18 +509,32 @@ int carregaVendasValidas(){
 /* se necessaro, inserir FilialTotal ou guardar informação relativa a todos os meses na filial*/
 static int query1()
 {
-	/* apaga os dados de uma execuçao anterior do programa */
-	int i, produtosLidos, vendasValidas, clientesLidos;
+	int r;
 	
 	if(fichCarregados == TRUE){
-		catProds = apagaCatProds(catProds);
-		catClientes = apagaCatClientes(catClientes);
-		faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
+		apagaEstruturas(); /* apaga os dados de uma execuçao anterior do programa */
 		fichCarregados = FALSE;
 	}
-	 
-	for(i = 1; i <= N_FILIAIS; i++)    
+	r = criaEstruturas();
+	if(r == CONTINUAR)
+		r = leFicheiros();
+	return r;
+}
+
+static void apagaEstruturas()
+{
+	int i;
+
+	catProds = apagaCatProds(catProds);
+	catClientes = apagaCatClientes(catClientes);
+	faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
+	for(i = 0; i <= N_FILIAIS; i++)    
 		filiais[i] = apagaFilial(filiais[i]); 
+}
+
+static int criaEstruturas()
+{	
+	int i;
 
 	catProds = criaCatProds();
 	if(catProds == NULL){ /* falha de alocação a criar o catálogo de produtos */
@@ -546,14 +568,38 @@ static int query1()
 			return ERRO_MEM;
 		}
 	}
+	return CONTINUAR;
+}
+
+static int leFicheiros()
+{
+	int produtosLidos, vendasValidas, clientesLidos;
+
 	clientesLidos = leCatalogoClientes();
+	if(clientesLidos < 0){ /* erro a ler o ficheiro de clientes */
+		MSG_ERRO("Erro a ler o ficheiro de clientes\n");
+		return clientesLidos; /* indica o erro que ocorreu */
+	}
+	
 	produtosLidos = leCatalogoProdutos();
+	if(produtosLidos < 0){
+		catClientes = apagaCatClientes(catClientes);
+		MSG_ERRO("Erro a ler o ficheiro dos produtos\n");
+		return produtosLidos;
+	}
+	
 	vendasValidas = carregaVendasValidas();
-	fichCarregados = TRUE;
-		
+	if(vendasValidas < 0){
+		catClientes = apagaCatClientes(catClientes);
+		catProds = apagaCatProds(catProds);
+		MSG_ERRO("Erro a ler o ficheiro das vendas\n");
+		return vendasValidas;
+	}
+	/* só chegamos aqui se todas as leituras correram bem */
 	printf("Nº de clientes lidos: %d\n"
 		   "Nº de Produtos lidos: %d\n"
 		   "Nº de vendas validas: %d\n", clientesLidos, produtosLidos, vendasValidas);
+	fichCarregados = TRUE;
 	ENTER_PARA_CONTINUAR();
 	return CONTINUAR;
 }
@@ -1039,15 +1085,9 @@ static int query12()
 /* Liberta toda a memória alocada e devolve o valor SAIR para o interpretador */
 static int sair()
 {	
-	int i;
-
-	catProds = apagaCatProds(catProds);
-	catClientes = apagaCatClientes(catClientes);
-	faturacaoGlobal = apagaFaturacaoGlobal(faturacaoGlobal);
-	
-	for(i = 0; i <= N_FILIAIS; ++i)
-		filiais[i] = apagaFilial(filiais[i]);
-	
-	fichCarregados = FALSE;
+	if(fichCarregados == TRUE){
+		apagaEstruturas();
+		fichCarregados = FALSE;
+	}
 	return SAIR;
 }
