@@ -63,7 +63,7 @@
 /* Imprime os tempos se estiver ativado */
 #define MODO_MEDICAO_TEMPOS 1
 #ifdef MODO_MEDICAO_TEMPOS 
-	#define IMPRIME_TEMPOS(s, x) printf("Tempo na %s: %f\n", s, x)
+	#define IMPRIME_TEMPOS(s, x) {printf("Tempo na %s: %f\n", s, x); ENTER_PARA_CONTINUAR();}
 #else
 	#define IMPRIME_TEMPOS(s, x)
 #endif
@@ -207,7 +207,7 @@ int interpreta(char linha[])
 		if(i == 1)
 			r = queries[1]();
 		else if(fichCarregados == FALSE) /* i > 1 && i < N_OPCOES */
-			MSG_ERRO("Erro: Ainda não leu os ficheiros de dados\n")
+			MSG_ERRO("Erro: Precisa de ler os ficheiros de dados\n")
 		else
 			r = queries[i]();
 	}
@@ -364,10 +364,10 @@ int leCatalogoProdutos()
 	FaturacaoGlobal novaFatG;
 
 	fp = perguntaAbreFicheiro(FPRODUTOS, nomeFich, "produtos");
-	inicio = time(NULL); 
 	if(fp == NULL)
 		return ERRO_FICH;
 	
+	inicio = time(NULL); 
 	while(leLinha(codigoProd, MAX_CODIGO_PROD, fp)){ /* leLinha() já limpa a linha lida */
 		p = criaProduto(codigoProd);
 		if(p == NULL) /* falha de alocação ao criar o produto */
@@ -388,7 +388,7 @@ int leCatalogoProdutos()
 		apagaProduto(p); /*sao inseridas copias pelo que o original deve ser apagado*/
 	}
 	fim = time(NULL);
-	IMPRIME_TEMPOS("leitura de Produtos", difftime(fim,inicio));
+	IMPRIME_TEMPOS("Leitura de Produtos", difftime(fim,inicio));
 	fclose(fp);
 	return quantos;
 }
@@ -404,10 +404,10 @@ int leCatalogoClientes()
 	CatClientes novoCatC;
 
 	fp = perguntaAbreFicheiro(FCLIENTES, nomeFich, "clientes");
-	inicio = time(NULL); 
 	if(fp == NULL)
 		return ERRO_FICH;
 	
+	inicio = time(NULL); 
 	while(leLinha(codigoCliente, MAX_CODIGO_CLIENTE, fp)){ /* leLinha() já limpa o(s) caratere(s) de newline */
 		c = criaCliente(codigoCliente);
 		if(c == NULL) /* falha de alocação ao criar o cliente */
@@ -423,14 +423,12 @@ int leCatalogoClientes()
 		++quantos;
 	}
 	fim = time(NULL);
+	IMPRIME_TEMPOS("Leitura de Clientes", difftime(fim,inicio));
 	fclose(fp);
-	IMPRIME_TEMPOS("leitura de clientes", difftime(fim,inicio));
 	return quantos;
 }
 
-/* por get e verifica na mesma macro */
 #define GET strtok(NULL," \r\n");
-
 #define MAX_UNIDADES 200
 #define MAX_PRECO 999.99
 
@@ -446,6 +444,7 @@ int insereSeValida(char linhaVenda[MAX_BUFFER_VENDAS])
 
 	it = strtok(linhaVenda, " ");
 	produto = criaProduto(it);
+	if(produto == NULL) return ERRO_MEM;
 
 	it = GET;
 	preco = atof(it);
@@ -458,6 +457,10 @@ int insereSeValida(char linhaVenda[MAX_BUFFER_VENDAS])
 
 	it = GET;
 	cliente = criaCliente(it);
+	if(cliente == NULL) {
+		apagaProduto(produto);
+		return ERRO_MEM;
+	}
 
 	it = GET;
 	mes = atoi(it);
@@ -472,6 +475,7 @@ int insereSeValida(char linhaVenda[MAX_BUFFER_VENDAS])
 	   preco >= 0 && preco <= 999.99 
 	   && nfilial > 0 && nfilial <= N_FILIAIS)
 	{
+		/* possivel causa de leak se falharem alocaçoes */
 		filiais[nfilial] = registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
 		filialGlobal = registaCompra(filialGlobal, cliente, produto, mes, tipoVenda, unidades, preco);
 		faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;
@@ -500,7 +504,7 @@ int carregaVendasValidas()
 		validas += insereSeValida(linhaVenda);
 	}
 	fim = time(NULL);
-	IMPRIME_TEMPOS("leitura de vendas", difftime(fim, inicio));
+	IMPRIME_TEMPOS("Leitura de Vendas", difftime(fim, inicio));
 	fclose(fp);
 	return validas; 
 }
@@ -609,13 +613,17 @@ static int query2()
 	int r = CONTINUAR;
 	char letra;
 	LStrings lProdsLetra;
+	time_t inicio, fim;
 
 	printf("Introduza a 1ª letra dos códigos de produto que pretende consultar: ");
 	letra = leChar();
-
+	
 	if(isalpha(letra)){
+		inicio = time(NULL);
 		letra = toupper(letra);
 		lProdsLetra = prodsPorLetra(catProds, letra);
+		fim = time(NULL);
+		IMPRIME_TEMPOS("Query 2", difftime(fim, inicio));
 
 		if(lProdsLetra){
 			navega(lProdsLetra);
@@ -648,6 +656,7 @@ static int query3()
 	Produto p;
 	FatProdMes fProdMes;
 	int mes, r = CONTINUAR;
+	time_t inicio, fim;
 
 	printf("Código de produto: ");
 	if(leLinha(codigoProd, MAX_CODIGO_PROD, stdin) == NULL)
@@ -661,8 +670,10 @@ static int query3()
 		printf("Mês: "); mes = leInt();
 		if(MES_VALIDO(mes)){
 			modo = obterModoRes();
+			inicio = time(NULL);
 			fProdMes = obterFatProdMes(faturacaoGlobal, p, mes);
-
+			fim = time(NULL);
+			IMPRIME_TEMPOS("Query 3", difftime(fim, inicio));
 			switch(modo){
 				case 'G':
 					resultadosGlobaisQuery3(fProdMes);
@@ -675,7 +686,6 @@ static int query3()
 					r = INPUT_INVAL;
 					break;
 			}
-			apagaFatProdMes(fProdMes);
 		}
 		else{ /* o mês introduzido é inválido */
 			fprintf(stderr, "O mês '%d' é inválido\n", mes);
@@ -1052,7 +1062,8 @@ static int query11()
 			int i;
 			printf("Códigos dos 3 produtos em que o cliente %s gastou mais dinheiro\n", codigoCliente);
 			for(i = 0; i < 3; ++i)
-				printf("%dº: %s\n", i+1, top3[i]);
+				if(top3[i] != NULL)
+					printf("%dº: %s\n", i+1, top3[i]);
 			apagaArray((void **) top3, 3, free);
 			ENTER_PARA_CONTINUAR();
 		}
