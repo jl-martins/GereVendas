@@ -191,7 +191,7 @@ int interpretador()
 
 int interpreta(char linha[])
 {
-	int i, iPrimNaoEsp;
+	int i, iPrimNaoEsp; /* iPrimNaoEsp - índice do primeiro carater da linha que não é um espaço */
 	int r = CONTINUAR;
 
 	iPrimNaoEsp = avancaEspacosInicio(linha);
@@ -231,6 +231,7 @@ static void imprimeOpcoes(const char* opcoes[N_OPCOES])
 static void opcaoInvalida(const char opcao[])
 {
 	fprintf(stderr, "A opção '%s' é inválida\n\n", opcao);
+	ENTER_PARA_CONTINUAR();
 }
 
 /* Dado um array de LStrings, permite ao utilizador 
