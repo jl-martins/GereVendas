@@ -42,7 +42,7 @@ LStrings criaLStrings(int total, char* strings[])
 
 			if(lStr->strings[i] == NULL){ /* falha de alocação de lStr->strings[i] */
 				lStr->total = i;
-				apagaLStrings(lStr);
+				lStr = apagaLStrings(lStr);
 				return NULL;
 			}
 			strcpy(lStr->strings[i], strings[i]);
@@ -109,12 +109,13 @@ Pagina obterPag(LStrings lStr)
 }
 
 /* Liberta a memória alocada para uma página */
-void apagaPag(Pagina pag)
+Pagina apagaPag(Pagina pag)
 {	
 	if(pag != NULL){
 		apagaArray((void**) pag->strings, pag->total, free);
 		free(pag);
 	}
+	return NULL;
 }
 
 /**

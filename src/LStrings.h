@@ -22,7 +22,7 @@ Pagina obterPag(LStrings l);
 /* Devolve a próxima linha de uma página */
 char* obterLinha(Pagina pag);
 /* Liberta a memória alocada para uma página */
-void apagaPag(Pagina pag);
+Pagina apagaPag(Pagina pag);
 
 /* Devolve o número da página atual */
 int obterNumPag(LStrings l);
