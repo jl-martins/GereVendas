@@ -17,7 +17,6 @@ struct pagina{
 	int indice; /* índice da próxima string a devolver com obterPagina() */
 };
 
-/* Cria uma lista de Strings */
 LStrings criaLStrings(int total, char* strings[])
 {	
 	int i, len;
@@ -54,7 +53,6 @@ LStrings criaLStrings(int total, char* strings[])
 	return lStr;
 }
 
-/* Liberta a memória alocada para uma lista de Strings */
 LStrings apagaLStrings(LStrings lStr)
 {	
 	if(lStr != NULL){
@@ -67,7 +65,6 @@ LStrings apagaLStrings(LStrings lStr)
 
 /* Funções de navegação */
 
-/* Devolve a página atual de uma LStrings ou NULL, em caso de erro. */
 Pagina obterPag(LStrings lStr)
 {
 	int i, j, fimPag; /* fimPag - fim da página atual da LStrings */
@@ -108,7 +105,6 @@ Pagina obterPag(LStrings lStr)
 	return pag;
 }
 
-/* Liberta a memória alocada para uma página */
 Pagina apagaPag(Pagina pag)
 {	
 	if(pag != NULL){
@@ -118,11 +114,6 @@ Pagina apagaPag(Pagina pag)
 	return NULL;
 }
 
-/**
- * Recebe uma página e devolve a próxima linha da mesma, se ainda existirem
- * linhas por obter e se a página existir (i.e.: for diferente de NULL). 
- * Caso contrário, é devolvido NULL.
- */
 char* obterLinha(Pagina pag)
 {
 	char* linha = NULL;
@@ -140,19 +131,16 @@ char* obterLinha(Pagina pag)
 	return linha;
 }
 
-/* Devolve o número da página atual */
 int obterNumPag(LStrings lStr)
 {
 	return lStr->pag;
 }
 
-/* Devolve o número total de Strings numa lista de strings */
 int obterTotal(LStrings lStr)
 {
 	return lStr->total;
 }
 
-/* Devolve o número total de páginas numa LStrings */
 int obterNumTotalPags(LStrings lStr)
 {
 	int total = lStr->total;
@@ -162,11 +150,6 @@ int obterNumTotalPags(LStrings lStr)
 	return res;
 }
 
-/** 
- * A função proxPag() atualiza o índice e a página de uma LStrings
- * se a página atual não for a última. Se o utilizador estiver na
- * última página, a função proxPag() não tem qualquer efeito.
- */
 void proxPag(LStrings lStr)
 {	
 	int i = lStr->indice;
@@ -179,11 +162,6 @@ void proxPag(LStrings lStr)
 	}
 }
 
-/** 
- * A função pagAnt() atualiza o índice e a página de uma LStrings
- * se a página atual não for a primeira. Se o utilizador estiver na
- * primeira página, a função pagAnt() não tem qualquer efeito.
- */
 void pagAnt(LStrings lStr)
 {
 	int i = lStr->indice;
@@ -195,10 +173,6 @@ void pagAnt(LStrings lStr)
 	}
 }
 
-/**
- * A função irParaPag() avança para a página especificada, se esta
- * não for inferior à primeira ou superior à última página da LStrings.
- */
 void irParaPag(int pag, LStrings lStr)
 {	
 	if(pag >= 1 && pag <= obterNumTotalPags(lStr)){
@@ -212,14 +186,12 @@ void irParaPag(int pag, LStrings lStr)
 	}
 }
 
-/* A função primPag() coloca uma LStrings na sua primeira página. */
 void primPag(LStrings lStr)
 {
 	lStr->pag = 1;
 	lStr->indice = 0;
 }
 
-/* A função primPag() coloca uma LStrings na sua última página. */
 void ultimaPag(LStrings lStr)
 {	
 	int ultima = obterNumTotalPags(lStr);

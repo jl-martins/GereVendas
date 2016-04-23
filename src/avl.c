@@ -2,7 +2,8 @@
 #include "avl.h"
 #include <stdlib.h>
 
-/* Casos Possíveis de evolução das árvores: */
+/* Casos Possíveis de evolução das árvores */
+
 /* A árvore mudou de tamanho devido a uma inserção de um nodo novo e a altura aumentou */
 #define INSERIU_CRESCEU 0
 /* Um nodo novo foi inserido mas não aumentou o tamanho da árvore */
@@ -20,7 +21,7 @@ typedef struct nodoAVL {
 
 typedef struct TCD_AVL {
 	AVL_NODO* raiz;
-	/* funcao usada para atualizar o valor de um nodo (o 1o argumento) usando um segundo elemento*/ 
+	/* funcao usada para atualizar o valor de um nodo (o 1o argumento) usando um segundo elemento */ 
 	Atualizador atualiza;
 	/* funcao de comparacao entre nodos - se o primeiro argumento for < que o segundo, o valor deve ser negativo */
 	Comparador compara;
@@ -33,19 +34,25 @@ typedef struct TCD_AVL {
 } TCD_AVL;
 
 /* Protótipos das funções privadas ao ficheiro */
-static AVL_NODO* insereNodo(AVL_NODO* raiz, void * val, Atualizador atualiza, Comparador compara, Duplicador duplica, int* modo);
-static AVL_NODO* insereEsquerda(AVL_NODO* raiz, void * val, Atualizador atualiza, Comparador compara, Duplicador duplica, int* modo);
-static AVL_NODO* insereDireita(AVL_NODO* raiz, void * val, Atualizador atualiza, Comparador compara, Duplicador duplica, int * modo);
+static AVL_NODO* insereNodo(AVL_NODO* raiz, void* val, Atualizador atualiza, 
+							 Comparador compara, Duplicador duplica, int* modo);
+
+static AVL_NODO* insereEsquerda(AVL_NODO* raiz, void* val, Atualizador atualiza, 
+								 Comparador compara, Duplicador duplica, int* modo);
+
+static AVL_NODO* insereDireita(AVL_NODO* raiz, void* val, Atualizador atualiza, 
+							    Comparador compara, Duplicador duplica, int* modo);
+
 static AVL_NODO* equilibraEsquerda(AVL_NODO* raiz);
 static AVL_NODO* equilibraDireita(AVL_NODO* raiz);
 static AVL_NODO* rodaEsquerda(AVL_NODO* raiz);
 static AVL_NODO* rodaDireita(AVL_NODO* raiz);
 static int alturaAux(const AVL_NODO* raiz);
-static int inorderAux(const AVL_NODO* arv, int i, void ** res, Duplicador duplica);
-/* Remove os nodos de uma AVL ( função auxiliar de apagaAVL() ) */
+static int inorderAux(const AVL_NODO* arv, int i, void** res, Duplicador duplica);
+/* Liberta os nodos de uma AVL ( função auxiliar de apagaAVL() ) */
 static void apagaNodos(AVL_NODO* raiz, LibertarNodo liberta);
 
-/* Devolve NULL quando a alocação falha */
+/* Devolve NULL quando a alocação ou quando não é fornecida uma função de comparação */
 AVL criaAVL(Atualizador atualiza, Comparador compara, Duplicador duplica, LibertarNodo liberta)
 {
 	AVL nova = NULL;
@@ -64,7 +71,7 @@ AVL criaAVL(Atualizador atualiza, Comparador compara, Duplicador duplica, Libert
 	return nova;
 }
 
-AVL insereAVL(AVL arvore, void * val)
+AVL insereAVL(AVL arvore, void* val)
 {
 	int modoInsercao;
 	
@@ -74,8 +81,8 @@ AVL insereAVL(AVL arvore, void * val)
 	return arvore;
 }
 
-/* Partir a assinatura desta função em várias linhas */
-static AVL_NODO* insereNodo(AVL_NODO* raiz, void * val, Atualizador atualiza, Comparador compara, Duplicador duplica, int* modoInsercao)
+static AVL_NODO* insereNodo(AVL_NODO* raiz, void* val, Atualizador atualiza, 
+							 Comparador compara, Duplicador duplica, int* modoInsercao)
 {
 	AVL_NODO* ret = NULL;
 	int comparacao;
@@ -103,7 +110,8 @@ static AVL_NODO* insereNodo(AVL_NODO* raiz, void * val, Atualizador atualiza, Co
 	return ret;
 }
 
-static AVL_NODO* insereEsquerda(AVL_NODO* raiz, void * val, Atualizador atualiza, Comparador compara, Duplicador duplica, int* modoInsercao)
+static AVL_NODO* insereEsquerda(AVL_NODO* raiz, void* val, Atualizador atualiza, 
+								 Comparador compara, Duplicador duplica, int* modoInsercao)
 {
 	raiz->esquerda = insereNodo(raiz->esquerda, val, atualiza, compara, duplica, modoInsercao);
 	
@@ -125,7 +133,8 @@ static AVL_NODO* insereEsquerda(AVL_NODO* raiz, void * val, Atualizador atualiza
 	return raiz;
 }
 
-static AVL_NODO* insereDireita(AVL_NODO* raiz, void * val, Atualizador atualiza, Comparador compara, Duplicador duplica, int* modoInsercao)
+static AVL_NODO* insereDireita(AVL_NODO* raiz, void* val, Atualizador atualiza, 
+							    Comparador compara, Duplicador duplica, int* modoInsercao)
 {
 	raiz->direita = insereNodo(raiz->direita, val, atualiza, compara, duplica, modoInsercao);
 	
@@ -210,7 +219,7 @@ static AVL_NODO* equilibraDireita(AVL_NODO* raiz)
 
 static AVL_NODO* rodaEsquerda(AVL_NODO* raiz)
 {
-	AVL_NODO *aux;
+	AVL_NODO* aux;
 
 	aux = raiz->direita;
 	raiz->direita = aux->esquerda;
@@ -230,7 +239,7 @@ static AVL_NODO* rodaDireita(AVL_NODO* raiz)
 	return raiz;
 }
 
-void * procuraAVL(const AVL arv, void* val)
+void* procuraAVL(const AVL arv, void* val)
 {
 	int rCompara; /* guarda o resultado de cada comparação */
 	void* res = NULL;
@@ -270,9 +279,9 @@ bool existeAVL(const AVL arv, void* val)
 	return existe;
 }
 
-void ** inorderAVL(const AVL arv)
+void** inorderAVL(const AVL arv)
 {
-	void ** res = NULL;
+	void** res = NULL;
 
 	if(arv && arv->raiz){
 		res = malloc(arv->tamanho * sizeof(void *));
@@ -283,7 +292,7 @@ void ** inorderAVL(const AVL arv)
 	return res;
 }
 
-static int inorderAux(const AVL_NODO* raiz, int i, void ** res, Duplicador duplica)
+static int inorderAux(const AVL_NODO* raiz, int i, void** res, Duplicador duplica)
 {	
 	if(raiz){
 		i = inorderAux(raiz->esquerda, i, res, duplica);
@@ -293,19 +302,11 @@ static int inorderAux(const AVL_NODO* raiz, int i, void ** res, Duplicador dupli
 	return i;
 }
 
-/**
- * @param arvore AVL cujo tamanho será retornado
- * @return Tamanho de 'arvore' se esta existir. -1 caso contrário.
- */
 int tamanhoAVL(const AVL arvore)
 {
 	return (arvore == NULL) ? -1 : arvore->tamanho;
 }
 
-/**
- * @param arvore AVL cuja altura será calculada
- * @return A altura de 'arvore' se esta exisitir. -1 caso contrário.
- */ 
 int alturaAVL(const AVL arvore)
 {
 	return (arvore == NULL) ? -1 : alturaAux(arvore->raiz);

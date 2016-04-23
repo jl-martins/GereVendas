@@ -1,26 +1,46 @@
-#ifndef PRODUTO_T 
-#define PRODUTO_T 
+/**
+ * @file produto.h
+ * @author LI3_Grupo1
+ * @date 23 Apr 2016
+ * @brief Ficheiro com a definição e API do tipo de dados abstrato @c Produto.
+ */
 
-#define MAX_CODIGO_PROD 16
+#ifndef PRODUTO_H
+#define PRODUTO_H
 
 typedef struct produto* Produto;
 
-/** Cria um porduto com codigo codigoProduto */
+/** 
+ * @brief Cria um produto com o código passado como parâmetro. 
+ * @param codigoProduto Código do produto a criar.
+ * @return Produto criado em caso de sucesso. NULL em caso de falha de alocação.
+ */
 Produto criaProduto(char* codigoProduto);
 
-/** Apaga um produto */
+/** 
+ * @brief Liberta a memória alocada para guardar um produto.
+ * @param p Produto a libertar.
+ * @return É sempre retornado @c NULL.
+ */
 Produto apagaProduto(Produto p);
 
-/** Devolve o codigo de um produto */
+/** 
+ * @brief Devolve uma cópia do código de um produto ou NULL
+ * em caso de falha de alocação.
+ */
 char* obterCodigoProduto(Produto prod);
 
-/** Devolve a 1a letra do codigo de um produto */
+/** @brief Devolve a 1a letra do código de um produto. */
 char inicioCodigoProduto(Produto prod);
 
-/** Compara os codigos de dois produtos */
+/** 
+ * @brief Compara os códigos de dois produtos.
+ * @return Um valor < 0 se o código de p1 for meno que o de p2, igual a 0
+ * se os códigos forem iguais e > 0 se o código de p1 for maior que o de p2.
+ */
 int comparaCodigosProduto(Produto p1, Produto p2);
 
-/** Cria um produto com o mesmo codigo */
+/** @brief Devolve uma cópia do produto passado como parâmetro. */
 Produto duplicaProduto(Produto p);
 
 #endif

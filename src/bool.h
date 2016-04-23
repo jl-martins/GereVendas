@@ -1,4 +1,9 @@
-/* definir funcçoes de E e OU ou usar o bool.h standard*/
+/**
+ * @file bool.h
+ * @author LI3_Grupo1
+ * @date 23 Apr 2016
+ * @brief Ficheiro com a definição do tipo @c bool.
+ */
 
 #ifndef BOOL_H
 #define BOOL_H
