@@ -1,7 +1,7 @@
 /**
  * @file avl.h
  * @author LI3_Grupo1
- * @date 23 Apr 2016
+ * @date 23 de Abril de 2016
  * @brief Ficheiro com os TAD e API para criar e manipular AVLs genéricas.
  */
 
@@ -45,7 +45,7 @@ AVL insereAVL(AVL arvore, void* val);
 /** 
  * Apaga uma AVL (i.e.: liberta toda a memória alocada para a mesma) 
  * @param arvore Arvore que vai ser libertada 
- * @return NULL
+ * @return É sempre retornado @c NULL
  */
 AVL apagaAVL(AVL arvore);
 

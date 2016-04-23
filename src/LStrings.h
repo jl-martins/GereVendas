@@ -1,7 +1,7 @@
 /**
  * @file LStrings.h
  * @author LI3_Grupo1
- * @date 23 Apr 2016
+ * @date 23 de Abril de 2016
  * @brief Ficheiro com funções que permitem criar e navegar em listas de strings genéricas
  *
  * Este ficheiro contém todas as funções e tipos abstratos de dados associados com a criação

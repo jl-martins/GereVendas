@@ -53,7 +53,7 @@
 /* Macros utilizadas na navegação, leitura e validação de dados */
 #define ENTER_PARA_CONTINUAR() printf("Prima ENTER para continuar: "); leChar()
 #define IMPRIME_OPCOES_NAVEGA() \
-	printf("1) Pag. ant. | 2) Pag. seg. | 3) Selec. pag. | 4) Prim. pag. | 5) Ult. pag. | 6) Info. | 7) Sair\n")
+	puts("\n[1] Pag. ant.  [2] Pag. seg.   [3] Selec. pag.   [4] Prim. pag.   [5] Ult. pag  [6] Info.  [7] Sair")
 #define MSG_ERRO(msg) {fputs(msg, stderr); ENTER_PARA_CONTINUAR();}
 #define IMPRIME_SEPARADOR() puts("----------------------------------------------------------------");
 
@@ -92,7 +92,6 @@ static bool fichCarregados = FALSE; /* indica se os ficheiros já foram carregad
 #define filialGlobal filiais[0]
 
 /* Opções do interpretador de comandos */
-/* A opção de sair deve ser a última apresentada mas deve ter código 0 */
 static const char* opcoes[] = {
 		NULL,
 		"Ler ficheiros",
@@ -102,7 +101,7 @@ static const char* opcoes[] = {
 		"Tabela com as compras efetuadas por um cliente",
 		"Vendas e faturação total para um intervalo fechado de meses",
 		"Lista ordenada de clientes que realizaram compras em todas as filiais",
-		"Códigos e nº total de clientes que compraram um certo produto numa dada filial",
+		"Códigos e nº total de clientes que compraram um produto numa dada filial",
 		"Produtos mais comprados por um cliente num dado mês",
 		"Informação sobre os N produtos mais vendidos do ano",
 		"Códigos dos 3 produtos em que um cliente gastou mais dinheiro",
@@ -113,11 +112,14 @@ static const char* opcoes[] = {
 void splashScreen();
 int interpretador();
 int interpreta(char linha[]);
+
 /* Funções de navegação */
 void navegaVarias(LStrings lStrArr[], int tamanho);
 void navega(LStrings lStr);
+
 /* Recebe um array de strings com opções. Imprime uma opção por linha */
 static void imprimeOpcoes(const char* opcoes[N_OPCOES]);
+
 /* Apresentação de mensagens de erro */
 static void opcaoInvalida(const char opcao[]);
 
@@ -140,9 +142,11 @@ static int query12();
 static void apagaEstruturas();
 static int criaEstruturas();
 static int leFicheiros();
+
 /* Funções auxiliares da query3 */
 static void resultadosGlobaisQuery3(FatProdMes);
 static void resultadosFiliaisQuery3(FatProdMes);
+
 /* Função auxiliar da query10 */
 static LStrings criaResultadosQuery10(int N, int filial);
 
@@ -156,8 +160,9 @@ static void imprimeInformacaoLStrings(LStrings);
 /* Função invocada imediatamente antes de sair */
 static int sair();
 
-Query queries[] = {NULL, query1, query2, query3, query4, query5, query6, query7, query8,
-		     query9, query10, query11, query12, sair};
+Query queries[] = {NULL, query1, query2, query3, query4, query5, query6,
+					query7, query8, query9, query10, query11, query12, sair};
+
 /* array de apontadores para as funções de navegação de LStrings */
 static opcaoNavega opsNavega[] = {
 	NULL,
@@ -208,6 +213,17 @@ int interpretador()
 	return r;
 }
 
+/* Imprime as opções do GereVendas */
+static void imprimeOpcoes(const char* opcoes[N_OPCOES])
+{
+	int i;
+
+	puts("Opções:\n");
+	for(i = 1; i <= N_OPCOES; ++i)
+		printf("%2d) %s\n", i, opcoes[i]);
+	printf("\n>>> ");
+}
+
 int interpreta(char linha[])
 {
 	int i, iPrimNaoEsp; /* iPrimNaoEsp - índice do primeiro carater da linha que não é um espaço */
@@ -235,17 +251,6 @@ int interpreta(char linha[])
 	return r;
 }
 
-/* Imprime as opções do GereVendas */
-static void imprimeOpcoes(const char* opcoes[N_OPCOES])
-{
-	int i;
-
-	puts("Opções:\n");
-	for(i = 1; i <= N_OPCOES; ++i)
-		printf("%2d) %s\n", i, opcoes[i]);
-	printf("\n>>> ");
-}
-
 /* Mensagem de opção inválida */
 static void opcaoInvalida(const char opcao[])
 {
@@ -253,8 +258,7 @@ static void opcaoInvalida(const char opcao[])
 	ENTER_PARA_CONTINUAR();
 }
 
-/* Dado um array de LStrings, permite ao utilizador 
- * escolher em qual LStrings pretende navegar. */
+/* Dado um array de LStrings, permite ao utilizador escolher em qual LStrings pretende navegar. */
 void navegaVarias(LStrings lStrArr[], int tamanho)
 {	
 	int i;
@@ -265,7 +269,7 @@ void navegaVarias(LStrings lStrArr[], int tamanho)
 		printf("Introduza o número da filial que pretende "
 			   "ou %d se pretender sair\n\n>>> ", tamanho + 1);
 		i = leInt();
-		if(i > 0 && i <= tamanho) /* a indexação começa em 1 */
+		if(i > 0 && i <= tamanho) /* a indexação de lStrArr[] começa em 1 */
 			navega(lStrArr[i]);
 		else if(i == (tamanho + 1))
 			sair = TRUE;
@@ -383,7 +387,7 @@ int leCatalogoProdutos()
 		return ERRO_FICH;
 	
 	inicio = time(NULL); 
-	while(leLinha(codigoProd, MAX_BUFFER_PROD, fp)){ /* leLinha() já limpa a linha lida */
+	while(leLinha(codigoProd, MAX_BUFFER_PROD, fp)){ /* leLinha() já limpa o(s) caratere(s) de newline */
 		p = criaProduto(codigoProd);
 		if(p == NULL) /* falha de alocação ao criar o produto */
 			return ERRO_MEM; 
@@ -442,7 +446,8 @@ int leCatalogoClientes()
 	fclose(fp);
 	return quantos;
 }
-
+/* a função leLinha() já retira o carater de 'newline' da linha, logo podemos usar
+ * strok() com o delimitador " ", ao processar as linhas do ficheiro de vendas */ 
 #define GET strtok(NULL," ");
 
 /* Dada uma linha com informação da venda, a função processa a informação da venda e, se for válida, regista a compra */
@@ -489,7 +494,6 @@ int insereSeValida(char linhaVenda[MAX_BUFFER_VENDAS])
 	   PRECO_VALIDO(preco) && 
 	   FILIAL_VALIDA(nfilial))
 	{
-		/* possivel causa de leak se falharem alocaçoes */
 		filiais[nfilial] = registaCompra(filiais[nfilial], cliente, produto, mes, tipoVenda, unidades, preco);
 		filialGlobal = registaCompra(filialGlobal, cliente, produto, mes, tipoVenda, unidades, preco);
 		faturacaoGlobal = registaVenda(faturacaoGlobal, produto, preco, unidades, tipoVenda, nfilial, mes) ;
@@ -523,8 +527,6 @@ int carregaVendasValidas()
 	return validas; 
 }
 
-/* alterar para inserir os caminhos dos ficheiros */
-/* se necessaro, inserir FilialTotal ou guardar informação relativa a todos os meses na filial*/
 static int query1()
 {
 	int r;
@@ -654,7 +656,7 @@ static char obterModoRes()
 {	
 	char c;
 
-	printf("Resultados globais[G] ou por filial[F]? ");
+	printf("Resultados globais [G] ou por filial [F]? ");
 	c = leChar();
 	return toupper(c);
 }
@@ -801,7 +803,7 @@ static int query5()
 
 		for(i = 1; i <= N_FILIAIS; i++)
 			comprasPorFilial[i] = unidadesClientePorMes(filiais[i], cliente); 	
-		/* ver o que acontece se for NULL */	
+	
 		IMPRIME_SEPARADOR();
 		printf("|  Meses  |");
 		for(i = 1; i <= N_FILIAIS; i++)
@@ -941,7 +943,7 @@ int query8(){
 				produto = apagaProduto(produto);
 				return ERRO_MEM;
 			}
-			/* ver se o tamanho esta certo */
+
 			quemComprouN = malloc(sizeof(char *) * nClientes); 	
 			quemComprouP = malloc(sizeof(char *) * nClientes); 	
 			for(i = 0; i < nClientes; i++){
@@ -954,7 +956,6 @@ int query8(){
 				}
 				clientes[i] = apagaCliente(clientes[i]);
 			}
-			/* >>> a alocação de memória para as LStrings pode falhar */
 			compraramN = criaLStrings(indexN, quemComprouN);
 			compraramP = criaLStrings(indexP, quemComprouP);
 			apagaArray((void **) quemComprouN, indexN, free);
@@ -1057,6 +1058,7 @@ static int query10()
 			inicio = time(NULL);	
 			if(resultados[filial] == NULL){ /* ainda não calculamos a LString com os resultados da filial pedida */
 				resultados[filial] = criaResultadosQuery10(N, filial);
+				
 				if(resultados[filial] == NULL){ /* falha de alocação a criar uma LStrings */
 					for(filial = 1; filial <= N_FILIAIS; ++filial)
 						resultados[filial] = apagaLStrings(resultados[filial]);
@@ -1101,7 +1103,7 @@ static LStrings criaResultadosQuery10(int N, int filial)
 			return NULL;
 		}
 		nClientes = numeroClientesCompraramProduto(filiais[filial], produtos[i], &nUnidades);
-		sprintf(linha, "%3s     NºClientes: %5d     Qtd: %8d", produtos[i], nClientes, nUnidades);
+		sprintf(linha, "%3d) %s | NºClientes: %5d | Qtd: %8d", i+1, produtos[i], nClientes, nUnidades);
 		imprimir[i] = linha;
 	}
 	lStr = criaLStrings(N, imprimir);
@@ -1131,7 +1133,7 @@ static int query11()
 		if(top3){
 			int i;
 
-			printf("Códigos dos 3 produtos em que o cliente '%s' gastou mais dinheiro\n", codigoCliente);
+			printf("> Códigos dos 3 produtos em que o cliente '%s' gastou mais dinheiro\n", codigoCliente);
 			for(i = 0; i < 3 && top3[i]; ++i)
 				printf("%dº: %s\n", i+1, top3[i]);
 			apagaArray((void **) top3, 3, free);

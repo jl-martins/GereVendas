@@ -1,3 +1,10 @@
+/**
+ * @file cliente.h
+ * @author LI3_Grupo1
+ * @date 23 Apr 2016
+ * @brief Ficheiro com a definição e API do tipo abstrato de dados @c Cliente.
+ */
+
 #ifndef CLIENTE_T
 #define CLIENTE_T
 

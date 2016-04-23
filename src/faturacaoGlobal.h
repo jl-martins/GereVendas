@@ -1,7 +1,7 @@
 /**
  * @file faturacaoGlobal.h
  * @author LI3_Grupo1
- * @date 23 Apr 2016
+ * @date 23 de Abril de 2016
  * @brief Ficheiro com as funções e TADs da faturação global do projeto @verbatim gereVendas @endverbatim
  *
  * Este ficheiro contém todas as funções e tipos abstratos de dados associados

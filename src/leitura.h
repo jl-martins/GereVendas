@@ -1,7 +1,7 @@
 /**
  * @file leitura.h
  * @author LI3_Grupo1
- * @date 23 Apr 2016
+ * @date 23 de Abril de 2016
  * @brief Ficheiro com a assinatura de várias funções para usar na leitura e processamento de input.
  */
 

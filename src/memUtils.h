@@ -1,7 +1,7 @@
 /**
  * @file memUtils.h
  * @author LI3_Grupo1
- * @date 23 Apr 2016
+ * @date 23 de Abril de 2016
  * @brief Ficheiro com funções genéricas para alocar e desalocar memória.
  */
 
