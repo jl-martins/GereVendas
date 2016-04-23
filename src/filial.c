@@ -416,7 +416,7 @@ char** tresProdsEmQueMaisGastou(Filial filial, Cliente c)
  * cujo código está em codigosProds[i]. O array totalGasto[3] é então
  * ordenado decrescentemente e codigosProds[3] é permutado de forma a 
  * que a correspondência entre produtos e total gasto seja mantida. */
-void ordenaTop3(char* codigosProds[3], double totalGasto[3])
+static void ordenaTop3(char* codigosProds[3], double totalGasto[3])
 {
 	int i, j;
 	
@@ -432,7 +432,6 @@ void ordenaTop3(char* codigosProds[3], double totalGasto[3])
 	}
 }
 
-/* dada uma filial e um codigo de Cliente, devolve o numero de clientes que compraram o Produto e a quandtidade na unidadesCompradas*/
 int numeroClientesCompraramProduto(Filial filial, char * produto, int * unidadesCompradas){
 	int i, elems, unidades = 0, conta = 0, j;
 	ComprasDoProduto encontrou;

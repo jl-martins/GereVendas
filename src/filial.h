@@ -36,7 +36,11 @@ LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes);
  * dos 3 produtos em que o cliente gastou mais dinheiro durante o ano */
 char** tresProdsEmQueMaisGastou(Filial filial, Cliente c);
 
+/*Dado um cliente, uma filial e um produto, verifica se o cliente comprou em modo Normal e 
+  se comprou em modo de promoção. os resultados sao guardados nas variaveis passadas cmo referencia */
 void comprou(Filial filial, Cliente cliente, Produto produto, bool * comprouN, bool * comprouP);
+
+/* Dada uma filial e um codigo de Cliente, devolve o numero de clientes que compraram o Produto e a quandtidade na variavel unidadesCompradas passada por referencia*/
 int numeroClientesCompraramProduto(Filial filial, char * produto, int * unidadesCompradas);
 
 #endif
