@@ -125,7 +125,7 @@ static void atualizaFatAnualProd(void* p1, void* p2)
 }
 /* Fim das funções de atualização dos nodos das AVLs */
 
-/* Funções de duplicação dos nodos das AVLs utilizadas neste módulo */
+/* Funções usadas na duplicação dos nodos das AVLs utilizadas neste módulo */
 static void* duplicaFatAnualProd(void* p)
 {	
 	int i;
@@ -258,8 +258,6 @@ static void apagaFatMes(FatMes fMes)
 	}
 }
 
-/* Regista um produto na faturação global, guardando-o na AVL de total de unidades
- * vendidas, com um total de vendas nulo para cada uma das filiais. */
 FaturacaoGlobal registaProduto(FaturacaoGlobal fg, Produto p)
 {	
 	int arrTotalUnids[N_FILIAIS+1] = {0};
@@ -268,7 +266,7 @@ FaturacaoGlobal registaProduto(FaturacaoGlobal fg, Produto p)
 	AVL nova;
 
 	fAnualProd = criaFatAnualProd(codProd, arrTotalUnids);
-	if(fAnualProd == NULL)/* falha a criar a struct fatAnualProd */
+	if(fAnualProd == NULL) /* falha a criar a struct fatAnualProd */
 		return NULL;
 
 	nova = insereAVL(fg->todosProdutos, fAnualProd); 
@@ -296,8 +294,6 @@ static FatAnualProd criaFatAnualProd(char* codProd, int arrTotalUnids[N_FILIAIS+
 	return fAnualProd;
 }
 
-/* Regista uma venda na faturação global, atualizando a faturação do mês
- * da venda registada e a faturação anual (i.e.: a que referencia todos os produtos) */
 FaturacaoGlobal registaVenda(FaturacaoGlobal fg, Produto p, double precoUnit,
 							 int quantidade, TipoVenda tipo, int filial, int mes)
 {

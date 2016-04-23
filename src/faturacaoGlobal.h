@@ -24,7 +24,7 @@ typedef struct fatGlobal* FaturacaoGlobal;
 typedef struct fatProdMes* FatProdMes;
 
 /**
- * @brief Cria a estrutura usada para guardar todas as informações da faturação global.
+ * @brief Cria a faturação global.
  * @return Referência da estrutura criada, em caso de sucesso. @c NULL caso contrário.
  */
 FaturacaoGlobal criaFaturacaoGlobal();
@@ -51,8 +51,8 @@ FaturacaoGlobal registaProduto(FaturacaoGlobal fg, Produto p);
  * @param precoUnit Preço unitário do produto.
  * @param quantidade Quantidade vendida.
  * @param tipo Tipo de venda (N ou P).
- * @param mes Mes da venda.
- * @return ReferÊncia da faturação global em caso de sucesso. @c NULL c.c.
+ * @param mes Mês da venda.
+ * @return Referência da faturação global em caso de sucesso. @c NULL c.c.
  */
 FaturacaoGlobal registaVenda(
 	FaturacaoGlobal fg,
@@ -67,7 +67,8 @@ FaturacaoGlobal registaVenda(
 /**
  * @brief Calcula o total de vendas num dado mês.
  * @param fg Faturação global a consultar.
- * @param mes Mês para o qual se pretende calcular o total de unidades vendidas.
+ * @param mes Mês para o qual se pretende calcular o total de vendas.
+ * @return Total de vendas do mês especificado.
  */
 int totalVendasMes(const FaturacaoGlobal fg, int mes);
 
@@ -75,6 +76,7 @@ int totalVendasMes(const FaturacaoGlobal fg, int mes);
  * @brief Calcula o total faturado num dado mês. 
  * @param fg Faturação global a consultar.
  * @param mes Mês para o qual se pretende calcular o total faturado.
+ * @return Total faturado no mês especificado.
  */
 double totalFaturadoMes(const FaturacaoGlobal fg, int mes);
 
@@ -83,6 +85,7 @@ double totalFaturadoMes(const FaturacaoGlobal fg, int mes);
  * @param fg Faturação global a consultar.
  * @param inicio Início do intervalo fechado de meses.
  * @param fim Fim do intervalo fechado de meses.
+ * @return Total de vendas do intervalo fechado de meses.
  */
 int totalVendasIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
 
@@ -91,6 +94,7 @@ int totalVendasIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
  * @param fg Faturação global a consultar.
  * @param inicio Início do intervalo fechado de meses.
  * @param fim Fim do intervalo fechado de meses.
+ * @return Total faturado no intervalo fechado de meses.
  */
 double totalFatIntervMeses(const FaturacaoGlobal fg, int inicio, int fim);
 
@@ -127,10 +131,10 @@ int totalUnidsProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
 /**
  * @brief A partir da faturação de um produto num mês (obtida com @c obterFatProdMes())
- * produz um array com as vendas do tipo especificado, para cada filial.
+ * produz um array com as unidades vendidas em cada filial, para o tipo de venda escolhido.
  * @param fProdMes Faturação de um produto num mês, obtida com obterFatProdMes().
  * @param tipo Tipo de venda pretendido (N ou P).
- * @return Array que na posição i tem o número de vendas registadas
+ * @return Array que na posição i tem o número de unidades registadas
  * em 'fProdMes', para a filial i e para o tipo de venda especificado.
  * @warning Se ocorrer uma falha de alocação, é devolvido NULL
  */
@@ -141,17 +145,17 @@ int* unidsPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo);
  * calcula o total faturado com vendas do tipo especificado (N ou P).
  * @param fProdMes Faturação de um produto num mês, obtida com obterFatProdMes().
  * @param tipo Tipo de venda pretendido (N ou P)
- * @return Faturação total registada em 'fProdMes', para vendas do tipo especificado.
+ * @return Faturação total registada em 'fProdMes', para vendas do tipo escolhido.
  */
 double faturacaoTotalProdMes(const FatProdMes fProdMes, TipoVenda tipo);
 
 /**
  * @brief A partir da faturação de um produto num mês (obtida com @c obterFatProdMes())
- * produz um array com as vendas do tipo especificado, para cada filial.
+ * produz um array com a faturação total das vendas do tipo especificado, para cada filial.
  * @param fProdMes Faturação de um produto num mês, obtida com obterFatProdMes().
  * @param tipo Tipo de venda pretendido (N ou P).
- * @return Array que na posição i tem o número de vendas registadas.
- * em 'fProdMes', para a filial i e para o tipo de venda especificado.
+ * @return Array que na posição i tem a faturação total registada
+ * em 'fProdMes', para a filial i e para o tipo de venda escolhido.
  * @warning Se ocorrer uma falha de alocação, é devolvido NULL
  */
 double* faturacaoPorFilialProdMes(const FatProdMes fProdMes, TipoVenda tipo);
@@ -183,6 +187,17 @@ LStrings naoCompradosGlobal(const FaturacaoGlobal fg);
  */
 LStrings* naoCompradosPorFilial(const FaturacaoGlobal fg);
 
+/**
+ * @brief Dada uma filial e um número 'N', produz um array com 
+ * os códigos dos 'N' produtos mais vendidos nessa filial.
+ * @param fg Faturação global a consultar.
+ * @param N Tamanho do array que vai ser devolvido (se N <= totalProdutos)
+ * @param filial Filial a considerar.
+ * @return Array com os códigos dos 'N' produtos mais vendidos na filial
+ * escolhida, ordenado decrescentemente pelo total de vendas.
+ * @warning Se N for maior que #totalProdutos, é devolvido um array
+ * de comprimento igual a ao #totalProdutos. 
+ */
 char** NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial);
 
 #endif
