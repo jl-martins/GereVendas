@@ -414,7 +414,7 @@ int leCatalogoClientes()
 	FILE* fp;
 	int quantos = 0;
 	char nomeFich[MAX_NOME_FICH];
-	char codigoCliente[MAX_CODIGO_CLIENTE];
+	char codigoCliente[MAX_BUFFER_CLIS];
 	Cliente c;
 	CatClientes novoCatC;
 
@@ -423,7 +423,7 @@ int leCatalogoClientes()
 		return ERRO_FICH;
 	
 	inicio = time(NULL); 
-	while(leLinha(codigoCliente, MAX_CODIGO_CLIENTE, fp)){ /* leLinha() já limpa o(s) caratere(s) de newline */
+	while(leLinha(codigoCliente, MAX_BUFFER_CLIS, fp)){ /* leLinha() já limpa o(s) caratere(s) de newline */
 		c = criaCliente(codigoCliente);
 		if(c == NULL) /* falha de alocação ao criar o cliente */
 			return ERRO_MEM;
@@ -784,12 +784,12 @@ static int query4()
 
 static int query5()
 {
-	char codigoCliente[MAX_CODIGO_CLIENTE];
+	char codigoCliente[MAX_BUFFER_CLIS];
 	int r = CONTINUAR;
 	Cliente cliente;
 
 	printf("Insira um código de cliente: ");
-	if(leLinha(codigoCliente, MAX_CODIGO_CLIENTE, stdin) == NULL)
+	if(leLinha(codigoCliente, MAX_BUFFER_CLIS, stdin) == NULL)
 		return INPUT_INVAL;
 
 	if((cliente = criaCliente(codigoCliente)) == NULL) /* falha de alocação */
@@ -1001,12 +1001,12 @@ int query8(){
 static int query9()
 {	
 	int mes, r = CONTINUAR;
-	char codigoCliente[MAX_CODIGO_CLIENTE];
+	char codigoCliente[MAX_BUFFER_CLIS];
 	Cliente c;
 	time_t inicio, fim;
 
 	printf("Introduza o código do cliente: ");
-	if(leLinha(codigoCliente, MAX_CODIGO_CLIENTE, stdin) == NULL)
+	if(leLinha(codigoCliente, MAX_BUFFER_CLIS, stdin) == NULL)
 		return INPUT_INVAL;
 
 	c = criaCliente(codigoCliente);
@@ -1114,11 +1114,11 @@ static int query11()
 {	
 	int r = CONTINUAR;
 	Cliente c;
-	char codigoCliente[MAX_CODIGO_CLIENTE];
+	char codigoCliente[MAX_BUFFER_CLIS];
 	time_t inicio, fim;
 
 	printf("Introduza o código do cliente: ");
-	if(leLinha(codigoCliente, MAX_CODIGO_CLIENTE, stdin) == NULL)
+	if(leLinha(codigoCliente, MAX_BUFFER_CLIS, stdin) == NULL)
 		return INPUT_INVAL;
 
 	inicio = time(NULL);

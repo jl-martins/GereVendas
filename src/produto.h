@@ -2,7 +2,7 @@
  * @file produto.h
  * @author LI3_Grupo1
  * @date 23 Apr 2016
- * @brief Ficheiro com a definição e API do tipo de dados abstrato @c Produto.
+ * @brief Ficheiro com a definição e API do tipo abstrato de dados @c Produto.
  */
 
 #ifndef PRODUTO_H
@@ -35,7 +35,7 @@ char inicioCodigoProduto(Produto prod);
 
 /** 
  * @brief Compara os códigos de dois produtos.
- * @return Um valor < 0 se o código de p1 for meno que o de p2, igual a 0
+ * @return Um valor < 0 se o código de p1 for menor que o de p2, igual a 0
  * se os códigos forem iguais e > 0 se o código de p1 for maior que o de p2.
  */
 int comparaCodigosProduto(Produto p1, Produto p2);

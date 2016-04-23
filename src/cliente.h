@@ -1,25 +1,39 @@
 #ifndef CLIENTE_T
 #define CLIENTE_T
 
-#define MAX_CODIGO_CLIENTE 8
 typedef struct cliente* Cliente;
 
-/** Cria um cliente com codigo codigoCliente */
+/** 
+ * @brief Cria um cliente com o código passado como parâmetro. 
+ * @param codigoCliente Código do cliente a criar.
+ * @return Cliente criado em caso de sucesso. NULL em caso de falha de alocação.
+ */
 Cliente criaCliente(char* codigoCliente);
 
-/** Apaga um cliente */
+/** 
+ * @brief Liberta a memória alocada para guardar um cliente.
+ * @param c Cliente a libertar.
+ * @return É sempre retornado @c NULL.
+ */
 Cliente apagaCliente(Cliente c);
 
-/** Devolve o codigo do cliente */
+/** 
+ * @brief Devolve uma cópia do código de um
+ * cliente ou NULL em caso de falha de alocação.
+ */
 char* obterCodigoCliente(Cliente c);
 
-/** Devolve a 1a letra do codigo de um cliente */
+/** @brief Devolve a 1a letra do codigo de um cliente */
 char inicioCodigoCliente(Cliente c);  
 
-/** Compara os codigos de Clientes */
+/** 
+ * @brief Compara os códigos de dois clientes.
+ * @return Um valor < 0 se o código de c1 for menor que o de c2, igual a 0
+ * se os códigos forem iguais e > 0 se o código de c1 for maior que o de c2.
+ */
 int comparaCodigosCliente(Cliente c1, Cliente c2);
 
-/** Cria um cliente com o mesmo codigo que o que lhe foi passado */
+/** @brief Devolve uma cópia do cliente passado como parâmetro. */
 Cliente duplicaCliente(Cliente c);
 
 #endif
