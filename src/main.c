@@ -1014,11 +1014,12 @@ static int query9()
 	apagaCliente(c);
 	return r;
 }
-/* Limpar o código desta função */
+
+
 static int query10()
 {
 	/* fazer tabela em vez de LString */
-	int N, i, filial, nClientes, nUnidades;
+	int N, i, filial, nClientes, nUnidades ;
 	LStrings resultados[N_FILIAIS+1] = {NULL};
 	char ** produtos, **imprimir;
 	char * linha;
@@ -1043,13 +1044,12 @@ static int query10()
 				}
 				
 				/* N = min(N, ...) */
-				/* preparar para o caso do N ser maior que o numero de ...*/	
+				/* preparar para o caso do N ser maior que o numero de produtos vendidos na filial*/	
 				for(i = 0; i < N; i++){ /* cria as linhas a introduzir na LStrings */
 					linha = malloc(sizeof(char *) * (MAX_BUFFER_VENDAS));	
 					if(linha == NULL){
-						for(--i; i >= 0; i--)
-							free(imprimir[i]);
-						free(imprimir);
+						apagaArray((void **) imprimir, --i, free);
+						apagaArray((void **) produtos, N, free);
 						/* falta libertar produtos */		
 						return ERRO_MEM;
 					}
@@ -1059,6 +1059,7 @@ static int query10()
 				}
 				resultados[filial] = criaLStrings(N, imprimir);
 				apagaArray((void **) imprimir, N, free);
+				apagaArray((void **) produtos, N, free);
 			}
 			navega(resultados[filial]);
 		}
