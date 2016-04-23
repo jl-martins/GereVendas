@@ -7,7 +7,7 @@
  * Este ficheiro contém todas as funções e tipos abstratos de dados associados
  * à faturação global do projeto @verbatim gereVendas @endverbatim. As funções
  * referenciadas neste .h permitem criar e apagar a faturação global, bem como 
- * obter informações sobre as vendas de mensais ou do ano todo no hipermercado em questão.
+ * obter informações sobre as vendas mensais ou do ano todo no hipermercado em questão.
  */
 
 #ifndef FATURACAO_H

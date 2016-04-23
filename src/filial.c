@@ -1,17 +1,8 @@
-#define DEBUG_MODE 1
-
-#if DEBUG_MODE
-	#include <stdio.h>
-	#define DEBUG(X) printf(X); 
-#else
-	#define DEBUG(X)
-#endif
-
-#include <stdlib.h>
-#include <string.h>
 #include "filial.h"
 #include "avl.h"
 #include "memUtils.h"
+#include <stdlib.h>
+#include <string.h>
 
 typedef AVL AVL_ComprasDoProduto;
 typedef AVL AVL_ComprasPorCliente;
@@ -22,11 +13,13 @@ struct filial{
 
 typedef struct comprasPorCliente {
 	char * cliente;
-	AVL_ComprasDoProduto comprasPorMes[13]; /* ao indice 0 corresponde as compras durante todo o ano, ao indice i corresponde a compra no mes i*/
+	/* O indice 0 dá-nos as compras do ano todo.
+	 * O indice i corresponde a compra no mes i*/
+	AVL_ComprasDoProduto comprasPorMes[13];
 }* ComprasPorCliente;
 
 typedef struct comprasDoProduto {
-	char * produto;
+	char* produto;
 	int unidades;
 	double faturacao;
 	bool modoP, modoN;
@@ -88,7 +81,8 @@ static void apagaComprasDoProduto(void* p)
 	}
 }
 
-static void * duplicaComprasDoProduto(void* p){
+static void * duplicaComprasDoProduto(void* p)
+{
 	ComprasDoProduto original = p;
 	ComprasDoProduto copia = NULL;
 	char * copiaProduto;
@@ -116,7 +110,8 @@ static void * duplicaComprasDoProduto(void* p){
 	return (void *) copia;
 }
 
-Filial criaFilial(){
+Filial criaFilial()
+{
 	int i, j;
 	Filial nova = malloc(sizeof(struct filial));		
 
@@ -135,7 +130,8 @@ Filial criaFilial(){
 	return nova;
 }
 
-Filial apagaFilial(Filial filial){
+Filial apagaFilial(Filial filial)
+{
 	int i;
 
 	if(filial){
@@ -148,7 +144,8 @@ Filial apagaFilial(Filial filial){
 }
 
 /* aloca espaço e inicializa uma ComprasDoProduto */
-static ComprasDoProduto criaComprasDoProduto(Produto produto, int unidades, double preco, TipoVenda tipoVenda){
+static ComprasDoProduto criaComprasDoProduto(Produto produto, int unidades, double preco, TipoVenda tipoVenda)
+{
 	ComprasDoProduto novo = malloc(sizeof(struct comprasDoProduto));
 
 	if(novo == NULL) /* falha a alocar a struct comprasDoProduto */
@@ -195,7 +192,8 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	}
 
 	posicao = ccliente->cliente[0] - 'A'; /* <=> 1a letra do cliente - 'A' */
-	naFilial = procuraAVL(filial->clientesOrdenados[posicao], ccliente); /* devolve a estrutura que tem os valores originais para ser atualizada */
+	/* se o cliente já comprou na filial, devolve a estrutura que tem os valores originais para ser atualizada */
+	naFilial = procuraAVL(filial->clientesOrdenados[posicao], ccliente);
 
 	if(naFilial == NULL){ /* é a primeira vez que o cliente compra na filial */
 		/* inicializar os campos */
@@ -216,7 +214,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 		ccliente->comprasPorMes[0] = insereAVL(ccliente->comprasPorMes[0], comprasAux); /* insere na informação anual do cliente */
 		filial->clientesOrdenados[posicao] = insereAVL(filial->clientesOrdenados[posicao], ccliente);
 	}
-	else{
+	else{ /* já havia compras do cliente registadas na filial */
 		free(ccliente->cliente);
 		free(ccliente);
 		insereAVL(naFilial->comprasPorMes[mes], comprasAux); 
@@ -227,10 +225,11 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 }
 
 /* devolve o endereço da estrutura interna que contem os dados relativos às compras de um dado cliente */
-static ComprasPorCliente procuraClienteNasVendas(Cliente cliente, Filial filial){
+static ComprasPorCliente procuraClienteNasVendas(Cliente cliente, Filial filial)
+{
 	int posicao;
 	ComprasPorCliente nasVendas, ccliente;
-	char * codigoCliente;
+	char* codigoCliente;
 
 	ccliente = malloc(sizeof(struct comprasPorCliente));
 	if(ccliente == NULL)
@@ -249,16 +248,17 @@ static ComprasPorCliente procuraClienteNasVendas(Cliente cliente, Filial filial)
 	return nasVendas;
 }
 
-bool clienteComprouNaFilial(Filial filial, Cliente cliente){
+bool clienteComprouNaFilial(Filial filial, Cliente cliente)
+{
 	return procuraClienteNasVendas(cliente, filial)? TRUE : FALSE;
 }
 
-/* devolve um array com 13 entradas(12 validas) que à entrada i faz corresponder o numero de unidades compradas
- no mes i pelo cliente */
-int * unidadesClientePorMes(Filial filial, Cliente cliente){
+int* unidadesClientePorMes(Filial filial, Cliente cliente)
+{
 	int i;
-	int * unidades; 
+	int* unidades; 
 	ComprasPorCliente comprasDoCliente;
+	
 	unidades = calloc(13, sizeof(int));
 	comprasDoCliente = procuraClienteNasVendas(cliente, filial);
 	if(comprasDoCliente)
@@ -267,11 +267,13 @@ int * unidadesClientePorMes(Filial filial, Cliente cliente){
 	return unidades;
 }
 
-/* dada a AVL de ComprasPorCliente de um determinado mes (para umdeterminado produto), indica quantas unidades se compraram nessa filial e nesse mes */
-static int somaUnidadesMes(AVL_ComprasDoProduto arv){
+/* Dada a AVL de ComprasPorCliente de um determinado mes (para um determinado produto),
+ * indica quantas unidades foram compradas nesse mes */
+static int somaUnidadesMes(AVL_ComprasDoProduto arv)
+{
 	int i, tamanhoArv, soma = 0;
+	ComprasDoProduto* produtosComprados = (ComprasDoProduto *) inorderAVL(arv);
 
-	ComprasDoProduto * produtosComprados = (ComprasDoProduto *) inorderAVL(arv);
 	tamanhoArv = (produtosComprados != NULL)? tamanhoAVL(arv) : 0;
 	for(i = 0; i < tamanhoArv; i++) {
 		soma += produtosComprados[i]->unidades;
@@ -281,8 +283,9 @@ static int somaUnidadesMes(AVL_ComprasDoProduto arv){
 	return soma;
 }
 
-/* devolve quantos clientes compraram numa filial */
-int quantosClientesCompraram(Filial filial){
+/* Devolve o número de clientes que compraram na filial */
+int quantosClientesCompraram(Filial filial)
+{
 	int quantos, i;
 	quantos = 0;
 	for(i = 0; i < 26; i++){
@@ -293,7 +296,8 @@ int quantosClientesCompraram(Filial filial){
 
 /*Dado um cliente, uma filial e um produto, verifica se o cliente comprou em modo Normal e 
   se comprou em modo de promoção. os resultados sao guardados nas variaveis passadas cmo referencia */
-void comprou(Filial filial, Cliente cliente, Produto produto, bool * comprouN, bool * comprouP){
+void comprou(Filial filial, Cliente cliente, Produto produto, bool* comprouN, bool* comprouP)
+{
 	ComprasDoProduto paraComparar, resultadoProcura; 
 	ComprasPorCliente cpc;
 
@@ -315,9 +319,8 @@ void comprou(Filial filial, Cliente cliente, Produto produto, bool * comprouN, b
 	}
 }
 
-/* Recebe o número de uma filial e um cliente. Devolve uma lista de strings, com códigos
- * dos produtos comprados pelo cliente, em ordem decrescente da quantidade comprada. */
-LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes){
+LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes)
+{
 	LStrings res = NULL;
 	ComprasPorCliente cpc = procuraClienteNasVendas(c, filial);
 
@@ -353,6 +356,7 @@ static int comparaTotalCompras(const void* p1, const void* p2)
 {	
 	const ComprasDoProduto cdp1 = *(ComprasDoProduto *) p1;
 	const ComprasDoProduto cdp2 = *(ComprasDoProduto *) p2;
+	
 	return cdp2->unidades - cdp1->unidades;
 }
 
@@ -439,13 +443,16 @@ static void ordenaTop3(char* codigosProds[3], double totalGasto[3])
 	}
 }
 
-int numeroClientesCompraramProduto(Filial filial, char * produto, int * unidadesCompradas){
-	int i, elems, unidades = 0, conta = 0, j;
+int numeroClientesCompraramProduto(Filial filial, char* produto, int* unidadesCompradas)
+{
+	int i, j, elems, unidades = 0, conta = 0;
 	ComprasDoProduto encontrou;
-	ComprasPorCliente * cpc;
+	ComprasPorCliente* cpc;
 	ComprasDoProduto paraComparar = malloc(sizeof(struct comprasDoProduto));
+	
 	if(paraComparar == NULL)
 	    return -1;
+	
 	paraComparar->produto = produto;
 	for(i = 0; i < 26; i++){
 		cpc = (ComprasPorCliente*) inorderAVL(filial->clientesOrdenados[i]);
@@ -462,9 +469,9 @@ int numeroClientesCompraramProduto(Filial filial, char * produto, int * unidades
 			}
 			apagaComprasDoProduto(encontrou);
 		}
-		free(cpc); /*nao se apagam os elementos da filial porque sao os que estao na arvore */
+		free(cpc); /* não se apagam os elementos da filial porque sao os que estao na arvore */
 	}
 	*unidadesCompradas = unidades;
-	free(paraComparar); /*nao se usa funçoes da api para nao apagar o produto que esta na estrutura*/
+	free(paraComparar); /* não se usa funçoes da api para nao apagar o produto que esta na estrutura*/
 	return conta;
 }
