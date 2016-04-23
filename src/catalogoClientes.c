@@ -119,11 +119,20 @@ Cliente* todosClientes(CatClientes catC)
 		if(temp == NULL){ /* falha de alocação em inorderAVL() */
 			while(iclientes > 0)
 				apagaCliente(clientes[--iclientes]);
+			free(clientes);
 			return NULL;
 		}
 		quantos = tamanhoAVL(catC->catalogo[i]);
-		for(j = 0; j < quantos; ++j) /* acrescenta clientes ao array de todos os clientes */
-			clientes[iclientes++] = criaCliente(temp[j]);
+		for(j = 0; j < quantos; ++j){ /* acrescenta clientes ao array de todos os clientes */
+			clientes[iclientes] = criaCliente(temp[j]);
+			if(clientes[iclientes] == NULL){	
+				while(iclientes > 0)
+					apagaCliente(clientes[--iclientes]);
+				free(clientes);
+				return NULL;
+			}
+			iclientes++;
+		}
 		
 		apagaArray((void**) temp, quantos, free);
 	}	

@@ -63,8 +63,10 @@
 #define MODO_MEDICAO_TEMPOS 1
 #ifdef MODO_MEDICAO_TEMPOS 
 	#define IMPRIME_TEMPOS(s, x) printf("Tempo na %s: %f\n", s, x)
+	#define IMPRIME_TEMPOS_ENTER(s, x) {printf("Tempo na %s: %f\n", s, x); ENTER_PARA_CONTINUAR();}
 #else
 	#define IMPRIME_TEMPOS(s, x)
+	#define IMPRIME_TEMPOS_ENTER(s, x) 
 #endif
 
 typedef int (*Query) (void);
@@ -903,6 +905,7 @@ int query8(){
 	char codigoProd[MAX_CODIGO_PROD];
 	char** quemComprouN, **quemComprouP;
 	bool comprouN, comprouP;
+	time_t inicio, fim;
 	Cliente* clientes;
 	Produto produto;
 	LStrings compraramN, compraramP;
@@ -917,6 +920,7 @@ int query8(){
 	if(existeProduto(catProds, produto)){
 		printf("Insira a filial que pretende consultar: ");
 		filial = leInt();
+		inicio = time(NULL); /* começa a contagem do tempo */
 		indexP = indexN = 0;	
 		if(FILIAL_VALIDA(filial)){
 			nClientes = totalClientes(catClientes);
@@ -949,7 +953,8 @@ int query8(){
 				apagaLStrings(compraramN);
 				return ERRO_MEM;
 			}
-			
+			fim = time(NULL);
+			IMPRIME_TEMPOS_ENTER("Query 8", difftime(fim, inicio));	
 			do {
 				printf("%d clientes compraram o produto em modo Normal\n", indexN); 
 				printf("%d clientes compraram o produto em Promoção\n", indexP); 
@@ -984,6 +989,7 @@ static int query9()
 	int mes, r = CONTINUAR;
 	char codigoCliente[MAX_CODIGO_CLIENTE];
 	Cliente c;
+	time_t inicio, fim;
 
 	printf("Introduza o código do cliente: ");
 	if(leLinha(codigoCliente, MAX_CODIGO_CLIENTE, stdin) == NULL)
@@ -995,9 +1001,12 @@ static int query9()
 
 	if(existeCliente(catClientes, c)){
 		printf("Introduza o mês: "); mes = leInt();
-		
+	
+		inicio = time(NULL);	
 		if(MES_VALIDO(mes)){
 			LStrings lStr = produtosClienteMaisComprou(filialGlobal, c, mes);
+			fim = time(NULL);
+			IMPRIME_TEMPOS_ENTER("Query 9", difftime(fim, inicio));
 			navega(lStr);
 			apagaLStrings(lStr);
 		}
@@ -1024,6 +1033,7 @@ static int query10()
 	LStrings resultados[N_FILIAIS+1] = {NULL};
 	char ** produtos, **imprimir;
 	char * linha;
+	time_t inicio, fim;
 
 	printf("Quantos produtos pretende consultar? ");
 	N = leInt();
@@ -1033,6 +1043,7 @@ static int query10()
 			   "Insira o numero da filial ou %d para sair\n>>> ", N_FILIAIS, N_FILIAIS+1);
 		filial = leInt();
 		if(FILIAL_VALIDA(filial)){
+			inicio = time(NULL);	
 			if(resultados[filial] == NULL){ /* ainda não calculamos a LString com os resultados da filial pedida */
 				imprimir = malloc(sizeof(char *) * N);
 				if(imprimir == NULL)
@@ -1044,8 +1055,6 @@ static int query10()
 					return ERRO_MEM;		
 				}
 				
-				/* N = min(N, ...) */
-				/* preparar para o caso do N ser maior que o numero de produtos vendidos na filial*/	
 				for(i = 0; i < N; i++){ /* cria as linhas a introduzir na LStrings */
 					linha = malloc(sizeof(char *) * (MAX_BUFFER_VENDAS));	
 					if(linha == NULL){
@@ -1055,13 +1064,15 @@ static int query10()
 						return ERRO_MEM;
 					}
 					nClientes = numeroClientesCompraramProduto(filiais[filial], produtos[i], &nUnidades);
-					sprintf(linha, "%3s     #Clientes: %5d     #Unidades Vendidas: %8d", produtos[i], nClientes, nUnidades);
+					sprintf(linha, "%3s     NºClientes: %5d     Qtd: %8d", produtos[i], nClientes, nUnidades);
 					imprimir[i] = linha;
 				}
 				resultados[filial] = criaLStrings(N, imprimir);
 				apagaArray((void **) imprimir, N, free);
 				apagaArray((void **) produtos, N, free);
 			}
+			fim = time(NULL);
+			IMPRIME_TEMPOS_ENTER("Query 9", difftime(fim, inicio));
 			navega(resultados[filial]);
 		}
 		else if(filial != N_FILIAIS + 1)
@@ -1079,11 +1090,13 @@ static int query11()
 	int r = CONTINUAR;
 	Cliente c;
 	char codigoCliente[MAX_CODIGO_CLIENTE];
+	time_t inicio, fim;
 
 	printf("Introduza o código do cliente: ");
 	if(leLinha(codigoCliente, MAX_CODIGO_CLIENTE, stdin) == NULL)
 		return INPUT_INVAL;
 
+	inicio = time(NULL);
 	c = criaCliente(codigoCliente);
 	if(c == NULL) /* falha de alocação */
 		return ERRO_MEM;
@@ -1096,6 +1109,8 @@ static int query11()
 			for(i = 0; top3[i] && i < 3; ++i)
 				printf("%dº: %s\n", i+1, top3[i]);
 			apagaArray((void **) top3, 3, free);
+			fim = time(NULL);
+			IMPRIME_TEMPOS("Query 11", difftime(fim, inicio));	
 			ENTER_PARA_CONTINUAR();
 		}
 		else
@@ -1114,7 +1129,9 @@ static int query12()
 {
 	int nClientesNaoCompr = 0;
 	int nProdsNaoVendidos;
+	time_t inicio, fim;
 
+	inicio = time(NULL);
 	nClientesNaoCompr = totalClientes(catClientes) - quantosClientesCompraram(filialGlobal);
 	nProdsNaoVendidos = quantosNaoComprados(faturacaoGlobal);
 	if(nProdsNaoVendidos == -1) /* falha de alocação em quantosNaoComprados() */
@@ -1122,6 +1139,8 @@ static int query12()
 	
 	printf("Número de clientes que não compraram: %d\n", nClientesNaoCompr);
 	printf("Número de produtos não vendidos: %d\n", nProdsNaoVendidos);
+	fim = time(NULL);
+	IMPRIME_TEMPOS("Query 12", difftime(fim, inicio));
 	ENTER_PARA_CONTINUAR();
 	return CONTINUAR;
 }
