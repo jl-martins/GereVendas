@@ -637,7 +637,6 @@ char** NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial)
 {
 	int i, total;
 	FatAnualProd* arrTodosProdutos;
-	FatAnualProd* fatNmaisVend;
 	char** maisVendFilial = malloc(N * sizeof(char *));
 
 	if(maisVendFilial == NULL)
@@ -651,19 +650,19 @@ char** NmaisVendidosFilial(const FaturacaoGlobal fg, int N, int filial)
 	}
 	/* ordena array por ordem decrescente do nº total de vendas anuais na filial especificada */
 	qsort(arrTodosProdutos, total, sizeof(FatAnualProd), arrFunCompara[filial]);
-	
-	if(N > total){ /* N não pode ser maior que o número total de produtos */
-		N = total;
-		fatNmaisVend = arrTodosProdutos;
-	}
-	else /* se N < total, reduz o espaço alocado para arrTodosProdutos */
-		fatNmaisVend = realloc(arrTodosProdutos, N * sizeof(FatAnualProd));
-	
+
+	N = (N > total)? total : N;
 	for(i = 0; i < N; ++i){
-		maisVendFilial[i] = fatNmaisVend[i]->prod;
-		free(fatNmaisVend[i]);
+		maisVendFilial[i] = arrTodosProdutos[i]->prod;
+		free(arrTodosProdutos[i]);
 	}
-	free(fatNmaisVend);
+
+	for(; i < total; ++i){
+		free(arrTodosProdutos[i]->prod);
+		free(arrTodosProdutos[i]);
+	}
+		
+	free(arrTodosProdutos);
 	return maisVendFilial;
 }
 

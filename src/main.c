@@ -1029,7 +1029,6 @@ static int query9()
 
 static int query10()
 {
-	/* fazer tabela em vez de LString */
 	int N, i, filial, nClientes, nUnidades ;
 	LStrings resultados[N_FILIAIS+1] = {NULL};
 	char ** produtos, **imprimir;
@@ -1073,7 +1072,7 @@ static int query10()
 				apagaArray((void **) produtos, N, free);
 			}
 			fim = time(NULL);
-			IMPRIME_TEMPOS_ENTER("Query 9", difftime(fim, inicio));
+			IMPRIME_TEMPOS_ENTER("Query 10", difftime(fim, inicio));
 			navega(resultados[filial]);
 		}
 		else if(filial != N_FILIAIS + 1)
