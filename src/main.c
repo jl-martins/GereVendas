@@ -1093,9 +1093,8 @@ static int query11()
 		if(top3){
 			int i;
 			printf("Códigos dos 3 produtos em que o cliente %s gastou mais dinheiro\n", codigoCliente);
-			for(i = 0; i < 3; ++i)
-				if(top3[i] != NULL)
-					printf("%dº: %s\n", i+1, top3[i]);
+			for(i = 0; top3[i] && i < 3; ++i)
+				printf("%dº: %s\n", i+1, top3[i]);
 			apagaArray((void **) top3, 3, free);
 			ENTER_PARA_CONTINUAR();
 		}
