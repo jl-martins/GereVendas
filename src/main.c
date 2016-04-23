@@ -674,7 +674,7 @@ static int query3()
 					resultadosFiliaisQuery3(fProdMes);
 					break;
 				default:
-					MSG_ERRO("Erro: Modo inválido\nModos válidos: G | F\n");
+					fputs("Erro: Modo inválido\nModos válidos: G | F\n", stderr);
 					r = INPUT_INVAL;
 					break;
 			}
@@ -875,7 +875,7 @@ int query7()
 	for(i = 0, j = 0; i < nClientes; i++){
 		if(comprouTodasFiliais(clientes[i])){
 			codigosClientes[j] = obterCodigoCliente(clientes[i]);
-			if(codigosClientes[j] == NULL){
+			if(codigosClientes[j] == NULL){ /* falha de alocação em obterCodigoCliente() */
 				for(; j >= 0; j--)
 					free(codigosClientes[j]);
 				free(codigosClientes);
@@ -1004,6 +1004,7 @@ static int query9()
 		else{
 			fprintf(stderr, "O mês '%d' é inválido.\n", mes);
 			r = INPUT_INVAL;
+			ENTER_PARA_CONTINUAR();
 		}
 	}
 	else{
