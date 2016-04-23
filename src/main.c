@@ -373,7 +373,7 @@ int leCatalogoProdutos()
 	FILE* fp;
 	int quantos = 0;
 	char nomeFich[MAX_NOME_FICH];
-	char codigoProd[MAX_CODIGO_PROD];
+	char codigoProd[MAX_BUFFER_PROD];
 	Produto p;
 	CatProds novoCatP;
 	FaturacaoGlobal novaFatG;
@@ -383,7 +383,7 @@ int leCatalogoProdutos()
 		return ERRO_FICH;
 	
 	inicio = time(NULL); 
-	while(leLinha(codigoProd, MAX_CODIGO_PROD, fp)){ /* leLinha() já limpa a linha lida */
+	while(leLinha(codigoProd, MAX_BUFFER_PROD, fp)){ /* leLinha() já limpa a linha lida */
 		p = criaProduto(codigoProd);
 		if(p == NULL) /* falha de alocação ao criar o produto */
 			return ERRO_MEM; 
@@ -662,13 +662,13 @@ static char obterModoRes()
 static int query3()
 {	
 	char modo;
-	char codigoProd[MAX_CODIGO_PROD];
+	char codigoProd[MAX_BUFFER_PROD];
 	Produto p;
 	FatProdMes fProdMes;
 	int mes, r = CONTINUAR;
 
 	printf("Código de produto: ");
-	if(leLinha(codigoProd, MAX_CODIGO_PROD, stdin) == NULL)
+	if(leLinha(codigoProd, MAX_BUFFER_PROD, stdin) == NULL)
 		return INPUT_INVAL;
 
 	p = criaProduto(codigoProd);
@@ -914,7 +914,7 @@ int query7()
 int query8(){
 	int i, indexP, indexN, filial, nClientes, r = CONTINUAR;
 	char c;
-	char codigoProd[MAX_CODIGO_PROD];
+	char codigoProd[MAX_BUFFER_PROD];
 	char** quemComprouN, **quemComprouP;
 	bool comprouN, comprouP;
 	time_t inicio, fim;
@@ -923,7 +923,7 @@ int query8(){
 	LStrings compraramN, compraramP;
 
 	printf("Insira o código de produto: "); /* falta validar o produto */
-	if(leLinha(codigoProd, MAX_CODIGO_PROD, stdin) == NULL)
+	if(leLinha(codigoProd, MAX_BUFFER_PROD, stdin) == NULL)
 		return INPUT_INVAL;
 
 	produto = criaProduto(codigoProd);

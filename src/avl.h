@@ -2,7 +2,7 @@
  * @file avl.h
  * @author LI3_Grupo1
  * @date 23 Apr 2016
- * @brief Ficheiro com as funções e API que permitem criar e manipular AVLs genéricas.
+ * @brief Ficheiro com os TADs e API para criar e manipular AVLs genéricas.
  */
 
 #ifndef AVL_H
