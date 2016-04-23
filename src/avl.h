@@ -17,22 +17,31 @@ typedef void (*LibertarNodo) (void *);
  * e as funções de inorderAVL() e procuraAVL() devolvem o conteúdo da própria AVL.  */
 AVL criaAVL(Atualizador atualiza, Comparador compara, Duplicador duplica, LibertarNodo liberta);
 
-/* Insere uma cópia de um valor 'val' na AVL 'arvore' */
+/**
+ * Insere um valor numa AVL previamente criada. Se lhe tiver sido passado um duplicador aquando 
+ * da criacao da arvore, o valor inserido e uma copia do original. Caso contrario, e o original
+ * @param arv Árvore AVL onde o valor será inserido 
+ * @param val Valor a inserir 
+ * @return Arvore atualizada com o valor inserido  
+ */
 AVL insereAVL(AVL arvore, void * val);
 
-/* Apaga uma AVL (i.e.: liberta toda a memória alocada para a mesma) */
+/** Apaga uma AVL (i.e.: liberta toda a memória alocada para a mesma) 
+  * @param arvore Arvore que vai ser libertada 
+  * @return NULL
+  */
 AVL apagaAVL(AVL arvore);
 
-/* Devolve o número de nodos de uma AVL */
+/** Devolve o número de nodos de uma AVL */
 int tamanhoAVL(const AVL arvore);
 
-/* Devolve a altura de uma AVL */
+/** Devolve a altura de uma AVL */
 int alturaAVL(const AVL arvore);
 
-/* Devolve um array com os valores dos nodos(cópias se a função de duplicação tiver sido passada durante a criação da AVL) resultante da travessia inorder da AVL */
+/** Devolve um array com os valores dos nodos(cópias se a função de duplicação tiver sido passada durante a criação da AVL) resultante da travessia inorder da AVL */
 void ** inorderAVL(const AVL arv);
 
-/* Procura um valor numa AVL. Devolve uma cópia do valor (se a função duplica tiver sido passada na altura da criação da árvore), se este for encontrado. Senão, devolve NULL. */
+/** Procura um valor numa AVL. Devolve uma cópia do valor (se a função duplica tiver sido passada na altura da criação da árvore), se este for encontrado. Senão, devolve NULL. Deve ser usada com muito cuidado quando nao foi passada uma função duplica aquando da criacao da arvore */
 void * procuraAVL(const AVL arv, void * val);
 
 /**

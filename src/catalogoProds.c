@@ -14,7 +14,7 @@ struct catProds {
 	AVL catalogo[MAX_AVL];
 };
 
-/* Funções passadas para criaAVLgenerica() */
+/* Funções passadas para criaAVL() */
 static int compara(const void *, const void *);
 static void* duplica(void *);
 static void atualiza(void *, void *);
