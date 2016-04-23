@@ -947,6 +947,7 @@ int query8(){
 			compraramP = criaLStrings(indexP, quemComprouP);
 			apagaArray((void **) quemComprouN, indexN, free);
 			apagaArray((void **) quemComprouP, indexP, free);
+			free(clientes);
 
 			if(compraramP == NULL || compraramN == NULL){
 				apagaLStrings(compraramP);
