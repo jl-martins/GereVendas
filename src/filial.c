@@ -398,15 +398,22 @@ char** tresProdsEmQueMaisGastou(Filial filial, Cliente c)
 	for(i = 0; i < total; ++i){ /* percorre o array de compras do ano */
 		imin = indiceDoMenor(totalGasto);
 		if(arrComprasDoAno[i]->faturacao > totalGasto[imin]){
+			int len = strlen(arrComprasDoAno[i]->produto);
+			char* copia = malloc((len + 1) * sizeof(char));
+
+			if(copia == NULL){ /* falha de alocação */
+				apagaArray((void **) codigosProds, 3, free);
+				apagaArray((void **) arrComprasDoAno, total, apagaComprasDoProduto);
+				return NULL;
+			}
 			free(codigosProds[imin]);
-			codigosProds[imin] = arrComprasDoAno[i]->produto;
+			strcpy(copia, arrComprasDoAno[i]->produto);
+			codigosProds[imin] = copia;
 			totalGasto[imin] = arrComprasDoAno[i]->faturacao;
 		}
 	}
+	apagaArray((void **) arrComprasDoAno, total, apagaComprasDoProduto);
 	ordenaTop3(codigosProds, totalGasto);
-	for(i = 0; i < total; ++i)
-		free(arrComprasDoAno[i]);
-	free(arrComprasDoAno);
 	return codigosProds;
 }
 
