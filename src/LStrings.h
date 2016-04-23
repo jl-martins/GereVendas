@@ -6,6 +6,8 @@
 typedef struct lStrings* LStrings;
 typedef struct pagina* Pagina;
 
+int getStringLength(Pagina);
+
 /* Cria uma LStrings com o tamanho e com os elementos especificados nos argumentos */
 LStrings criaLStrings(int tamanho, char* elems[]);
 
