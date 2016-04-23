@@ -64,7 +64,6 @@ static int comparaComprasDoProduto(const void* vp1, const void* vp2)
 }
 
 /* Função usada para libertar um nodo da AVL_ComprasPorCliente */
-/* a causar erros */
 static void apagaComprasPorCliente(void* p)
 {
 	int i;
@@ -74,7 +73,7 @@ static void apagaComprasPorCliente(void* p)
 		free(cpc->cliente);
 
 		for(i = 0; i < 13; i++)
-			cpc->comprasPorMes[i] = apagaAVL(cpc->comprasPorMes[i]); /* a causar double frees */
+			cpc->comprasPorMes[i] = apagaAVL(cpc->comprasPorMes[i]);
 		free(cpc);
 	}
 }
@@ -117,7 +116,6 @@ static void * duplicaComprasDoProduto(void* p){
 	return (void *) copia;
 }
 
-/* verificada */
 Filial criaFilial(){
 	int i, j;
 	Filial nova = malloc(sizeof(struct filial));		
@@ -130,7 +128,7 @@ Filial criaFilial(){
 		if(nova->clientesOrdenados[i] == NULL){
 			for (j = 0; j < i; j++)
 				nova->clientesOrdenados[j] = apagaAVL(nova->clientesOrdenados[j]);
-			nova = NULL; /* faltava acrescentar esta linha */
+			nova = NULL; 
 			break;
 		}
 	}
@@ -149,6 +147,7 @@ Filial apagaFilial(Filial filial){
 	return NULL;
 }
 
+/* aloca espaço e inicializa uma ComprasDoProduto */
 static ComprasDoProduto criaComprasDoProduto(Produto produto, int unidades, double preco, TipoVenda tipoVenda){
 	ComprasDoProduto novo = malloc(sizeof(struct comprasDoProduto));
 
@@ -178,7 +177,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 	if(filial == NULL)
 		return NULL;
 
-	ccliente = calloc(1, sizeof(struct comprasPorCliente)); /* mudei malloc() para calloc() */
+	ccliente = malloc(sizeof(struct comprasPorCliente)); 
 	if(ccliente == NULL) return NULL;
 
 	comprasAux = criaComprasDoProduto(produto, unidades, preco, tipoVenda);
@@ -202,6 +201,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 		/* inicializar os campos */
 		for(i = 0; i < 13; i++){
 			ccliente->comprasPorMes[i] = criaAVL(atualizaComprasDoProduto, comparaComprasDoProduto, duplicaComprasDoProduto, apagaComprasDoProduto);
+			/* falha de alocacao de espaco */
 			if(ccliente->comprasPorMes[i] == NULL){
 				apagaComprasDoProduto(comprasAux);
 				free(ccliente->cliente);

@@ -9,15 +9,15 @@
 
 typedef struct filial * Filial;
 
-/* aloca espaço e inicializa uma Filial */
+/* Aloca espaço e inicializa uma Filial */
 Filial criaFilial();
-/* liberta o espaço de uma filial */
+/* Liberta o espaço de uma filial */
 Filial apagaFilial(Filial filial);
-/* regista os dados de uma compra numa filial */
+/* Regista os dados de uma compra numa filial */
 Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes, 
 		     TipoVenda tipoVenda, int unidades, double preco);
 
-/* devolve um array com 13 entradas(12 validas) que à entrada i faz 
+/* Devolve um array com 13 entradas(12 validas) que à entrada i faz 
 corresponder o numero de unidades compradas no mes i pelo cliente */
 int * unidadesClientePorMes(Filial filial, Cliente cliente);
 Cliente * clientesCompraramNaFilial(Filial filial);
@@ -37,10 +37,11 @@ LStrings produtosClienteMaisComprou(Filial filial, Cliente c, int mes);
 char** tresProdsEmQueMaisGastou(Filial filial, Cliente c);
 
 /*Dado um cliente, uma filial e um produto, verifica se o cliente comprou em modo Normal e 
-  se comprou em modo de promoção. os resultados sao guardados nas variaveis passadas cmo referencia */
+  se comprou em modo de promoção. Os resultados sao guardados nas variaveis passadas cmo referencia */
 void comprou(Filial filial, Cliente cliente, Produto produto, bool * comprouN, bool * comprouP);
 
-/* Dada uma filial e um codigo de Cliente, devolve o numero de clientes que compraram o Produto e a quandtidade na variavel unidadesCompradas passada por referencia*/
+/* Dada uma filial e um codigo de Cliente, devolve o numero de clientes que compraram o Produto e a
+   quantidade na variavel apontada por unidadesCompradas */
 int numeroClientesCompraramProduto(Filial filial, char * produto, int * unidadesCompradas);
 
 #endif
