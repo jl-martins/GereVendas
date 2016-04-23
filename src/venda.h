@@ -1,3 +1,10 @@
+/**
+ * @file venda.h
+ * @author LI3_Grupo1
+ * @date 23 Apr 2016
+ * @brief Ficheiro com a definição do número de tipos de venda e do do tipo enumerado 'TipoVenda'.
+ */
+
 #ifndef VENDA_H
 #define VENDA_H
 

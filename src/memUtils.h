@@ -8,8 +8,7 @@
 #ifndef MEM_UTILS_H
 #define MEM_UTILS_H
 
-/* inclui o tipo size_t */
-#include <stddef.h>
+#include <stddef.h> /* inclui o tipo size_t */
 
 /**
  * @brief Aloca memória para armazenar uma matriz.
