@@ -52,7 +52,7 @@
 #define FVENDAS "data/Vendas_1M.txt"
 
 /* Macros utilizadas na navegação, leitura e validação de dados */
-#define ENTER_PARA_CONTINUAR() printf("Prima ENTER para continuar: "); getchar()
+#define ENTER_PARA_CONTINUAR() printf("Prima ENTER para continuar: "); leChar()
 #define IMPRIME_OPCOES_NAVEGA() \
 	printf("1) Pag. ant. | 2) Pag. seg. | 3) Selec. pag. | 4) Prim. pag. | 5) Ult. pag. | 6) Info. | 7) Sair\n")
 #define MSG_ERRO(msg) {fputs(msg, stderr); ENTER_PARA_CONTINUAR();}
@@ -172,7 +172,7 @@ void splashScreen()
 	printf("| |_\\ |  __| | |  _ \\ \\_/ |  __| | | | (_| | (_| \\__ \\ \n");
  	printf(" \\____/\\___|_|  \\___|\\___/ \\___|_| |_|\\__,_|\\__,_|___/\n");
 	printf("\n%43s", linha);
-	getchar();
+	leChar();
 }
 
 int interpretador()
@@ -211,7 +211,7 @@ int interpreta(char linha[])
 			r = queries[i]();
 	}
 	else if(i == N_OPCOES)
-		r = SAIR;
+		r = sair();
 	else{
 		opcaoInvalida(linha);
 		r = CMD_INVAL;
