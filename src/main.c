@@ -924,7 +924,7 @@ int query8(){
 	Produto produto;
 	LStrings compraramN, compraramP;
 
-	printf("Insira o código de produto: "); /* falta validar o produto */
+	printf("Insira o código de produto: ");
 	if(leLinha(codigoProd, MAX_BUFFER_PROD, stdin) == NULL)
 		return INPUT_INVAL;
 

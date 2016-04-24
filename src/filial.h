@@ -40,7 +40,7 @@ Filial registaCompra(Filial filial, Cliente cliente, Produto produto, int mes,
 int* unidadesClientePorMes(Filial filial, Cliente cliente);
 
 /** 
- * @brief Recebe uma Filial. Devolve um array com elementos dos clientes
+ * @brief Recebe uma Filial. Devolve um array com os clientes
  * que compraram na filial passada como parâmetro para a função.
  */
 Cliente* clientesCompraramNaFilial(Filial filial);
