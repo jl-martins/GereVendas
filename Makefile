@@ -16,7 +16,7 @@ $(EXEC): $(OBJS)
 profile: CFLAGS += -pg
 profile: $(EXEC)
 	./$(EXEC)
-	gprof gereVendas gmon.out
+	gprof GereVendas gmon.out
 
 debug: CFLAGS = -Wall -Wextra -ansi -pedantic -O0 -g
 debug: $(EXEC)
