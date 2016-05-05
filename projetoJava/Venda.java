@@ -2,14 +2,13 @@
 /**
  * Write a description of class Venda here.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Grupo1
+ * @version 1.0
  */
 
 import java.io.Serializable;
 
-public class Venda implements Serializable 
-{
+public class Venda implements Serializable {
     private int unidadesVendidas, mes, filial;
     private String codigoProduto, codigoCliente;
     private double precoUnitario;
@@ -54,7 +53,7 @@ public class Venda implements Serializable
         return codigoCliente;
     }
     
-    public getPrecoUnitario(){
+    public double getPrecoUnitario(){
         return precoUnitario;
     }
     
