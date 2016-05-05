@@ -5,7 +5,6 @@
  * @author (your name here)
  * @version (version number or date here)
  */
-public enum TipoVenda
-{
+public enum TipoVenda {
     P, N
 }
