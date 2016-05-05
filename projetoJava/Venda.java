@@ -18,12 +18,19 @@ public class Venda implements Serializable
     /* impede que usem o construtor vazio */
     private Venda(){}
     
-    public Venda(/* partes */){
-        
+    public Venda(Venda v){
+        this(v.getUnidadesVendidas(), v.getMes(), v.getFilial(), v.getCodigoProduto(), v.getCodigoCliente(), v.getPrecoUnitario(), v.getTipoVenda());
     }
     
-    public Venda(Venda v){
-        
+    public Venda(int unidadesVendidas, int mes, int filial, String codigoProduto, String codigoCliente, double precoUnitario, TipoVenda tipoVenda)
+	{
+		this.unidadesVendidas = unidadesVendidas;
+		this.mes = mes;
+		this.filial = filial;
+		this.codigoProduto = codigoProduto;
+		this.codigoCliente = codigoCliente;
+		this.precoUnitario = precoUnitario;
+		this.tipoVenda = tipoVenda;
     } 
  
     /* getters */
