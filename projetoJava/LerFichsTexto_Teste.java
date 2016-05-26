@@ -14,7 +14,7 @@ public class LerFichsTexto_Teste {
         ArrayList<String> linhas;
         
         Crono.start();
-        linhas = TesteScanner.readLinesArrayWithScanner(nomeFich);
+        linhas = LinhasScanner.readLinesArrayWithScanner(nomeFich);
         Crono.stop();
         out.println("Ficheiro " + nomeFich + " lido usando Scanner e FileReader!");
         out.println("Lidas e guardadas " + linhas.size() + " linhas.");
@@ -22,7 +22,7 @@ public class LerFichsTexto_Teste {
         
         linhas.clear();
         Crono.start();
-        linhas = TesteBufferedReader.readLinesWithBuff(nomeFich);
+        linhas = LinhasBufferedReader.readLinesWithBuff(nomeFich);
         Crono.stop();
         out.println("Ficheiro " + nomeFich + " lido usando BufferedReader!");
         out.println("Lidas e guardadas " + linhas.size() + " linhas.");
