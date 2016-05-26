@@ -1,5 +1,5 @@
-import java.util.List;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.Comparator;
@@ -12,8 +12,8 @@ import java.util.Comparator;
  */
 public class TestesVendas{
     
-    public static int totalComprasFilial(List<Venda> vendas, int filial){
-        int total = 0;
+    public static long totalComprasFilial(ArrayList<Venda> vendas, int filial){
+        long total = 0;
         
         for(Venda v : vendas)
             if(v.getFilial() == filial)
@@ -22,8 +22,8 @@ public class TestesVendas{
         return total;
     }
     
-    public static int totalComprasPrecoNulo(List<Venda> vendas){
-        int total = 0;
+    public static long totalComprasPrecoNulo(ArrayList<Venda> vendas){
+        long total = 0;
         
         for(Venda v : vendas)
             if(v.getPrecoUnitario() == 0.0)
@@ -32,14 +32,14 @@ public class TestesVendas{
         return total;
     }
     
-    public static int numeroVendasDuplicadas(List<Venda> vendas){
+    public static int numeroVendasDuplicadas(ArrayList<Venda> vendas){
         Set<Venda> conjuntoVendas = new HashSet<>(vendas);
         
         return vendas.size() - conjuntoVendas.size();
     }
         
-    public static int numProdsPorInicial(List<Venda> vendas, char inicial){
-        int total = 0;
+    public static long numProdsPorInicial(ArrayList<Venda> vendas, char inicial){
+        long total = 0;
         
         for(Venda v : vendas)
             if(v.getCodigoProduto().charAt(0) == inicial)
@@ -48,7 +48,7 @@ public class TestesVendas{
         return total;
     }
     
-    public static HashSet<String> clientesCompraramFilial_v1(List<Venda> vendas, int filial){
+    public static HashSet<String> clientesCompraramFilial_v1(ArrayList<Venda> vendas, int filial){
         HashSet<String> codsClientes = new HashSet<>();
         
         for(Venda v : vendas)
@@ -58,7 +58,7 @@ public class TestesVendas{
         return codsClientes;
     }
     
-    public static TreeSet<String> clientesCompraramFilial_v2(List<Venda> vendas, int filial){
+    public static TreeSet<String> clientesCompraramFilial_v2(ArrayList<Venda> vendas, int filial){
         TreeSet<String> codsClientes = new TreeSet<>(new ComparadorStrings());
         
         for(Venda v : vendas)
@@ -68,7 +68,7 @@ public class TestesVendas{
         return codsClientes;
     }
     
-    public static TreeSet<String> clientesCompraramFilial_v3(List<Venda> vendas, int filial){
+    public static TreeSet<String> clientesCompraramFilial_v3(ArrayList<Venda> vendas, int filial){
         Comparator<String> ordemDecStrings = (s1,s2) -> s1.compareTo(s2);
         TreeSet<String> codsClientes = new TreeSet<>(ordemDecStrings);
         

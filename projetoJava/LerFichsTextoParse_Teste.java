@@ -10,7 +10,7 @@ public class LerFichsTextoParse_Teste {
         
         Crono.start();
         linhas = LinhasScanner.readLinesArrayWithScanner(nomeFich);
-        vendas = Parser.parseAllLinhas(linhas);
+        vendas = ParserVendas.parseAllLinhas(linhas);
         Crono.stop();
         out.println("Ficheiro " + nomeFich + " lido usando Scanner e FileReader!");
         out.println("Lidas e guardadas " + linhas.size() + " linhas.");
@@ -18,7 +18,7 @@ public class LerFichsTextoParse_Teste {
         
         Crono.start();
         linhas = LinhasBufferedReader.readLinesWithBuff(nomeFich);
-        vendas = Parser.parseAllLinhas(linhas);
+        vendas = ParserVendas.parseAllLinhas(linhas);
         Crono.stop();
         out.println("Ficheiro " + nomeFich + " lido usando BufferedReader!");
         out.println("Lidas e guardadas " + linhas.size() + " linhas.");

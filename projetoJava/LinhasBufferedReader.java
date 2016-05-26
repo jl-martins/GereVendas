@@ -22,7 +22,7 @@ public class LinhasBufferedReader
     
     public static ArrayList<Venda> readVendasWithBuff(String fich){
         ArrayList<String> lista = readLinesWithBuff(fich);
-        return Parser.parseAllLinhas(lista);
+        return ParserVendas.parseAllLinhas(lista);
     }
 }
 
