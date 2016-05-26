@@ -19,5 +19,10 @@ public class LinhasBufferedReader
         { out.println(e.getMessage()); return null; };
         return linhas;  
     }
+    
+    public static ArrayList<Venda> readVendasWithBuff(String fich){
+        ArrayList<String> lista = readLinesWithBuff(fich);
+        return Parser.parseAllLinhas(lista);
+    }
 }
 

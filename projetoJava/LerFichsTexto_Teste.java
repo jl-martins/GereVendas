@@ -1,14 +1,8 @@
 import java.util.ArrayList;
 import static java.lang.System.out;
 
-/**
- * Write a description of class LerFichsTexto_Teste here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
- */
 public class LerFichsTexto_Teste {
-    private static final String nomeFich = "data/Vendas_3M.txt";
+    private static final String nomeFich = "data/Vendas_5M.txt";
     
     public static void main(String[] args){
         ArrayList<String> linhas;
@@ -20,7 +14,6 @@ public class LerFichsTexto_Teste {
         out.println("Lidas e guardadas " + linhas.size() + " linhas.");
         out.println("Tempo:" + Crono.print() + "\n --------------------------------");
         
-        linhas.clear();
         Crono.start();
         linhas = LinhasBufferedReader.readLinesWithBuff(nomeFich);
         Crono.stop();
