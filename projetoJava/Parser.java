@@ -18,9 +18,9 @@ public class Parser{
             mes = Integer.parseInt(campos[5]);
             filial = Integer.parseInt(campos[6]);
             precoUnitario = Double.parseDouble(campos[1]);
-            tipoVenda = TipoVenda.tipoFromString(campos[3]);
-        }catch(NumberFormatException | NullPointerException | TipoVendaInvalidoException e)
-        {
+            tipoVenda = TipoVenda.fromString(campos[3]);
+        }
+        catch(NumberFormatException | NullPointerException | TipoVendaInvalidoException e){
             return null;
         }
         return new Venda(codigoProd, precoUnitario, unidadesVendidas, tipoVenda, codigoCliente, mes, filial);
@@ -28,14 +28,15 @@ public class Parser{
 
     public static ArrayList<Venda> parseAllLinhas(ArrayList<String> linhas){
         ArrayList<Venda> vendas = new ArrayList<>();
+        
         for(String str : linhas)
             vendas.add(parseLinhaVenda(str));
         return vendas;
     }
 
-    public static HashSet<Venda> parseAllLinhasToSet(ArrayList<String> linhas)
-    {
+    public static HashSet<Venda> parseAllLinhasToSet(ArrayList<String> linhas){
         HashSet<Venda> vendas = new HashSet<>();
+        
         for(String str : linhas)
             vendas.add(parseLinhaVenda(str));
         return vendas;
