@@ -1,3 +1,5 @@
+package parte1;
+
 
 /**
  * Write a description of class TipoVendaInvalidoaException here.

@@ -1,3 +1,5 @@
+package parte1;
+
 
 /**
  * Enumeration class TipoVenda - write a description of the enum class here

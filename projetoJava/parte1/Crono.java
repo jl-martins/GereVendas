@@ -1,3 +1,5 @@
+package parte1;
+
 /**
  * Crono = mede um tempo entre start() e stop()
  * O tempo e medido em nanosegundos e convertido para 
