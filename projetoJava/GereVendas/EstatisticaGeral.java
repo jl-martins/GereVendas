@@ -27,9 +27,9 @@ public class EstatisticaGeral
 
 	public int[] getTotalCompras() { return Arrays.copyOf(totalCompras, totalCompras.length); }
 	public double[][] getTotalFacturado() { 
-		tF[][] n = new double[13][4];
+		double[][] n = new double[13][4];
 		for(int i = 0; i < totalFacturado.length; i++)
-			tf[i] = Arrays.copyOf(totalFacturado[i], totalFacturado[i].length);
+			n[i] = Arrays.copyOf(totalFacturado[i], totalFacturado[i].length);
 		return n;
 	}
 	public int[] getTotalCliDistintos() { return Arrays.copyOf(totalCliDistintos, totalCliDistintos.length); }
