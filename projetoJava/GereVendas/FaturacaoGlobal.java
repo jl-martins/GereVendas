@@ -87,20 +87,24 @@ public class FaturacaoGlobal implements Serializable {
 		return fatMensal[mes].getFatProdMes(codigoProduto);
 	}
 
-	public Set<String> maisVendidos(int X){
+	public List<String> maisVendidos(int X){
 		if(X <= 0)
 			return Collections.EMPTY_SET; // se X nao for positivo, o conjunto dos mais vendidos e um conjunto vazio
 		
 		ComparadorMaisVendidos comparador = new ComparadorMaisVendidos();
-		Queue<FatAnualProd> topX = new PriorityQueue(X, comparador);
-		for(FatAnualProd fAnualProd : todosProdutos){
+		Queue<FatAnualProd> topX = new PriorityQueue<>(todosProdutos.size(), comparador);
+		// Cria uma PriorityQueue com os X produtos mais vendidos.
+		for(FatAnualProd f : todosProdutos){
 			if(topX.size() < X)
-				topX.add(fAnualProd.clone());
-			else if(comparador.compare(fAnualProd, topX.peek()) > 0){
+				topX.add(f.clone());
+			else if(comparador.compare(f, topX.peek()) > 0){
 				topX.poll();
-				topX.add(fAnualProd.clone());
+				topX.add(f.clone());
 			}
 		}
-		
+		return Array.stream(todosProdutos.toArray())
+					.sorted(Collections.reverseOrder(comparador))
+					.map(FatAnualProd :: getCodigoProduto)
+					.collect(Collectors.toCollection(ArrayList :: new));
 	}
 }
