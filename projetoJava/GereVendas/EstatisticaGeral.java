@@ -25,13 +25,21 @@ public class EstatisticaGeral
 		this(est.getTotalCompras(), est.getTotalFacturado(), est.getTotalCliDistintos());
 	}
 
-	public int[] getTotalCompras() { return totalCompras; }
-	public double[][] getTotalFacturado() { return totalFacturado; }
-	public int[] getTotalCliDistintos() { return totalCliDistintos; }
+	public int[] getTotalCompras() { return Arrays.copyOf(totalCompras, totalCompras.length); }
+	public double[][] getTotalFacturado() { 
+		tF[][] n = new double[13][4];
+		for(int i = 0; i < totalFacturado.length; i++)
+			tf[i] = Arrays.copyOf(totalFacturado[i], totalFacturado[i].length);
+		return n;
+	}
+	public int[] getTotalCliDistintos() { return Arrays.copyOf(totalCliDistintos, totalCliDistintos.length); }
 
-	public void setTotalCompras(int[] tC) { totalCompras = tC; }
-	public void setTotalFacturado(double[][] tF) { totalFacturado = tF; }
-	public void setTotalCliDistintos(int[] tCD) { totalCliDistintos = tCD; }
+	public void setTotalCompras(int[] tC) { totalCompras = Arrays.copyOf(tC, totalCompras.length); } // length do nosso array para o caso do array argumento for >
+	public void setTotalFacturado(double[][] tF) { 
+		for(int i = 0; i < totalFacturado.length; i++)
+			totalFacturado[i] = Arrays.copyOf(tF[i], totalFacturado[i].length);
+	}
+	public void setTotalCliDistintos(int[] tCD) { totalCliDistintos = Arrays.copyOf(tCD, totalCliDistintos.length); }
 
 	/* Adicionar alguns métodos para atualizar a as variaveis por mês ou assim, se facilitar */
 
@@ -44,7 +52,7 @@ public class EstatisticaGeral
 
 		boolean res = false;
 		double[][] tF = obj.getTotalFacturado();
-		for(int i = 0; i < 14 && !res; i++)
+		for(int i = 1; i < 13 && !res; i++)
 			res = Arrays.equals(totalFacturado[i], tF[i]);
 
 		return res && Arrays.equals(totalCompras, obj.getTotalCompras())
