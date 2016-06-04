@@ -57,21 +57,21 @@ public class FatMes implements Serializable {
 	/**
 	 * Regista uma venda nesta faturação do mês.
 	 * @param codigoProduto Código do produto vendido.
-	 * @param quantidade Quantidade vendida.
+	 * @param nUnids Número de unidades vendidas.
 	 * @param filial Filial em que foi efetuada a venda.
 	 */
-	public void registaVenda(String codigoProduto, double precoUnitario, int quantidade, int filial){
+	public void registaVenda(String codigoProduto, double precoUnitario, int nUnids, int filial){
 		FatProdMes fProdMes;
-		double faturacao = quantidade * precoUnitario;
+		double faturacao = nUnids * precoUnitario;
 		
 		++totalVendas;
 		totalFaturado += faturacao;
 
 		fProdMes = fatProds.get(codigoProduto)
 		if(fProdMes != null)
-			fProdMes.adiciona(quantidade, faturacao, filial);
+			fProdMes.adiciona(nUnids, faturacao, filial);
 		else
-			fatProds.put(codigoProduto, new FatProdMes(codigoProduto, quantidade, faturacao, filial));
+			fatProds.put(codigoProduto, new FatProdMes(codigoProduto, nUnids, faturacao, filial));
 	}
 
 	/** @return Cópia desta faturação do mês. */

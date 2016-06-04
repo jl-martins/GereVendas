@@ -26,6 +26,20 @@ public class FaturacaoGlobal implements Serializable {
 		return copia;
 	}
 
+	/**
+	 * Regista um produto nesta faturação global.
+	 * @param codigoProduto Código do produto a registar.
+	 * @return @c true se o produto a adicionar ainda não tinha sido registado.
+	 */ 
+	public boolean registaProduto(String codigoProduto){
+		return todosProdutos.add(new FatAnualProd(codigoProduto));
+	}
+
+	public void registaVenda(String codigoProduto, double precoUnitario, int nUnids, int mes, int filial){
+		todosProdutos.get(codigoProduto).adicionaUnidades(filial, nUnids);
+		fatMensal[mes].registaVenda(codigoProduto, precoUnitario, nUnids, filial);
+	}
+
 	// Query1
 
 	/** @return Conjunto dos produtos que nunca foram comprados. */
