@@ -1,5 +1,7 @@
+import java.util.Comparator;
+
 public class ComparadorMaisVendidos implements Comparator<FatAnualProd>{
-	int compare(FatAnualProd f1, FatAnualProd f2){
+	public int compare(FatAnualProd f1, FatAnualProd f2){
 		int unids1, unids2;
 
 		unids1 = f1.totalUnidsGlobal();

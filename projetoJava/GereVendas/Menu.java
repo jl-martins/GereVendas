@@ -1,6 +1,4 @@
 import java.util.Arrays;
-import java.util.Scanner;
-import java.util.InputMismatchException;
 import static java.lang.System.out;
 
 public class Menu
@@ -112,17 +110,10 @@ public class Menu
      */
     private int lerOpcao(){
         int op;
-        Scanner input = new Scanner(System.in);
         
         out.print(" $ ");
-        try {
-            op = input.nextInt(); input.nextLine(); // lê um inteiro e consome o \n que ficou no buffer do stdin. 
-        }
-        catch(InputMismatchException e){
-            op = -1;
-            input.nextLine(); // consome a linha que ficou no buffer do stdin 
-        }
-        
+        op = Input.lerInt();
+
         if(op > opcoes.length || (temOpcaoSair && op < 0) || (!temOpcaoSair && op < 1)){
             out.println("Opção inválida!");
             op = -1;

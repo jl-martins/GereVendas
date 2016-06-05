@@ -1,10 +1,9 @@
 public class HipermercadoApp {
-	private Hipermercado hipermercado;
+/*	private Hipermercado hipermercado;
 	private EstatisticaFicheiro estatisticasFicheiro;
 	private EstatisticaGeral estatisticasGerais;
 	private Menu menuPrincipal, menuSair;
 	private Menu menuEstatisticas, menuQueries;
-	private Scanner input; // Scanner utilizado para ler input do utilizador nas queries interativas.
 
 	private static final String[] opcoesMenuPrincipal = {
 		"Ler dados",
@@ -37,7 +36,6 @@ public class HipermercadoApp {
 		menuEstatisticas = new Menu("Estatísticas", opcoesMenuEstatisticas, true);
 		menuQueries = new Menu("Queries interativas", opcoesMenuQueries, true);
 		menuSair = new Menu("Deseja guardar o estado da aplicação?", respostaSimNao, false);
-		input = new Scanner(System.in);
 	}
 
 	private void splashScreen() {
@@ -62,7 +60,7 @@ public class HipermercadoApp {
 
 	private void enterParaContinuar() {
 		out.print("Prima ENTER para continuar... ");
-		input.nextLine();
+		Input.lerString();
 		limparEcra();
 	}
 
@@ -87,31 +85,68 @@ public class HipermercadoApp {
 						enterParaContinuar();
 						break;
 					case 2:
-						// esta atribuicao permite-nos sair do ciclo, quando o
-						// utilizador opta por sair do programa em menuEstatisticas().
-						op = menuEstatisticas();
+						if(appPopulada())
+							// esta atribuicao permite-nos sair do ciclo 'do while', quando o
+							// utilizador opta por sair do programa em menuEstatisticas().
+							op = menuEstatisticas();
+						else
+							err.println("Erro: Primeiro precisa de ler os ficheiros de dados.");
 						break;
 					case 3:
-						op = menuQueries();
+						if(appPopulada())
+							op = menuQueries();
+						else
+							err.println("Erro: Primeiro precisa de ler os ficheiros de dados.");
 						break;
 				}
 			}
 		}
 		while(op != 0);
 
-		menuSair.executa();
-		if(menuSair.getOpcao() == 1)
-			gravarEstado();
+		if(appPopulada()){
+			menuSair.executa();
+			if(menuSair.getOpcao() == 1)
+				gravarEstado();
+		}
 	}
 
 	private boolean appPopulada() { return hipermercado != null; }
 
+	private String obterNomeFicheiro(String ficheiroPadrao, String tipoFicheiro) {
+		String nomeFicheiro;
+
+		out.printf("Insira o caminho do ficheiro de %s (ENTER para abrir ficheiro padrão): ", tipoFicheiro);
+		nomeFicheiro = Input.lerString().trim();
+
+		if(nomeFicheiro.isEmpty())
+			nomeFicheiro = ficheiroPadrao;
+
+		return nomeFicheiro;
+	}
+
+	private List<String> leLinhasComBuff(String ficheiroPadrao, String tipoFicheiro) {
+		List<String> linhas = new ArrayList<>();
+		BufferedReader inStream = null;
+		String linha = null;
+
+
+
+	}
 	private void lerDados() {
-		
+		CatalogoProdutos catalogoProdutos;
+		CatalogoClientes catalogoClientes;
+		FaturacaoGlobal faturacaoGlobal;
+		Filial[N_FILIAIS+1] filiais;
+		Set<String> produtos, clientes;
 
-		try {
+		produtos = leFicheiroProdutos();
+		leFicheiroClientes();
+		leFicheiroVendas();
 
-		}
+	}
+
+	private Set<String> leFicheiroProdutos() {
+
 	}
 
 	private int menuEstatisticas() {
@@ -124,11 +159,11 @@ public class HipermercadoApp {
 			if(op > 0){
 				switch(op){
 					case 1:
-						out.println(estatisticasFicheiro.toString());
+						out.println(hipermercado.stringEstatisticasFicheiro());
 						enterParaContinuar();
 						break;
 					case 2:
-						out.println(estatisticasGerais.toString());
+						out.println(hipermercado.stringEstatisticasGerais());
 						enterParaContinuar();
 						break;
 					case 3:
@@ -188,38 +223,38 @@ public class HipermercadoApp {
 	}
 
 	private void query1() {
-
+		out.println("Por implementar...");
 	}
 
 	private void query2() {
-		
+		out.println("Por implementar...");
 	}
 
 	private void query3() {
-		
+		out.println("Por implementar...");
 	}
 
 	private void query4() {
-		
+		out.println("Por implementar...");
 	}
 
 	private void query5() {
-		
+		out.println("Por implementar...");
 	}
 
 	private void query6() {
-		
+		out.println("Por implementar...");
 	}
 
 	private void query7() {
-		
+		out.println("Por implementar...");
 	}
 
 	private void query8() {
-		
+		out.println("Por implementar...");
 	}
 
 	private void query9() {
-		
-	}
+		out.println("Por implementar...");
+	}*/
 }

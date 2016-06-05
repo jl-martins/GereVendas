@@ -1,11 +1,15 @@
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
 public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
 	private String codigoProduto;
-	private int[N_FILIAIS+1] totalUnids;
+	private int[] totalUnids;
 
 	/** Constrói a faturação anual do produto com o código passado como parâmetro. */
 	public FatAnualProd(String codigoProduto){
 		this.codigoProduto = codigoProduto;
-		totalUnids = new int[N_FILIAIS+1];
+		totalUnids = new int[Constantes.N_FILIAIS+1];
 	}
 
 	/** Constrói uma cópia da faturação anual do produto passado como parâmetro. */
@@ -34,10 +38,7 @@ public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
 	 * @param nUnids Número de unidades a acrescentar às vendas da filial @c filial.
 	 * @throws FilialInvalidaException se @c filial for inválida, i.e. se não pertencer a [1,3].
 	 */
-	public void adicionaUnidades(int filial, int nUnids) throws FilialInvalidaExecption{
-		if(filial <= 0 || filial > N_FILIAIS)
-			throw new FilialInvalidaExecption("A filial '" + filial + "' é inválida!");
-
+	public void adicionaUnidades(int filial, int nUnids) {
 		totalUnids[filial] += nUnids;
 	}
 
@@ -52,7 +53,7 @@ public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
 	}
 
 	@Override
-	int compareTo(FatAnualProd fAnualProd){
+	public int compareTo(FatAnualProd fAnualProd){
 		return codigoProduto.compareTo(fAnualProd.getCodigoProduto());
 	}
 
@@ -79,7 +80,7 @@ public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
 
 		sb.append("Faturação anual do produto '" + codigoProduto + "'\n");
 		sb.append("Vendas:\n");
-		for(int i = 1; i <= N_FILIAIS; ++i)
+		for(int i = 1; i <= Constantes.N_FILIAIS; ++i)
 			sb.append("Filial ").append(i + ": ").append(totalUnids[i] + "\n");
 
 		return sb.toString();
