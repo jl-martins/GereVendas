@@ -4,7 +4,7 @@ public class HipermercadoApp {
 	private EstatisticaGeral estatisticasGerais;
 	private Menu menuPrincipal, menuSair;
 	private Menu menuEstatisticas, menuQueries;
-	private Scanner input; // Scanner utilizado para ler input do utilizador nas queries interativas
+	private Scanner input; // Scanner utilizado para ler input do utilizador nas queries interativas.
 
 	private static final String[] opcoesMenuPrincipal = {
 		"Ler dados",
@@ -32,12 +32,30 @@ public class HipermercadoApp {
 	private static final String[] respostaSimNao = {"Sim", "Não"};
 
 	public HipermercadoApp() {
-		hipermercado = new Hipermercado();
+		hipermercado = null; // indica que ainda não carregamos os dados do hipermercado
 		menuPrincipal = new Menu("Menu principal", opcoesMenuPrincipal, true);
 		menuEstatisticas = new Menu("Estatísticas", opcoesMenuEstatisticas, true);
 		menuQueries = new Menu("Queries interativas", opcoesMenuQueries, true);
 		menuSair = new Menu("Deseja guardar o estado da aplicação?", respostaSimNao, false);
 		input = new Scanner(System.in);
+	}
+
+	private void splashScreen() {
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		final int N_ESPACOS = 43;
+
+		try{
+			bw.write(" _____               _   _                _");           
+			bw.write("|  __ \\             | | | |              | |");          
+			bw.write("| |  \\/ ___ _ __ ___| | | | ___ _ __   __| | __ _ ___"); 
+			bw.write("| | __ / _ | '__/ _ | | | |/ _ | '_ \\ / _` |/ _` / __|");
+			bw.write("| |_\\ |  __| | |  _ \\ \\_/ |  __| | | | (_| | (_| \\__ \\");
+		 	bw.write(" \\____/\\___|_|  \\___|\\___/ \\___|_| |_|\\__,_|\\__,_|___/");
+			bw.write(new String(new char[N_ESPACOS]).replace("\0", " ")); // centra a mensagem de "prima ENTER para continuar"
+			bw.flush();
+			enterParaContinuar();
+		}
+		catch(IOException e){err.println("Erro de I/O: Não foi possível apresentar o ecrã inicial.");}
 	}
 
 	private void limparEcra() { out.print("\f"); }
@@ -86,11 +104,17 @@ public class HipermercadoApp {
 			gravarEstado();
 	}
 
-	public void lerDados() {
+	private boolean appPopulada() { return hipermercado != null; }
 
+	private void lerDados() {
+		
+
+		try {
+
+		}
 	}
 
-	public int menuEstatisticas() {
+	private int menuEstatisticas() {
 		int op;
 
 		do {
@@ -117,7 +141,7 @@ public class HipermercadoApp {
 		return op;
 	}
 
-	public int menuQueries() {
+	private int menuQueries() {
 		int op;
 
 		do {
@@ -163,39 +187,39 @@ public class HipermercadoApp {
 		return op;
 	}
 
-	public void query1() {
+	private void query1() {
 
 	}
 
-	public void query2() {
+	private void query2() {
 		
 	}
 
-	public void query3() {
+	private void query3() {
 		
 	}
 
-	public void query4() {
+	private void query4() {
 		
 	}
 
-	public void query5() {
+	private void query5() {
 		
 	}
 
-	public void query6() {
+	private void query6() {
 		
 	}
 
-	public void query7() {
+	private void query7() {
 		
 	}
 
-	public void query8() {
+	private void query8() {
 		
 	}
 
-	public void query9() {
+	private void query9() {
 		
 	}
 }
