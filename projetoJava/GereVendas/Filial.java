@@ -3,6 +3,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.TreeSet;
+import java.util.HashMap;
 
 /**
  * Write a description of class Filial here.
@@ -18,11 +19,32 @@ public class Filial
         for(int i = 0; i < 26; i++){
             clientesOrdenados.add(new HashMap<>());
         }
-        System.out.println('A' - 'B');
+    }
+    
+    /** Dado uma String com o código do cliente, devolve o indíce correspondente na clientesOrdenados . */
+    private static int indiceCorrespondente(String codigoCliente){
+        if(codigoCliente == null)
+            ;
+        char c = codigoCliente.charAt(0);
+        c = Character.toUpperCase(c);
+        int indice = ((int) c) - ((int) 'A');
+        if(indice < 0 || indice >= 26)
+            ;
+        return indice;
     }
     
     public void registaVenda(Venda v){
-        char primeiraLetraCodigo = v.getCodigoCliente().charAt(0);
+        String codigoCliente = v.getCodigoCliente();
+        int indice = indiceCorrespondente(codigoCliente);
+        ComprasPorCliente compras;
+        Map<String, ComprasPorCliente> aux = clientesOrdenados.get(indice);
         
+        compras = aux.get(codigoCliente);
+        if(compras == null){
+            compras = new ComprasPorCliente(codigoCliente);
+            aux.put(codigoCliente, compras);
+        }
+        
+        compras.registaVenda(v);        
     }
 }

@@ -11,6 +11,12 @@ public class ComprasDoProduto
     
     private ComprasDoProduto(){}
     
+    public ComprasDoProduto(String codigoProduto){
+        this.codigoProduto = codigoProduto;
+        unidadesCompradas = 0;
+        faturacao = 0;
+    }   
+    
     public ComprasDoProduto(String codigoProduto, int unidadesCompradas, double faturacao){
         this.codigoProduto = codigoProduto;
         this.unidadesCompradas = unidadesCompradas;
@@ -19,6 +25,12 @@ public class ComprasDoProduto
     
     public ComprasDoProduto(ComprasDoProduto comprasDoProduto){
         this(comprasDoProduto.getCodigoProduto(), comprasDoProduto.getUnidadesCompradas(), comprasDoProduto.getFaturacao());
+    }
+    
+    public void registaVenda(Venda v){
+        int unidadesVendidas = v.getUnidadesVendidas();
+        unidadesCompradas += unidadesVendidas;
+        faturacao += v.getPrecoUnitario() * unidadesVendidas;
     }
     
     public String getCodigoProduto(){

@@ -1,4 +1,4 @@
-package parte1;
+ 
 
 /**
  * Write a description of class Venda here.
@@ -14,24 +14,24 @@ public class Venda implements Serializable {
     private int unidadesVendidas, mes, filial;
     private String codigoProduto, codigoCliente;
     private double precoUnitario;
-    private TipoVenda tipoVenda;
+    //private TipoVenda tipoVenda;
 
     /* impede que usem o construtor vazio */
     private Venda(){}
 
     /* campos ordenados da mesma forma que aparecem nas linhas do ficheiro de vendas */
-    public Venda(String codigoProduto, double precoUnitario, int unidadesVendidas, TipoVenda tipoVenda, String codigoCliente, int mes, int filial){
+    public Venda(String codigoProduto, double precoUnitario, int unidadesVendidas, /*TipoVenda tipoVenda,*/ String codigoCliente, int mes, int filial){
         this.unidadesVendidas = unidadesVendidas;
         this.mes = mes;
         this.filial = filial;
         this.codigoProduto = codigoProduto;
         this.codigoCliente = codigoCliente;
         this.precoUnitario = precoUnitario;
-        this.tipoVenda = tipoVenda;
+       // this.tipoVenda = tipoVenda;
     } 
 
     public Venda(Venda v){        
-        this(v.getCodigoProduto(), v.getPrecoUnitario(), v.getUnidadesVendidas(), v.getTipoVenda(), v.getCodigoCliente(), v.getMes(), v.getFilial());
+        this(v.getCodigoProduto(), v.getPrecoUnitario(), v.getUnidadesVendidas(), /*v.getTipoVenda(),*/ v.getCodigoCliente(), v.getMes(), v.getFilial());
     }
 
     /* getters */
@@ -59,15 +59,15 @@ public class Venda implements Serializable {
         return precoUnitario;
     }
 
-    public TipoVenda getTipoVenda(){
+    /*public TipoVenda getTipoVenda(){
         return tipoVenda;
-    }
+    }*/
 
     /* nao definimos setters porque queremos que as instancias desta class sejam imutaveis */
 
     /* Funcoes standard */
     public int hashCode(){
-        return Arrays.hashCode(new Object[]{unidadesVendidas, mes, filial, codigoProduto, codigoCliente, precoUnitario, tipoVenda});
+        return Arrays.hashCode(new Object[]{unidadesVendidas, mes, filial, codigoProduto, codigoCliente, precoUnitario/*, tipoVenda*/});
     }
 
     public String toString(){
@@ -84,8 +84,8 @@ public class Venda implements Serializable {
         sb.append(codigoCliente);
         sb.append("\nprecoUnitario");
         sb.append(precoUnitario);
-        sb.append("\ntipoVenda: ");
-        sb.append(tipoVenda + "\n");
+        /*sb.append("\ntipoVenda: ");
+        sb.append(tipoVenda + "\n");*/
         return sb.toString();
     }
 
@@ -104,8 +104,8 @@ public class Venda implements Serializable {
         this.filial == v.filial &&
         ((this.codigoProduto == null && v.codigoProduto == null) || (this.codigoProduto != null && this.codigoProduto.equals(v.codigoProduto))) &&
         ((this.codigoCliente == null && v.codigoCliente == null) || (this.codigoCliente != null && this.codigoCliente.equals(v.codigoCliente))) &&
-        this.precoUnitario == v.precoUnitario &&
-        this.tipoVenda == v.tipoVenda;
+        this.precoUnitario == v.precoUnitario;
+       /* && this.tipoVenda == v.tipoVenda;*/
     }
 }
 
