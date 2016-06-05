@@ -21,6 +21,18 @@ public class ComprasDoProduto
         this(comprasDoProduto.getCodigoProduto(), comprasDoProduto.getUnidadesCompradas(), comprasDoProduto.getFaturacao());
     }
     
+    public String getCodigoProduto(){
+        return codigoProduto;
+    }
+    
+    public int getUnidadesCompradas(){
+        return unidadesCompradas;
+    }
+    
+    public double getFaturacao(){
+        return faturacao;
+    }
+    
     public ComprasDoProduto clone(){
         return new ComprasDoProduto(this);
     }
