@@ -188,7 +188,7 @@ public class HipermercadoApp {
             while((linha = inStream.readLine()) != null){
                 v = Venda.parseLinhaVenda(linha);
                 ++nlinhas;
-                if(v != null && hipermercado.existeProduto(v.getCodigoProduto()) && hipermercado.existeCliente(v.getCodigoCliente())){
+                if(v.eValida() && hipermercado.existeProduto(v.getCodigoProduto()) && hipermercado.existeCliente(v.getCodigoCliente())){
                     ++nvalidas;
                     hipermercado.registaVenda(v);
                     produtosVendidos.add(v.getCodigoProduto());

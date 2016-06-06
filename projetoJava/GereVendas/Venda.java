@@ -30,6 +30,10 @@ public class Venda implements Serializable {
     public Venda(Venda v){        
         this(v.getCodigoProduto(), v.getPrecoUnitario(), v.getUnidadesVendidas(), /*v.getTipoVenda(),*/ v.getCodigoCliente(), v.getMes(), v.getFilial());
     }
+    
+    public boolean eValida(){
+        return unidadesVendidas >= 0 && mes > 0 && mes < 13 && filial > 0 /*&& filial <= Numero de filiais */ && precoUnitario >= 0;
+    }
 
     public static Venda parseLinhaVenda(String linha){
         int unidadesVendidas, mes, filial;
