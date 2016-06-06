@@ -12,8 +12,8 @@ public class Hipermercado implements Serializable{
     private CatalogoClientes catalogoClientes;
     private Faturacao faturacao;
     private Filiais filiais;
-    private EstatisticaFicheiro estatisticaFicheiro;
-    private EstatisticaGeral estatisticaGeral;
+    private EstatisticasFicheiro estatisticasFicheiro;
+    private EstatisticasGerais estatisticasGerais;
     
     public Hipermercado(){
         catalogoProdutos = new CatalogoProdutos();
@@ -28,8 +28,8 @@ public class Hipermercado implements Serializable{
         catalogoClientes = hipermercado.getCatalogoClientes();
         faturacao = hipermercado.getFaturacao();
         filiais = hipermercado.getFiliais();
-        estatisticaFicheiro = hipermercado.getEstatisticaFicheiro();
-        estatisticaGeral = hipermercado.getEstatisticaGeral();
+        estatisticasFicheiro = hipermercado.getEstatisticasFicheiro();
+        estatisticasGerais = hipermercado.getEstatisticasGerais();
     }
     
     /**
@@ -56,6 +56,13 @@ public class Hipermercado implements Serializable{
         return hipermercado;
     }
     
+    public void criaEstatisticasFicheiro(String fich, int totalVendasErr, int totalProdsDif, int totalClisComp, int nGratis, double faturacaoTotal){
+        estatisticasFicheiro = new EstatisticasFicheiro(
+            fich, totalVendasErr, catalogoProdutos.totalProdutos(), totalProdsDif, 
+            catalogoClientes.totalClientes(), totalClisComp, nGratis, faturacaoTotal
+        );
+    }
+    
     // getters
     private CatalogoProdutos getCatalogoProdutos(){
         return (catalogoProdutos != null) ? catalogoProdutos.clone() : null;
@@ -73,12 +80,12 @@ public class Hipermercado implements Serializable{
         return null; // MUDAR PARA ESTE CODIGO --> (filiais != null) ? filiais.clone() : null;
     }
     
-    public EstatisticaFicheiro getEstatisticaFicheiro(){
-        return (estatisticaFicheiro != null) ? estatisticaFicheiro.clone() : null;
+    public EstatisticasFicheiro getEstatisticasFicheiro(){
+        return (estatisticasFicheiro != null) ? estatisticasFicheiro.clone() : null;
     }
     
-    public EstatisticaGeral getEstatisticaGeral(){
-        return (estatisticaGeral != null) ? estatisticaGeral.clone() : null;
+    public EstatisticasGerais getEstatisticasGerais(){
+        return (estatisticasGerais != null) ? estatisticasGerais.clone() : null;
     }
     
     /**

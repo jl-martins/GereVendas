@@ -1,24 +1,24 @@
 import java.util.Arrays;
 
-public class EstatisticaGeral {
+public class EstatisticasGerais {
     private int[] totalCompras;
     private double[][] totalFaturado;
     private int[] totalCliDistintos;
 
-    public EstatisticaGeral(){
+    public EstatisticasGerais(){
         totalCompras = new int[13];
         totalFaturado = new double[13][4];
         totalCliDistintos = new int[13];
     }
 
-    public EstatisticaGeral(int[] totalCompras, double[][] totalFaturado, int[] totalCliDistintos){
+    public EstatisticasGerais(int[] totalCompras, double[][] totalFaturado, int[] totalCliDistintos){
         this();
         setTotalCompras(totalCompras);
         setTotalFaturado(totalFaturado);
         setTotalCliDistintos(totalCliDistintos);
     }
     
-    public EstatisticaGeral(EstatisticaGeral est){
+    public EstatisticasGerais(EstatisticasGerais est){
         this(est.getTotalCompras(), est.getTotalFaturado(), est.getTotalCliDistintos());
     }
 
@@ -49,14 +49,13 @@ public class EstatisticaGeral {
 
     /* Adicionar alguns métodos para atualizar a as variaveis por mês ou assim, se facilitar */
 
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o){
         if(this == o)
             return true;
         if((o == null) || (this.getClass() != o.getClass()))
             return false;
 
-        EstatisticaGeral est = (EstatisticaGeral) o;
+        EstatisticasGerais est = (EstatisticasGerais) o;
         boolean res = true;
         double[][] totalFaturado = est.getTotalFaturado();
         
@@ -67,13 +66,11 @@ public class EstatisticaGeral {
                Arrays.equals(totalCliDistintos, est.getTotalCliDistintos());
     }
 
-    public EstatisticaGeral clone()
-    {
-        return new EstatisticaGeral(this);
+    public EstatisticasGerais clone(){
+        return new EstatisticasGerais(this);
     }
 
-    public String toString()
-    {
+    public String toString(){
         StringBuilder str = new StringBuilder();
         return str.toString();
     }
