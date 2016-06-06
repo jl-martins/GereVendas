@@ -56,4 +56,14 @@ public class Filial
         }
         return clientes;
     }
+    
+    public Set<ComprasDoProduto> comprasFeitasMes(String idCliente, int mes){
+        int indice = indiceCorrespondente(idCliente);
+        Map<String, ComprasPorCliente> mapCorrespondente = clientesOrdenados.get(indice);
+        ComprasPorCliente compras = mapCorrespondente.get(idCliente);
+        
+        if(compras == null)
+            return null;
+        return compras.comprasPorMes(mes);        
+    }
 }

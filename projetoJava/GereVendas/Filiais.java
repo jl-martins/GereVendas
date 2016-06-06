@@ -37,4 +37,17 @@ public class Filiais
         }
         return clientes.size();       
     }
+    
+    /* Dado um cliente e um mes, devolve as compras feitas nesse mes pelo Cliente */
+    public Set<ComprasDoProduto> comprasFeitasMes(String idCliente, int mes){
+        Set<ComprasDoProduto> compras = new TreeSet<>();
+        for(int i = 0; i < filiais.length; i++){
+            compras.addAll(filiais[i].comprasFeitasMes(mes));
+        }
+        return compras;
+    }
+    
+    /* Dado um código de cliente, determinar, para cada mês, quantas compras fez,
+quantos produtos distintos comprou e quanto gastou no total.*/
+    public ... 
 }

@@ -1,7 +1,11 @@
 import java.util.Map;
+import java.util.Set;
 import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * Write a description of class ComprasPorCliente here.
  */
@@ -41,4 +45,11 @@ public class ComprasPorCliente
     public boolean comprouNoMes(int mes){
         return quantasComprasPorMes[mes] > 0;
     }
+    
+    public Set<ComprasDoProduto> comprasPorMes(int mes){
+        Map<String, ComprasDoProduto> mapAux = comprasPorMes.get(mes);
+        return mapAux.values().stream().map(ComprasDoProduto::clone).collect(Collectors.toSet());        
+    }
+    
+    /* definir compareTo a ordenar por nome */
 }

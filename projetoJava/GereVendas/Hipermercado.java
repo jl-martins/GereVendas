@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.io.IOException;
 
 public class Hipermercado implements Serializable{
     private CatalogoProdutos catalogoProdutos;
@@ -41,7 +42,7 @@ public class Hipermercado implements Serializable{
      * @param fich Nome do ficheiro de estado.
      * @return O Hipermercado lido.
      */
-    public static Imoobiliaria leObj(String fich) throws IOException, ClassNotFoundException{
+    public static Hipermercado leObj(String fich) throws IOException, ClassNotFoundException{
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fich));
 
         Hipermercado hipermercado = (Hipermercado) ois.readObject();
