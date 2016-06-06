@@ -205,7 +205,7 @@ public class HipermercadoApp {
             
     
     private void lerDados() {
-        int nprodutos, nclientes
+        int nprodutos, nclientes;
         String fichProdutos, fichClientes, fichVendas;
         String caminhoData = "data" + File.separator;
         // Falta verificar se os metodos de leitura devolveram -1 (ver se em vez disso devem atirar excepcoes)

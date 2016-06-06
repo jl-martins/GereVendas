@@ -18,7 +18,7 @@ public class ComprasPorCliente
         comprasPorMes = new ArrayList<>(13);
         quantasComprasPorMes = new int[13];
         
-        for(int i = 0; i < 13; i++){
+        for(int i = 1; i < 13; i++){
             comprasPorMes.add(new HashMap<>());
         }
     }
@@ -38,5 +38,7 @@ public class ComprasPorCliente
         comprasProduto.registaVenda(v);
     }
     
-    
+    public boolean comprouNoMes(int mes){
+        return quantasComprasPorMes[mes] > 0;
+    }
 }

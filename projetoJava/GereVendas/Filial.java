@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.TreeSet;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 /**
  * Write a description of class Filial here.
@@ -46,5 +47,13 @@ public class Filial
         }
         
         compras.registaVenda(v);        
+    }
+    
+    public Set<String> clientesCompraramMes(int mes){
+        Set<String> clientes = new TreeSet<>();
+        for(int i = 0; i < 26; i++){
+            clientes.addAll(clientesOrdenados.get(i).entrySet().stream().filter(p->p.getValue().comprouNoMes(mes)).map(p->p.getKey()).collect(Collectors.toSet()));   
+        }
+        return clientes;
     }
 }
