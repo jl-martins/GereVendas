@@ -13,8 +13,6 @@ import java.util.TreeSet;
 
 public class HipermercadoApp {
     private Hipermercado hipermercado;
-    private EstatisticaFicheiro estatisticasFicheiro;
-    private EstatisticaGeral estatisticasGerais;
     private Menu menuPrincipal, menuSair;
     private Menu menuEstatisticas, menuQueries;
 
