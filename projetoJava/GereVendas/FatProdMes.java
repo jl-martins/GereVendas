@@ -6,25 +6,25 @@ import java.util.stream.DoubleStream;
 public class FatProdMes implements Serializable {
     private final int mes;
     private String codigoProduto;
-    private int[] unidsVendidas; // a posicao i da o numero de unidades vendidas na filial i, para o produto e mes considerados
+    private int[] unidsVendFilial; // a posicao i da o numero de unidades vendidas na filial i, para o produto e mes considerados
     private double[] faturacao; // a posicao i da o total faturado na filial i, para o produto e mes co nsiderados 
     
     /** Constroi uma FatProdMes com base no mes e codigo de produto dados. */
     public FatProdMes(int mes, String codigoProduto){
         this.mes = mes;
         this.codigoProduto = codigoProduto;
-        this.unidsVendidas = new int[Constantes.N_FILIAIS+1];
+        this.unidsVendFilial = new int[Constantes.N_FILIAIS+1];
         this.faturacao = new double[Constantes.N_FILIAIS+1];
     }
     
     /** 
      * Constroi uma FatProdMes com base no mes e codigo de produto dados.
      * O número de unidades e faturação de @c filial são inicializados com
-     * os valores de @c nUnids e @c faturado, respetivamente.
+     * os valores de @c unidadesVendidas e @c faturado, respetivamente.
      */
-    public FatProdMes(int mes, String codigoProduto, int nUnids, double faturado, int filial){
+    public FatProdMes(int mes, String codigoProduto, int unidadesVendidas, double faturado, int filial){
         this(mes, codigoProduto);
-        this.unidsVendidas[filial] = nUnids;
+        this.unidsVendFilial[filial] = unidadesVendidas;
         this.faturacao[filial] = faturado;
     }
 
@@ -32,7 +32,7 @@ public class FatProdMes implements Serializable {
     public FatProdMes(FatProdMes fProdMes){
         mes = fProdMes.getMes();
         codigoProduto = fProdMes.getCodigoProduto();
-        unidsVendidas = fProdMes.getUnidsVendidas();
+        unidsVendFilial = fProdMes.getUnidsVendFilial();
         faturacao = fProdMes.getFaturacao();
     }
     
@@ -44,8 +44,8 @@ public class FatProdMes implements Serializable {
         return codigoProduto;
     }
     
-    public int[] getUnidsVendidas(){
-        return Arrays.copyOf(unidsVendidas, Constantes.N_FILIAIS+1);
+    public int[] getUnidsVendFilial(){
+        return Arrays.copyOf(unidsVendFilial, Constantes.N_FILIAIS+1);
     }
 
     public double[] getFaturacao(){
@@ -54,18 +54,18 @@ public class FatProdMes implements Serializable {
 
     /**
      * Atualiza os dados desta FatProdMes relativos à filial passada como terceiro argumento.
-     * @param nUnids Número de unidades vendidas a adicionar ao total de unidades vendidas.
+     * @param unidadesVendidas Número de unidades vendidas a adicionar ao total de unidades vendidas.
      * @param faturado Valor a adicionar à faturação da filial especificada no 3º argumento.
      * @param filial Filial cujos dados serão atualizados.
      */
-    public void adiciona(int nUnids, double faturado, int filial){
-        this.unidsVendidas[filial] += nUnids;
+    public void adiciona(int unidadesVendidas, double faturado, int filial){
+        this.unidsVendFilial[filial] += unidadesVendidas;
         this.faturacao[filial] += faturado;
     }
 
     /** @return Total de unidades vendidas registadas nesta FatProdMes. */
     public int totalUnidsVendidas(){
-        return IntStream.of(unidsVendidas).sum();
+        return IntStream.of(unidsVendFilial).sum();
     }
 
     /** @return Faturação total registada nesta FatProdMes. */
@@ -87,7 +87,7 @@ public class FatProdMes implements Serializable {
 
         FatProdMes fProdMes = (FatProdMes) o;
         return codigoProduto.equals(fProdMes.getCodigoProduto()) &&
-               Arrays.equals(unidsVendidas, fProdMes.getUnidsVendidas()) &&
+               Arrays.equals(unidsVendFilial, fProdMes.getUnidsVendFilial()) &&
                Arrays.equals(faturacao, fProdMes.getFaturacao());
     }
     
@@ -97,7 +97,7 @@ public class FatProdMes implements Serializable {
         long aux;
 
         hash = 31*hash + codigoProduto.hashCode();
-        hash = 31*hash + Arrays.hashCode(unidsVendidas);
+        hash = 31*hash + Arrays.hashCode(unidsVendFilial);
         for(double d : faturacao){
             aux = Double.doubleToLongBits(d);
             hash = 31*hash + (int) (aux ^ (aux >>> 32));

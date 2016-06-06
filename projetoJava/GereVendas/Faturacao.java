@@ -62,9 +62,10 @@ public class Faturacao implements Serializable {
      * @param venda Venda a registar.
      * @return true se a venda foi registada com sucesso.
      */
-    public void registaVenda(String codigoProduto, double precoUnitario, int nUnids, int mes, int filial){
-        todosProdutos.get(codigoProduto).adicionaUnidades(filial, nUnids);
-        fatMensal[mes].registaVenda(codigoProduto, precoUnitario, nUnids, filial);
+    public void registaVenda(Venda v){
+        // quando este metodo e invocado, todosProdutos ja tem todos os produtos registados.
+        todosProdutos.get(v.getCodigoProduto()).adicionaUnidades(v.getFilial(), v.getUnidadesVendidas());
+        fatMensal[v.getMes()].registaVenda(v);
     }
 
     // Query1
