@@ -1,5 +1,11 @@
 import java.io.Serializable;
 import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+
+import java.util.Set;
 
 public class Hipermercado implements Serializable{
     private CatalogoProdutos catalogoProdutos;
@@ -10,8 +16,8 @@ public class Hipermercado implements Serializable{
     private EstatisticaGeral estatisticaGeral;
     
     public Hipermercado(){
-        catalogoProdutos = new catalogoProdutos();
-        catalogoClientes = new catalogoClientes();
+        catalogoProdutos = new CatalogoProdutos();
+        catalogoClientes = new CatalogoClientes();
         faturacao = new Faturacao();
         filiais = new Filiais(Constantes.N_FILIAIS);
     }
@@ -52,7 +58,7 @@ public class Hipermercado implements Serializable{
     
     // getters
     private CatalogoProdutos getCatalogoProdutos(){
-        return (catalgoProdutos != null) ? catalogoProdutos.clone() : null;
+        return (catalogoProdutos != null) ? catalogoProdutos.clone() : null;
     }
     
     private CatalogoClientes getCatalogoClientes(){
@@ -64,7 +70,7 @@ public class Hipermercado implements Serializable{
     }
     
     private Filiais getFiliais(){
-        return (filiais != null) ? filiais.clone() : null;
+        return null; // MUDAR PARA ESTE CODIGO --> (filiais != null) ? filiais.clone() : null;
     }
     
     public EstatisticaFicheiro getEstatisticaFicheiro(){
@@ -129,13 +135,13 @@ public class Hipermercado implements Serializable{
     
     // Query2
     /** @return Total global de vendas realizadas no mês passado como parâmetro. */
-    public int totalGlobalVendas(int mes){
+    public int totalGlobalVendas(int mes) throws MesInvalidoException{
         return faturacao.totalVendasMes(mes);
     }
     
     /** @return Total de clientes distintos que compraram no mês passado como parâmetro. */
-    public int totalClientesCompraram(int mes){
-        return filiais.totalClientesCompraram(mes); //MUDAR NOME DO MÉTODO CONFORME O NOME DADO EM FILIAIS
+    public int totalClientesCompraram(int mes) throws MesInvalidoException{
+        return filiais.quantosClientesCompraramMes(mes);
     }
     
     // Query3

@@ -1,11 +1,3 @@
-
-/**
- * Write a description of class Venda here.
- * 
- * @author Grupo1
- * @version 1.0
- */
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -41,12 +33,12 @@ public class Venda implements Serializable {
 
     public static Venda parseLinhaVenda(String linha){
         int unidadesVendidas, mes, filial;
-        String codigoProd, codigoCliente;
+        String codigoProduto, codigoCliente;
         double precoUnitario;
         /*TipoVenda tipoVenda;*/
         String[] campos = linha.split(" ");
 
-        codigoProd = campos[0];
+        codigoProduto = campos[0];
         codigoCliente = campos[4];
 
         try{
@@ -59,7 +51,7 @@ public class Venda implements Serializable {
         catch(NumberFormatException | NullPointerException /*| TipoVendaInvalidoException*/ e){
             return null;
         }
-        return new Venda(codigoProd, precoUnitario, unidadesVendidas, /*tipoVenda,*/ codigoCliente, mes, filial);
+        return new Venda(codigoProduto, precoUnitario, unidadesVendidas, /* tipoVenda, */ codigoCliente, mes, filial);
     }
 
     public static ArrayList<Venda> parseAllLinhas(ArrayList<String> linhas){
@@ -83,7 +75,6 @@ public class Venda implements Serializable {
         }
         return vendas;
     }
-
     
     /* getters */
     public int getUnidadesVendidas(){
@@ -116,47 +107,46 @@ public class Venda implements Serializable {
 
     /* nao definimos setters porque queremos que as instancias desta class sejam imutaveis */
 
-    /* Funcoes standard */
+    /* Metodos standard */
+    public Venda clone(){
+        return new Venda(this);
+    }
+    
+    public boolean equals(Object o){
+        if(this == o)
+            return true;
+        if(o == null || this.getClass() != o.getClass())
+            return false;
+        
+        Venda v = (Venda) o;
+        return this.unidadesVendidas == v.unidadesVendidas && this.mes == v.mes && this.filial == v.filial &&
+               (this.codigoProduto == null ? v.codigoProduto == null : this.codigoProduto.equals(v.codigoProduto)) &&
+               (this.codigoCliente == null ? v.codigoCliente == null : this.codigoCliente.equals(v.codigoCliente)) &&
+               this.precoUnitario == v.precoUnitario;
+        /* && this.tipoVenda == v.tipoVenda;*/
+    }
     public int hashCode(){
         return Arrays.hashCode(new Object[]{unidadesVendidas, mes, filial, codigoProduto, codigoCliente, precoUnitario/*, tipoVenda*/});
     }
 
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("unidadesVendidas: ");
-        sb.append(unidadesVendidas);
-        sb.append("\nmes: ");
-        sb.append(mes);
-        sb.append("\nfilial: ");
-        sb.append(filial);
-        sb.append("\ncodigoProduto: ");
-        sb.append(codigoProduto);
-        sb.append("\ncodigoCliente: ");
-        sb.append(codigoCliente);
-        sb.append("\nprecoUnitario");
-        sb.append(precoUnitario);
+        String separador = System.getProperty("line.separator");
+        
+        sb.append("-> Venda" + separador);
+        sb.append("Unidades vendidas: " + unidadesVendidas + separador);
+        sb.append("Mes: " + mes + separador);
+        sb.append("Filial: " + filial + separador);
+        sb.append("Código de produto: " + codigoProduto + separador);
+        sb.append("Código de cliente: " + codigoCliente + separador);
+        sb.append("Preço unitário" + precoUnitario + separador);
         /*sb.append("\ntipoVenda: ");
         sb.append(tipoVenda + "\n");*/
         return sb.toString();
     }
 
-    public Venda clone(){
-        return new Venda(this);
-    }
 
-    public boolean equals(Object o){
-        if(this == o)
-            return true;
-        if(o == null || this.getClass() != o.getClass())
-            return false;
-        Venda v = (Venda) o;
-        return this.unidadesVendidas == v.unidadesVendidas &&
-        this.mes == v.mes &&
-        this.filial == v.filial &&
-        ((this.codigoProduto == null && v.codigoProduto == null) || (this.codigoProduto != null && this.codigoProduto.equals(v.codigoProduto))) &&
-        ((this.codigoCliente == null && v.codigoCliente == null) || (this.codigoCliente != null && this.codigoCliente.equals(v.codigoCliente))) &&
-        this.precoUnitario == v.precoUnitario;
-        /* && this.tipoVenda == v.tipoVenda;*/
-    }
+
+
 }
 

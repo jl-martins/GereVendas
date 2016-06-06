@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.Queue;
 import java.util.PriorityQueue;
+import java.util.Arrays;
 
 public class Faturacao implements Serializable {
     private FatMes[] fatMensal;
@@ -125,5 +126,20 @@ public class Faturacao implements Serializable {
                             .limit(X)
                             .map(FatAnualProd :: getCodigoProduto)
                             .collect(Collectors.toCollection(ArrayList<String> :: new));
+    }
+    
+    public Faturacao clone(){
+        return new Faturacao(this);
+    }
+    
+    public boolean equals(Object o){
+        if(this == o)
+            return true;
+        else if(o == null || this.getClass() != o.getClass())
+            return false;
+
+        Faturacao f = (Faturacao) o;
+
+        return Arrays.equals(fatMensal, f.fatMensal) && todosProdutos.equals(f.todosProdutos);
     }
 }

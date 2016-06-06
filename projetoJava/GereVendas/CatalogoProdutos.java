@@ -21,7 +21,7 @@ public class CatalogoProdutos implements Serializable{
         return codigosProdutos.contains(codigoProduto);
     }
     
-    public int totalClientes(){
+    public int totalProdutos(){
         return codigosProdutos.size();
     }
     

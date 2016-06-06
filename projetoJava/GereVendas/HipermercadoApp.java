@@ -1,3 +1,16 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.FileReader;
+import java.io.IOException;
+
+import static java.lang.System.err;
+import static java.lang.System.out;
+
+import java.util.Set;
+import java.util.TreeSet;
+
 public class HipermercadoApp {
     private Hipermercado hipermercado;
     private EstatisticaFicheiro estatisticasFicheiro;
@@ -177,7 +190,7 @@ public class HipermercadoApp {
             while((linha = inStream.readLine()) != null){
                 v = Venda.parseLinhaVenda(linha);
                 ++nlinhas;
-                if(v.eValida() && hipermercado.existeProduto(v.getCodigoProduto()) && hipermercado.existeCliente(v.getCodigoCliente())){
+                if(v != null && hipermercado.existeProduto(v.getCodigoProduto()) && hipermercado.existeCliente(v.getCodigoCliente())){
                     ++nvalidas;
                     hipermercado.registaVenda(v);
                     produtosVendidos.add(v.getCodigoProduto());
@@ -186,7 +199,7 @@ public class HipermercadoApp {
                     if(v.getPrecoUnitario() == 0.0)
                         ++ngratis;
                     else
-                        faturacaoTotal += v.getNumeroUnidades() * v.getPrecoUnitario();
+                        faturacaoTotal += v.getUnidadesVendidas() * v.getPrecoUnitario();
                 }
             }
             hipermercado.criaEstatisticasFicheiro(
@@ -218,8 +231,6 @@ public class HipermercadoApp {
         fichVendas = obterNomeFicheiro(caminhoData + "Vendas_1M.txt", "vendas");
         leFicheiroVendas(fichVendas);
     }
-
-
 
     private int menuEstatisticas() {
         int op;
@@ -328,5 +339,14 @@ public class HipermercadoApp {
 
     private void query9() {
         out.println("Por implementar...");
+    }
+    
+    private void gravarEstado(){
+        String fichEstado = obterNomeFicheiro("hipermercado.dat", "estado");
+        
+        try{
+            hipermercado.gravaObj(fichEstado);
+            out.println("-> Estado gravado com sucesso!");
+        }catch(IOException e){ err.println("Não foi possível gravar o estado!"); }
     }
 }
