@@ -2,7 +2,7 @@
 /**
  * Write a description of class ComprasDoProduto here.
  */
-public class ComprasDoProduto
+public class ComprasDoProduto implements java.io.Serializable, Comparable<ComprasDoProduto>
 {
     private String codigoProduto;
     private int unidadesCompradas;
@@ -47,5 +47,11 @@ public class ComprasDoProduto
     
     public ComprasDoProduto clone(){
         return new ComprasDoProduto(this);
+    }
+    
+    public int compareTo(ComprasDoProduto cpd){
+        if(this.codigoProduto == null)
+            return cpd.getCodigoProduto() == null ? 0 : -1;
+        return cpd.codigoProduto.compareTo(cpd.getCodigoProduto());
     }
 }

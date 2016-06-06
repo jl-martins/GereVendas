@@ -1,5 +1,6 @@
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 /**
  * Write a description of class Filiais here.
  * 
@@ -33,7 +34,7 @@ public class Filiais
             throw new MesInvalidoException("O mês inserido é inválido");
         Set<String> clientes = new TreeSet<>();
         for(int i = 0; i < filiais.length; i++){
-            clientes.addAll(filiais[i].clientesCompraramMes());
+            clientes.addAll(filiais[i].clientesCompraramMes(mes));
         }
         return clientes.size();       
     }
@@ -42,12 +43,30 @@ public class Filiais
     public Set<ComprasDoProduto> comprasFeitasMes(String idCliente, int mes){
         Set<ComprasDoProduto> compras = new TreeSet<>();
         for(int i = 0; i < filiais.length; i++){
-            compras.addAll(filiais[i].comprasFeitasMes(mes));
+            compras.addAll(filiais[i].comprasFeitasMes(idCliente,mes));
         }
         return compras;
     }
     
-    /* Dado um código de cliente, determinar, para cada mês, quantas compras fez,
-quantos produtos distintos comprou e quanto gastou no total.*/
-    public ... 
+    public int[] quantasComprasPorMes(String idCliente){
+        int[] quantasComprasPorMes = new int[13];
+        for(int i = 0; i < Constantes.N_FILIAIS; i++){
+            int[] quantasComprasPorMesPorFilial = filiais[i].quantasComprasPorMes(idCliente);
+            for(int j = 1; j < 13; j++){
+                quantasComprasPorMes[j] += quantasComprasPorMesPorFilial[j];
+            }
+        }
+        return quantasComprasPorMes;
+    }
+    
+    /* Dado um código de cliente, determinar, para cada mês, quantas compras fez, quantos produtos distintos comprou e quanto gastou no total.*/
+    public static int quantosProdutosDistintosComprou(Set<ComprasDoProduto> compras){
+        Set<String> produtosComprados = compras.stream().map(ComprasDoProduto::getCodigoProduto).collect(Collectors.toSet());
+        return produtosComprados.size();
+    }
+    
+    public static double quantoGastou(Set<ComprasDoProduto> compras){
+        return compras.stream().mapToDouble(ComprasDoProduto::getFaturacao).sum();
+    }
+    
 }

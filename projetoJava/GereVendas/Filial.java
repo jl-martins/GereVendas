@@ -25,13 +25,20 @@ public class Filial
     /** Dado uma String com o código do cliente, devolve o indíce correspondente na clientesOrdenados . */
     private static int indiceCorrespondente(String codigoCliente){
         if(codigoCliente == null)
-            ;
+            ;/*atirar excepçoes*/
         char c = codigoCliente.charAt(0);
         c = Character.toUpperCase(c);
         int indice = ((int) c) - ((int) 'A');
         if(indice < 0 || indice >= 26)
             ;
         return indice;
+    }
+    
+    private ComprasPorCliente comprasDoCliente(String codigoCliente){
+        int indice = indiceCorrespondente(codigoCliente);
+        Map<String, ComprasPorCliente> mapCorrespondente = clientesOrdenados.get(indice);
+        ComprasPorCliente compras = mapCorrespondente.get(codigoCliente);
+        return compras;
     }
     
     public void registaVenda(Venda v){
@@ -57,13 +64,14 @@ public class Filial
         return clientes;
     }
     
-    public Set<ComprasDoProduto> comprasFeitasMes(String idCliente, int mes){
-        int indice = indiceCorrespondente(idCliente);
-        Map<String, ComprasPorCliente> mapCorrespondente = clientesOrdenados.get(indice);
-        ComprasPorCliente compras = mapCorrespondente.get(idCliente);
-        
+    public Set<ComprasDoProduto> comprasFeitasMes(String codigoCliente, int mes){
+        ComprasPorCliente compras = comprasDoCliente(codigoCliente);  
         if(compras == null)
             return null;
         return compras.comprasPorMes(mes);        
+    }
+    
+    public int[] quantasComprasPorMes(String codigoCliente){
+        return comprasDoCliente(codigoCliente).getQuantasComprasPorMes();
     }
 }

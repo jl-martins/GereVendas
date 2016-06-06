@@ -17,6 +17,8 @@ public class ComprasPorCliente
     /* dinheiro gasto por mes */
     private int[] quantasComprasPorMes; /* tamanho 12 ou 13*/
     
+    private ComprasPorCliente(){}
+    
     public ComprasPorCliente(String codigoCliente){
         this.codigoCliente = codigoCliente;
         comprasPorMes = new ArrayList<>(13);
@@ -25,6 +27,12 @@ public class ComprasPorCliente
         for(int i = 1; i < 13; i++){
             comprasPorMes.add(new HashMap<>());
         }
+    }
+    
+    public int[] getQuantasComprasPorMes(){
+        int[] ret = new int[13];
+        System.arraycopy(quantasComprasPorMes, 1, ret, 1, 12);
+        return ret;
     }
     
     public void registaVenda(Venda v){
