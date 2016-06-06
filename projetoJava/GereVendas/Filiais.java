@@ -50,7 +50,7 @@ public class Filiais
     
     public int[] quantasComprasPorMes(String idCliente){
         int[] quantasComprasPorMes = new int[13];
-        for(int i = 0; i < Constantes.N_FILIAIS; i++){
+        for(int i = 0; i < filiais.length; i++){
             int[] quantasComprasPorMesPorFilial = filiais[i].quantasComprasPorMes(idCliente);
             for(int j = 1; j < 13; j++){
                 quantasComprasPorMes[j] += quantasComprasPorMesPorFilial[j];
