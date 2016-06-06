@@ -4,6 +4,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.File;
 
 import static java.lang.System.err;
 import static java.lang.System.out;
@@ -50,16 +51,17 @@ public class HipermercadoApp {
     }
 
     private void splashScreen() {
+        String separador = System.getProperty("line.separator");
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         final int N_ESPACOS = 43;
 
         try{
-            bw.write(" _____               _   _                _");           
-            bw.write("|  __ \\             | | | |              | |");          
-            bw.write("| |  \\/ ___ _ __ ___| | | | ___ _ __   __| | __ _ ___"); 
-            bw.write("| | __ / _ | '__/ _ | | | |/ _ | '_ \\ / _` |/ _` / __|");
-            bw.write("| |_\\ |  __| | |  _ \\ \\_/ |  __| | | | (_| | (_| \\__ \\");
-            bw.write(" \\____/\\___|_|  \\___|\\___/ \\___|_| |_|\\__,_|\\__,_|___/");
+            bw.write(" _____               _   _                _" + separador);           
+            bw.write("|  __ \\             | | | |              | |" + separador);          
+            bw.write("| |  \\/ ___ _ __ ___| | | | ___ _ __   __| | __ _ ___" + separador); 
+            bw.write("| | __ / _ | '__/ _ | | | |/ _ | '_ \\ / _` |/ _` / __|" + separador);
+            bw.write("| |_\\ |  __| | |  _ \\ \\_/ |  __| | | | (_| | (_| \\__ \\" + separador);
+            bw.write(" \\____/\\___|_|  \\___|\\___/ \\___|_| |_|\\__,_|\\__,_|___/" + separador);
             bw.write(new String(new char[N_ESPACOS]).replace("\0", " ")); // centra a mensagem de "prima ENTER para continuar"
             bw.flush();
             enterParaContinuar();
@@ -240,11 +242,11 @@ public class HipermercadoApp {
             if(op > 0){
                 switch(op){
                     case 1:
-                        out.println(hipermercado.stringEstatisticasFicheiro());
+                        imprimeEstatisticasFicheiro();
                         enterParaContinuar();
                         break;
                     case 2:
-                        out.println(hipermercado.stringEstatisticasGerais());
+                        imprimeEstatisticasGerais();
                         enterParaContinuar();
                         break;
                     case 3:
@@ -301,6 +303,18 @@ public class HipermercadoApp {
         while(op != 0 && op != 10);
 
         return op;
+    }
+    
+     private void imprimeEstatisticasFicheiro(){
+        EstatisticasFicheiro est = hipermercado.getEstatisticasFicheiro();
+        
+        out.println(est.toString());
+    }
+    
+    private void imprimeEstatisticasGerais(){
+        EstatisticasGerais est = hipermercado.getEstatisticasGerais();
+        
+        out.println(est.toString());
     }
 
     private void query1() {
