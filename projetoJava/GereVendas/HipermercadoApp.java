@@ -17,7 +17,6 @@ public class HipermercadoApp {
     private Hipermercado hipermercado;
     private Menu menuPrincipal, menuSair;
     private Menu menuLeitura, menuEstatisticas, menuQueries;
-    private boolean appPopulada;
 
     private static final String[] opcoesMenuPrincipal = {
         "Ler dados",
@@ -53,7 +52,6 @@ public class HipermercadoApp {
         menuEstatisticas = new Menu(" Estatísticas", opcoesMenuEstatisticas, true);
         menuQueries = new Menu(" Queries interativas", opcoesMenuQueries, true);
         menuSair = new Menu(" Deseja guardar o estado da aplicação?", respostaSimNao, false);
-        appPopulada = false;
     }
 
     private void splashScreen() {
@@ -107,13 +105,13 @@ public class HipermercadoApp {
                     case 2:
                         // a atribuicao op = menuEstatisticas() permite-nos sair do ciclo 'do while', 
                         // quando o utilizador opta por sair do programa em menuEstatisticas().
-                        if(appPopulada)
+                        if(appPopulada())
                             op = menuEstatisticas();
                         else
                             err.println("Erro: Primeiro precisa de ler os ficheiros de dados.");
                         break;
                     case 3:
-                        if(appPopulada)
+                        if(appPopulada())
                             op = menuQueries();
                         else
                             err.println("Erro: Primeiro precisa de ler os ficheiros de dados.");
@@ -126,7 +124,7 @@ public class HipermercadoApp {
         }
         while(op != 0);
 
-        if(appPopulada){
+        if(appPopulada()){
             menuSair.executa();
             if(menuSair.getOpcao() == 1)
                 gravarEstado();
@@ -154,8 +152,10 @@ public class HipermercadoApp {
             lerFicheirosTexto();
         else
             lerEstado();
-        // MUDAR ESTA LINHA. A APP PODE NAO FICAR POPULADA SE A LEITURA FALHAR
-        appPopulada = true;
+    }
+    
+    public boolean appPopulada(){
+        return hipermercado != null;
     }
     
     private void lerFicheirosTexto(){
@@ -443,7 +443,24 @@ public class HipermercadoApp {
     }
 
     private void query3() {
-        out.println("Por implementar...");
+        String codigoCliente;
+        List<TriploIntIntDouble> dadosCliente;
+        
+        out.print("Que cliente pretende consultar? ");
+        codigoCliente = Input.lerString();
+        
+        if(!hipermercado.existeCliente(codigoCliente)){
+             out.println("O Cliente que pretende consultar não foi registado");
+             return;
+        }
+       
+        dadosCliente = hipermercado.infoPorMes(codigoCliente);
+        
+        for(int i = 1; i < 13; i++){
+            TriploIntIntDouble dadosDoMes = dadosCliente.get(i);
+            out.println("Mes: " + i + ", Total de compras: " + dadosDoMes.getInt1() + ", Produtos Distintos comprados: " + dadosDoMes.getInt2() + ", Total Gasto: " + dadosDoMes.getDouble());
+        }
+        enterParaContinuar();
     }
 
     private void query4() {
@@ -471,7 +488,7 @@ public class HipermercadoApp {
     }
     
     private void gravarEstado(){
-        if(appPopulada){
+        if(appPopulada()){
             String fichEstado = obterNomeFicheiro("hipermercado.dat", "estado");
             
             try{

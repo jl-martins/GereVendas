@@ -6,6 +6,8 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Hipermercado implements Serializable{
     private CatalogoProdutos catalogoProdutos;
@@ -153,12 +155,24 @@ public class Hipermercado implements Serializable{
     
     // Query3
     /**
-     * Dado um cliente e um mês, devolve um triplo com o número de compras, 
-     * produtos distintos comprados e total gasto no mês o escolhido.
+     * Dado um cliente e um mês, devolve uma lista de triplos (1 por mês, lista indexada de 1 a 12). 
+     * O triplo contém o total de compras do mes(para obter, invoca-se o método getInt1), o numero de produtos comprados e o total gasto.
      * @param codigoCliente Código do cliente a quem a consulta diz respeito.
-     * @param mes Mês para qual o resultado será produzido.
-     * @return
      */
+    public List<TriploIntIntDouble> infoPorMes(String codigoCliente){
+        int[] quantasComprasPorMes = filiais.quantasComprasPorMes(codigoCliente);
+        List<TriploIntIntDouble> dadosPorMes = new ArrayList<>(13);
+        dadosPorMes.add(null); /* adiciona padding para podermos aceder ao mes pelo seu indice sem fazer -1 */
+        for(int i = 1; i < 13; i++){
+            Set<ComprasDoProduto> comprasDoMes = filiais.comprasFeitasMes(codigoCliente, i);
+            int totalCompras = quantasComprasPorMes[i];
+            int produtosDistintosComprados = Filiais.quantosProdutosDistintosComprou(comprasDoMes);
+            double totalGasto = Filiais.quantoGastou(comprasDoMes); 
+            
+            dadosPorMes.add(new TriploIntIntDouble(totalCompras, produtosDistintosComprados, totalGasto));
+        }
+        return dadosPorMes;
+    }
     
     // Query4
     

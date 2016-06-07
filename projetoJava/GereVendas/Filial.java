@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  * Write a description of class Filial here.
  */
 
-public class Filial
+public class Filial implements java.io.Serializable
 {
     private List<Map<String, ComprasPorCliente>> clientesOrdenados; /* deve ter tamanho 26 para organizar os clientes pelo 
     1o char do codigo, a cada cliente faz corresponder as suas compras */

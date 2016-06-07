@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 /**
  * Write a description of class ComprasPorCliente here.
  */
-public class ComprasPorCliente
+public class ComprasPorCliente implements java.io.Serializable
 {
     private String codigoCliente;
     private List<Map<String, ComprasDoProduto>> comprasPorMes; /* Deve ter 12 espaços, 1 por mes 

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class Filiais
+public class Filiais implements java.io.Serializable
 {
     Filial[] filiais;
     /* ver o que fazer com o construtor padrão - por um numero padrao de filiais*/
@@ -63,6 +63,7 @@ public class Filiais
     }
     
     /* Dado um código de cliente, determinar, para cada mês, quantas compras fez, quantos produtos distintos comprou e quanto gastou no total.*/
+    
     public static int quantosProdutosDistintosComprou(Set<ComprasDoProduto> compras){
         Set<String> produtosComprados = compras.stream().map(ComprasDoProduto::getCodigoProduto).collect(Collectors.toSet());
         return produtosComprados.size();
