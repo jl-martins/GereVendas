@@ -144,11 +144,14 @@ public class HipermercadoApp {
         BufferedReader inStream = null;
         
         try{
+            Crono.start();
             inStream = new BufferedReader(new FileReader(fich));
             while((produto = inStream.readLine()) != null){
                 hipermercado.registaProduto(produto);
                 ++nprodutos;
             }
+            Crono.stop();
+            imprimeDadosLeitura(fich, nprodutos); 
         }
         catch(IOException e) { err.println(e.getMessage()); nprodutos = -1; }
         
@@ -161,11 +164,14 @@ public class HipermercadoApp {
         BufferedReader inStream = null;
         
         try{
+            Crono.start();
             inStream = new BufferedReader(new FileReader(fich));
             while((cliente = inStream.readLine()) != null){
                 hipermercado.registaCliente(cliente);
                 ++nclientes;
             }
+            Crono.stop();
+            imprimeDadosLeitura(fich, nclientes);
         }
         catch(IOException e) { err.println(e.getMessage()); nclientes = -1; }
         
@@ -181,6 +187,7 @@ public class HipermercadoApp {
         Set<String> produtosVendidos, clientesCompraram;
         
         try{
+            Crono.start();
             inStream = new BufferedReader(new FileReader(fich));
             produtosVendidos = new TreeSet<>();
             clientesCompraram = new TreeSet<>();
@@ -209,14 +216,22 @@ public class HipermercadoApp {
                 clientesCompraram.size(),
                 ngratis,
                 faturacaoTotal
-            ); 
+            );
+            Crono.stop();
+            imprimeDadosLeitura(fich, nvalidas);
         }
         catch(IOException e) { err.println(e.getMessage()); nvalidas = -1; }
         
         return nvalidas;
     }
             
-    
+    private void imprimeDadosLeitura(String fich, int nLinhasValidas){
+        out.println("Ficheiro lido: " + fich);
+        out.println("Número de linhas válidas: " + nLinhasValidas);
+        out.println("Tempo: " + Crono.print());
+        out.println("--------------------------------");
+    }
+        
     private void lerDados() {
         int nprodutos, nclientes;
         String fichProdutos, fichClientes, fichVendas;
