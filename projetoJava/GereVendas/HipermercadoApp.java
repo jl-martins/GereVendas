@@ -62,7 +62,7 @@ public class HipermercadoApp {
             bw.write("| | __ / _ | '__/ _ | | | |/ _ | '_ \\ / _` |/ _` / __|" + separador);
             bw.write("| |_\\ |  __| | |  _ \\ \\_/ |  __| | | | (_| | (_| \\__ \\" + separador);
             bw.write(" \\____/\\___|_|  \\___|\\___/ \\___|_| |_|\\__,_|\\__,_|___/" + separador);
-            bw.write(new String(new char[N_ESPACOS]).replace("\0", " ")); // centra a mensagem de "prima ENTER para continuar"
+            //bw.write(new String(new char[N_ESPACOS]).replace("\0", " ")); // centra a mensagem de "prima ENTER para continuar"
             bw.flush();
             enterParaContinuar();
         }
@@ -222,6 +222,7 @@ public class HipermercadoApp {
         String fichProdutos, fichClientes, fichVendas;
         String caminhoData = "data" + File.separator;
         // Falta verificar se os metodos de leitura devolveram -1 (ver se em vez disso devem atirar excepcoes)
+        hipermercado = new Hipermercado();
         fichProdutos = obterNomeFicheiro(caminhoData + "Produtos.txt", "produtos");
         nprodutos = leFicheiroProdutos(fichProdutos);
             
