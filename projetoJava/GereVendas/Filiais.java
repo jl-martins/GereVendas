@@ -13,10 +13,13 @@ public class Filiais
     /* ver o que fazer com o construtor padrão - por um numero padrao de filiais*/
     public Filiais(int n){
         filiais = new Filial[n];
+        for(int i = 0; i < n; i++){
+            filiais[i] = new Filial();
+        }
     }
     
     public Filiais(){
-        filiais = new Filial[Constantes.N_FILIAIS];
+        this(Constantes.N_FILIAIS);
     }
     
     public int quantasFiliais(){
