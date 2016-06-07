@@ -1,4 +1,6 @@
-public class EstatisticasFicheiro{
+import java.io.Serializable;
+
+public class EstatisticasFicheiro implements Serializable{
     private final String ficheiro; /* Logo no inicio */
     private final int totalVendasErr; /* Durante a leitura */
     private final int totalProdutos; /* Antes leitura */

@@ -1,4 +1,4 @@
-package parte1;
+ 
 
 /**
  * Crono = mede um tempo entre start() e stop()

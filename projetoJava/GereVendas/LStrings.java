@@ -63,7 +63,7 @@ public class LStrings {
         if(!estaVazia()){
             int inicio = (numPag - 1) * tamanhoPag;
             int fim = (inicio + tamanhoPag <= strings.size()) ? (inicio + tamanhoPag) : strings.size();
-            pagina = strings.subList(inicio, fim);
+            pagina = new ArrayList<>(strings.subList(inicio, fim));
         }
         return pagina;
     }
@@ -89,9 +89,12 @@ public class LStrings {
             --numPag;
     }
 
-    public void irParaPag(int numPag){
-        if(numPag > 0 && numPag <= totalPags)
+    public boolean irParaPag(int numPag){
+        boolean valida = (numPag >= 1 && numPag <= totalPags);
+        if(valida)
             this.numPag = numPag;
+        
+        return valida;
     }
 
     public void ultimaPag(){

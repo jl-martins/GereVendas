@@ -11,11 +11,13 @@ import static java.lang.System.out;
 
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.List;
 
 public class HipermercadoApp {
     private Hipermercado hipermercado;
     private Menu menuPrincipal, menuSair;
-    private Menu menuEstatisticas, menuQueries;
+    private Menu menuLeitura, menuEstatisticas, menuQueries;
+    private boolean appPopulada;
 
     private static final String[] opcoesMenuPrincipal = {
         "Ler dados",
@@ -23,6 +25,8 @@ public class HipermercadoApp {
         "Consultas interativas",
         "Gravar estado"
     };
+    private static final String[] opcoesMenuLeitura = {"Ficheiros de texto", "Ficheiro de estado"};
+    
     private static final String[] opcoesMenuEstatisticas = {
         "Dados do último ficheiro lido",
         "Dados gerais",
@@ -44,16 +48,18 @@ public class HipermercadoApp {
 
     public HipermercadoApp() {
         hipermercado = null; // indica que ainda não carregamos os dados do hipermercado
-        menuPrincipal = new Menu("Menu principal", opcoesMenuPrincipal, true);
-        menuEstatisticas = new Menu("Estatísticas", opcoesMenuEstatisticas, true);
-        menuQueries = new Menu("Queries interativas", opcoesMenuQueries, true);
-        menuSair = new Menu("Deseja guardar o estado da aplicação?", respostaSimNao, false);
+        menuPrincipal = new Menu(" Menu principal", opcoesMenuPrincipal, true);
+        menuLeitura = new Menu(" Que tipo de ficheiro pretende ler? ", opcoesMenuLeitura, false); 
+        menuEstatisticas = new Menu(" Estatísticas", opcoesMenuEstatisticas, true);
+        menuQueries = new Menu(" Queries interativas", opcoesMenuQueries, true);
+        menuSair = new Menu(" Deseja guardar o estado da aplicação?", respostaSimNao, false);
+        appPopulada = false;
     }
 
     private void splashScreen() {
         String separador = System.getProperty("line.separator");
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        final int N_ESPACOS = 43;
+        final int N_ESPACOS = 11;
 
         try{
             bw.write(" _____               _   _                _" + separador);           
@@ -62,7 +68,7 @@ public class HipermercadoApp {
             bw.write("| | __ / _ | '__/ _ | | | |/ _ | '_ \\ / _` |/ _` / __|" + separador);
             bw.write("| |_\\ |  __| | |  _ \\ \\_/ |  __| | | | (_| | (_| \\__ \\" + separador);
             bw.write(" \\____/\\___|_|  \\___|\\___/ \\___|_| |_|\\__,_|\\__,_|___/" + separador);
-            //bw.write(new String(new char[N_ESPACOS]).replace("\0", " ")); // centra a mensagem de "prima ENTER para continuar"
+            bw.write(new String(new char[N_ESPACOS]).replace("\0", " ")); // centra a mensagem de "prima ENTER para continuar"
             bw.flush();
             enterParaContinuar();
         }
@@ -99,32 +105,33 @@ public class HipermercadoApp {
                         enterParaContinuar();
                         break;
                     case 2:
-                        if(appPopulada())
-                            // esta atribuicao permite-nos sair do ciclo 'do while', quando o
-                            // utilizador opta por sair do programa em menuEstatisticas().
+                        // a atribuicao op = menuEstatisticas() permite-nos sair do ciclo 'do while', 
+                        // quando o utilizador opta por sair do programa em menuEstatisticas().
+                        if(appPopulada)
                             op = menuEstatisticas();
                         else
                             err.println("Erro: Primeiro precisa de ler os ficheiros de dados.");
                         break;
                     case 3:
-                        if(appPopulada())
+                        if(appPopulada)
                             op = menuQueries();
                         else
                             err.println("Erro: Primeiro precisa de ler os ficheiros de dados.");
+                        break;
+                    case 4:
+                        gravarEstado();
                         break;
                 }
             }
         }
         while(op != 0);
 
-        if(appPopulada()){
+        if(appPopulada){
             menuSair.executa();
             if(menuSair.getOpcao() == 1)
                 gravarEstado();
         }
     }
-
-    private boolean appPopulada() { return hipermercado != null; }
 
     private String obterNomeFicheiro(String ficheiroPadrao, String tipoFicheiro) {
         String nomeFicheiro;
@@ -136,6 +143,54 @@ public class HipermercadoApp {
             nomeFicheiro = ficheiroPadrao;
 
         return nomeFicheiro;
+    }
+    
+    private void lerDados() {
+        int op;
+        
+        menuLeitura.executa();
+        op = menuLeitura.getOpcao();
+        if(op == 1)
+            lerFicheirosTexto();
+        else
+            lerEstado();
+        // MUDAR ESTA LINHA. A APP PODE NAO FICAR POPULADA SE A LEITURA FALHAR
+        appPopulada = true;
+    }
+    
+    private void lerFicheirosTexto(){
+        int nprodutos, nclientes;
+        String fichProdutos, fichClientes, fichVendas;
+        String caminhoData = "data" + File.separator;
+        
+        hipermercado = new Hipermercado();
+        fichProdutos = obterNomeFicheiro(caminhoData + "Produtos.txt", "produtos");
+        nprodutos = leFicheiroProdutos(fichProdutos);
+            
+        fichClientes = obterNomeFicheiro(caminhoData + "Clientes.txt", "clientes");
+        nclientes = leFicheiroClientes(fichClientes);
+            
+        fichVendas = obterNomeFicheiro(caminhoData + "Vendas_1M.txt", "vendas");
+        leFicheiroVendas(fichVendas);
+    }
+    
+    private void lerEstado(){
+        String fich = obterNomeFicheiro("data" + File.separator + "hipermercado.dat", "estado");
+        
+        try{
+            Crono.start();
+            hipermercado = Hipermercado.leObj(fich);
+            Crono.stop();
+            out.println("Ficheiro '" + fich + "' lido em " + Crono.print() + "segundos");
+        }
+        catch(IOException | ClassNotFoundException e){ err.println(e.getMessage()); }
+    }
+    
+    private void imprimeDadosLeitura(String fich, int nLinhasValidas){
+        out.println("--------------------------------");
+        out.println("Ficheiro lido: " + fich);
+        out.println("Número de linhas válidas: " + nLinhasValidas);
+        out.println("Tempo: " + Crono.print());
     }
     
     private int leFicheiroProdutos(String fich) {
@@ -209,14 +264,7 @@ public class HipermercadoApp {
                         faturacaoTotal += v.getUnidadesVendidas() * v.getPrecoUnitario();
                 }
             }
-            hipermercado.criaEstatisticasFicheiro(
-                fich,
-                nlinhas - nvalidas, // numero de vendas invalidas
-                produtosVendidos.size(),
-                clientesCompraram.size(),
-                ngratis,
-                faturacaoTotal
-            );
+            hipermercado.criaEstatisticasFicheiro(fich, nlinhas - nvalidas, produtosVendidos.size(), clientesCompraram.size(), ngratis, faturacaoTotal);
             Crono.stop();
             imprimeDadosLeitura(fich, nvalidas);
         }
@@ -224,30 +272,7 @@ public class HipermercadoApp {
         
         return nvalidas;
     }
-            
-    private void imprimeDadosLeitura(String fich, int nLinhasValidas){
-        out.println("Ficheiro lido: " + fich);
-        out.println("Número de linhas válidas: " + nLinhasValidas);
-        out.println("Tempo: " + Crono.print());
-        out.println("--------------------------------");
-    }
-        
-    private void lerDados() {
-        int nprodutos, nclientes;
-        String fichProdutos, fichClientes, fichVendas;
-        String caminhoData = "data" + File.separator;
-        // Falta verificar se os metodos de leitura devolveram -1 (ver se em vez disso devem atirar excepcoes)
-        hipermercado = new Hipermercado();
-        fichProdutos = obterNomeFicheiro(caminhoData + "Produtos.txt", "produtos");
-        nprodutos = leFicheiroProdutos(fichProdutos);
-            
-        fichClientes = obterNomeFicheiro(caminhoData + "Clientes.txt", "clientes");
-        nclientes = leFicheiroClientes(fichClientes);
-            
-        fichVendas = obterNomeFicheiro(caminhoData + "Vendas_1M.txt", "vendas");
-        leFicheiroVendas(fichVendas);
-    }
-
+    
     private int menuEstatisticas() {
         int op;
 
@@ -332,13 +357,89 @@ public class HipermercadoApp {
         
         out.println(est.toString());
     }
+    
+    private void imprimeOpcoesNavega(){
+        final String separador = System.getProperty("line.separator");
+        final String opcoesNavega = "[1] Pag. ant.  [2] Pag. seg.   [3] Selec. pag.   [4] Prim. pag.   [5] Ult. pag  [6] Info.  [0] Sair";
+        
+        out.println(separador + opcoesNavega);
+        out.print(">>> ");
+    }
+    
+    private void navega(LStrings lStr){
+        if(lStr.estaVazia()){
+            out.println("Lista vazia");
+            enterParaContinuar();
+            return;
+        }
+        
+        int op;
+        List<String> pagina;
+        String info = lStr.getInfo();
 
+        out.println(info);
+        enterParaContinuar();
+        do{
+            pagina = lStr.getPagina();
+            pagina.forEach(System.out :: println);
+            imprimeOpcoesNavega();
+            op = Input.lerInt();
+            switch(op){
+                case 0: // Sair
+                    break;
+                case 1: // Pagina anterior
+                    lStr.pagAnt();
+                    break;
+                case 2: // Proxima pagina
+                    lStr.proxPag();
+                    break;
+                case 3: // Ir para pagina
+                    out.print("Para que página pretende ir? ");
+                    int numPag = Input.lerInt();
+                    if(!lStr.irParaPag(numPag)){
+                        out.println("A página '" + numPag + "' não existe!");
+                        enterParaContinuar();
+                    }
+                    break;
+                case 4: // Primeira pagina
+                    lStr.primPag();
+                    break;
+                case 5: // Ultima pagina
+                    lStr.ultimaPag();
+                    break;
+                case 6: // Informacao sobre a LStrings
+                    out.println(info);
+                    enterParaContinuar();
+                    break;
+                default:
+                    out.println("Opção inválida!");
+                    enterParaContinuar();
+            }
+            limparEcra();
+        }
+        while(op != 0);
+    }
+                
     private void query1() {
-        out.println("Por implementar...");
+        Set<String> nuncaComprados = hipermercado.nuncaComprados();
+        
+        navega(new LStrings(nuncaComprados));
     }
 
     private void query2() {
-        out.println("Por implementar...");
+        int mes;
+        int totalVendas, totalClientes;
+        
+        out.print("Para que mês pretende obter os resultados? ");
+        mes = Input.lerInt();
+        try{
+            totalVendas = hipermercado.totalGlobalVendas(mes);
+            totalClientes = hipermercado.totalClientesCompraram(mes);
+            out.println("-> Mês: " + mes + 
+                        "; Total global de vendas: " + totalVendas +
+                        "; Número de clientes distintos que compraram: " + totalClientes
+                        ); 
+        }catch(MesInvalidoException e){ err.println(e.getMessage()); }
     }
 
     private void query3() {
@@ -370,11 +471,15 @@ public class HipermercadoApp {
     }
     
     private void gravarEstado(){
-        String fichEstado = obterNomeFicheiro("hipermercado.dat", "estado");
-        
-        try{
-            hipermercado.gravaObj(fichEstado);
-            out.println("-> Estado gravado com sucesso!");
-        }catch(IOException e){ err.println("Não foi possível gravar o estado!"); }
+        if(appPopulada){
+            String fichEstado = obterNomeFicheiro("hipermercado.dat", "estado");
+            
+            try{
+                hipermercado.gravaObj(fichEstado);
+                out.println("-> Estado gravado com sucesso!");
+            }catch(IOException e){ err.println(e.getMessage()); }
+        }
+        else
+            err.println("Não existem dados para guardar. Primeiro deverá ler os dados.");
     }
 }
