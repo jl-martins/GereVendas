@@ -12,6 +12,7 @@ import static java.lang.System.out;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.List;
+import java.util.Formatter;
 
 public class HipermercadoApp {
     private Hipermercado hipermercado;
@@ -314,12 +315,15 @@ public class HipermercadoApp {
                         break;
                     case 2:
                         query2();
+                        enterParaContinuar();
                         break;
                     case 3:
                         query3();
+                        enterParaContinuar();
                         break;
                     case 4:
                         query4();
+                        enterParaContinuar();
                         break;
                     case 5:
                         query5();
@@ -421,9 +425,12 @@ public class HipermercadoApp {
     }
                 
     private void query1() {
-        Set<String> nuncaComprados = hipermercado.nuncaComprados();
-        
-        navega(new LStrings(nuncaComprados));
+        Crono.start();
+        LStrings nuncaComprados = new LStrings(hipermercado.nuncaComprados());
+        Crono.stop();
+        imprimeTempoQuery(Crono.print());
+        enterParaContinuar();
+        navega(nuncaComprados);
     }
 
     private void query2() {
@@ -433,12 +440,15 @@ public class HipermercadoApp {
         out.print("Para que mês pretende obter os resultados? ");
         mes = Input.lerInt();
         try{
+            Crono.start();
             totalVendas = hipermercado.totalGlobalVendas(mes);
             totalClientes = hipermercado.totalClientesCompraram(mes);
             out.println("-> Mês: " + mes + 
                         "; Total global de vendas: " + totalVendas +
                         "; Número de clientes distintos que compraram: " + totalClientes
-                        ); 
+                        );
+            Crono.stop();
+            imprimeTempoQuery(Crono.print());
         }catch(MesInvalidoException e){ err.println(e.getMessage()); }
     }
 
@@ -453,14 +463,16 @@ public class HipermercadoApp {
              out.println("O Cliente que pretende consultar não foi registado");
              return;
         }
-       
+        
+        Crono.start();
         dadosCliente = hipermercado.infoPorMes(codigoCliente);
         
         for(int i = 1; i < 13; i++){
             TriploIntIntDouble dadosDoMes = dadosCliente.get(i);
             out.println("Mes: " + i + ", Total de compras: " + dadosDoMes.getInt1() + ", Produtos Distintos comprados: " + dadosDoMes.getInt2() + ", Total Gasto: " + dadosDoMes.getDouble());
         }
-        enterParaContinuar();
+        Crono.stop();
+        imprimeTempoQuery(Crono.print());
     }
 
     private void query4() {
@@ -468,23 +480,28 @@ public class HipermercadoApp {
         
         out.print("Código de produto: ");
         codigoProduto = Input.lerString();
-        
         if(!hipermercado.existeProduto(codigoProduto)){
-            out.println("O cliente que pretende consultar não foi registado");
+            out.println("O produto que pretende consultar não foi registado");
             return;
         }
+        Crono.start();
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        Formatter formatador = new Formatter(bw);
         
+        formatador.format("Mês | Quantidade comprada | Nº de clientes distintos que compraram | Faturação%n");
         try{
             for(int mes = 1; mes <= Constantes.N_MESES; ++mes){
                 FatProdMes fProdMes = hipermercado.getFatProdMes(codigoProduto, mes);
                 int quantosClisCompraram = hipermercado.quantosCompraramProdutoMes(codigoProduto, mes);
                 
-                out.printf("Mês: %2d, Quantidade comprada: %d, Nº clientes distintos que compraram: %d, Faturação: %.2f\n", 
-                                mes, fProdMes.totalUnidsVendidas(), quantosClisCompraram, fProdMes.totalFaturado());
+                formatador.format("%3d | %19d | %38d | %.2f%n", mes, fProdMes.totalUnidsVendidas(), quantosClisCompraram, fProdMes.totalFaturado());
             }
+            formatador.flush();
+            Crono.stop();
+            imprimeTempoQuery(Crono.print());
         }catch(MesInvalidoException e) { err.println(e.getMessage()); }
     }
-
+    
     private void query5() {
         out.println("Por implementar...");
     }
@@ -516,5 +533,11 @@ public class HipermercadoApp {
         }
         else
             err.println("Não existem dados para guardar. Primeiro deverá ler os dados.");
+    }
+    
+    private void imprimeTempoQuery(String tempo){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Tempo gasto na query: ").append(tempo).append("s");
+        out.println(sb.toString());
     }
 }
