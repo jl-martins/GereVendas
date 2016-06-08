@@ -2,6 +2,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.Comparator;
 /**
@@ -20,15 +21,15 @@ public class Filiais implements java.io.Serializable
             filiais[i] = new Filial();
         }
     }
-    
+
     public Filiais(){
         this(Constantes.N_FILIAIS);
     }
-    
+
     public int quantasFiliais(){
         return filiais.length;
     }
-    
+
     public void registaVenda(Venda v){
         int f = v.getFilial();
         filiais[f-1].registaVenda(v);
@@ -44,7 +45,7 @@ public class Filiais implements java.io.Serializable
         }
         return clientes.size();       
     }
-    
+
     /* Dado um cliente e um mes, devolve as compras feitas nesse mes pelo Cliente */
     public Set<ComprasDoProduto> comprasFeitasMes(String idCliente, int mes){
         Set<ComprasDoProduto> compras = new TreeSet<>();
@@ -53,24 +54,24 @@ public class Filiais implements java.io.Serializable
         }
         return compras;
     }
-    
+
     /* query 5 - apagar este comentario */
-    public Set<ComprasDoProduto> comprasFeitasTotal(String idCliente){
-        Set<ComprasDoProduto> compras = new TreeSet<>();
+    Comparator<ParProdQtd> compCompras =
+        (p1, p2) -> {
+            if(p1.getQtd() > p2.getQtd()) return -1;
+            if(p1.getQtd() < p2.getQtd()) return 1;
+            else return p1.getProd().compareTo(p2.getProd()); /* verificar para string a null */
+        }; 
+
+    public List<ComprasDoProduto> comprasFeitasTotal(String idCliente){
+        List<ComprasDoProduto> compras = new ArrayList<>();
         for(int i = 1; i < 13; i++){
             compras.addAll(comprasFeitasMes(idCliente, i));
         }
         return compras;        
     }
-    
-    Comparator<ParProdQtd> compCompras =
-        (p1, p2) -> {
-                if(p1.getQtd() > p2.getQtd()) return -1;
-                if(p1.getQtd() < p2.getQtd()) return 1;
-                else return p1.getProd().compareTo(p2.getProd()); /* verificar para string a null */
-         }; 
-    
-    public Set<ParProdQtd> produtosMaisComprados(Set<ComprasDoProduto> compras){
+
+    public Set<ParProdQtd> produtosMaisComprados(List<ComprasDoProduto> compras){
         Map<String, List<ComprasDoProduto>> comprasPorProduto = compras.stream().collect(Collectors.groupingBy(ComprasDoProduto::getCodigoProduto));
         Set<ParProdQtd> resultado = new TreeSet<>(compCompras);
         for(Map.Entry<String, List<ComprasDoProduto>> e : comprasPorProduto.entrySet()){
@@ -79,11 +80,8 @@ public class Filiais implements java.io.Serializable
         }
         return resultado;
     }
-    
-    
-    
+
     /* */
-    
     public int[] quantasComprasPorMes(String idCliente){
         int[] quantasComprasPorMes = new int[13];
         for(int i = 0; i < filiais.length; i++){
@@ -94,16 +92,16 @@ public class Filiais implements java.io.Serializable
         }
         return quantasComprasPorMes;
     }
-    
+
     /* Dado um código de cliente, determinar, para cada mês, quantas compras fez, quantos produtos distintos comprou e quanto gastou no total.*/
-    
+
     public static int quantosProdutosDistintosComprou(Set<ComprasDoProduto> compras){
         Set<String> produtosComprados = compras.stream().map(ComprasDoProduto::getCodigoProduto).collect(Collectors.toSet());
         return produtosComprados.size();
     }
-    
+
     public static double quantoGastou(Set<ComprasDoProduto> compras){
         return compras.stream().mapToDouble(ComprasDoProduto::getFaturacao).sum();
     }
-    
+
 }
