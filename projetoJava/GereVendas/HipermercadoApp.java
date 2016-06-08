@@ -464,7 +464,25 @@ public class HipermercadoApp {
     }
 
     private void query4() {
-        out.println("Por implementar...");
+        String codigoProduto;
+        
+        out.print("Código de produto: ");
+        codigoProduto = Input.lerString();
+        
+        if(!hipermercado.existeProduto(codigoProduto)){
+            out.println("O cliente que pretende consultar não foi registado");
+            return;
+        }
+        
+        try{
+            for(int mes = 1; mes <= Constantes.N_MESES; ++mes){
+                FatProdMes fProdMes = hipermercado.getFatProdMes(codigoProduto, mes);
+                int quantosClisCompraram = hipermercado.quantosCompraramProdutoMes(codigoProduto, mes);
+                
+                out.printf("Mês: %2d, Quantidade comprada: %d, Nº clientes distintos que compraram: %d, Faturação: %.2f\n", 
+                                mes, fProdMes.totalUnidsVendidas(), quantosClisCompraram, fProdMes.totalFaturado());
+            }
+        }catch(MesInvalidoException e) { err.println(e.getMessage()); }
     }
 
     private void query5() {

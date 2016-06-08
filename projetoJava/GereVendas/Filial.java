@@ -6,12 +6,7 @@ import java.util.TreeSet;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-/**
- * Write a description of class Filial here.
- */
-
-public class Filial implements java.io.Serializable
-{
+public class Filial implements java.io.Serializable{
     private List<Map<String, ComprasPorCliente>> clientesOrdenados; /* deve ter tamanho 26 para organizar os clientes pelo 
     1o char do codigo, a cada cliente faz corresponder as suas compras */
     
@@ -73,5 +68,15 @@ public class Filial implements java.io.Serializable
     
     public int[] quantasComprasPorMes(String codigoCliente){
         return comprasDoCliente(codigoCliente).getQuantasComprasPorMes();
+    }
+    
+    public Set<String> clientesCompraramProdutoMes(String codigoProduto, int mes){
+        Set<String> res = new TreeSet<>();
+    
+        for(Map<String, ComprasPorCliente> m : clientesOrdenados)
+            for(ComprasPorCliente cpc : m.values())
+                if(cpc.comprouProdutoMes(codigoProduto, mes))
+                    res.add(cpc.getCodigoCliente());
+        return res;
     }
 }

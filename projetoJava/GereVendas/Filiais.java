@@ -5,14 +5,8 @@ import java.util.TreeSet;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.Comparator;
-/**
- * Write a description of class Filiais here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
- */
-public class Filiais implements java.io.Serializable
-{
+
+public class Filiais implements java.io.Serializable{
     Filial[] filiais;
     /* ver o que fazer com o construtor padrão - por um numero padrao de filiais*/
     public Filiais(int n){
@@ -103,5 +97,14 @@ public class Filiais implements java.io.Serializable
     public static double quantoGastou(Set<ComprasDoProduto> compras){
         return compras.stream().mapToDouble(ComprasDoProduto::getFaturacao).sum();
     }
-
+    
+    // Query4
+    public int quantosCompraramProdutoMes(String codigoProduto, int mes){
+    	Set<String> clientesCompraram = new TreeSet<>();
+    
+    	for(int i = 0; i < filiais.length; ++i)
+    		clientesCompraram.addAll(filiais[i].clientesCompraramProdutoMes(codigoProduto, mes));
+    
+    	return clientesCompraram.size();
+    }
 }

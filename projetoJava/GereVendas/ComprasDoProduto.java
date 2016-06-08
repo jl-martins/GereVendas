@@ -1,9 +1,5 @@
 
-/**
- * Write a description of class ComprasDoProduto here.
- */
-public class ComprasDoProduto implements java.io.Serializable, Comparable<ComprasDoProduto>
-{
+public class ComprasDoProduto implements java.io.Serializable, Comparable<ComprasDoProduto>{
     private String codigoProduto;
     private int unidadesCompradas;
     private double faturacao;

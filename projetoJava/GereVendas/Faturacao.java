@@ -112,8 +112,9 @@ public class Faturacao implements Serializable {
     public FatProdMes getFatProdMes(String codigoProduto, int mes) throws MesInvalidoException{
         if(mes <= 0 || mes > Constantes.N_MESES)
             throw new MesInvalidoException("O mês '" + mes + "' é inválido!");
-
-        return fatMensal[mes].getFatProdMes(codigoProduto);
+        
+        FatProdMes fProdMes = fatMensal[mes].getFatProdMes(codigoProduto);
+        return (fProdMes != null) ? fProdMes.clone() : new FatProdMes(mes, codigoProduto);
     }
 
     public List<String> maisVendidos(int X){

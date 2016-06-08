@@ -9,8 +9,7 @@ import java.util.stream.Stream;
 /**
  * Write a description of class ComprasPorCliente here.
  */
-public class ComprasPorCliente implements java.io.Serializable
-{
+public class ComprasPorCliente implements java.io.Serializable{
     private String codigoCliente;
     private List<Map<String, ComprasDoProduto>> comprasPorMes; /* Deve ter 12 espaços, 1 por mes 
     está a set como placeholder, pode vir a ser outra coisa */
@@ -29,12 +28,19 @@ public class ComprasPorCliente implements java.io.Serializable
         }
     }
     
+    /** @return Código do cliente a que este ComprasPorCliente diz respeito. */
+    public String getCodigoCliente(){ return codigoCliente; }
+    
     public int[] getQuantasComprasPorMes(){
         int[] ret = new int[13];
         System.arraycopy(quantasComprasPorMes, 1, ret, 1, 12);
         return ret;
     }
     
+    /**
+     * Regista uma venda neste objeto ComprasPorCliente.
+     * @param v Venda a registar.
+     */
     public void registaVenda(Venda v){
         int mes = v.getMes();
         String codigoProduto = v.getCodigoProduto();
@@ -50,6 +56,7 @@ public class ComprasPorCliente implements java.io.Serializable
         comprasProduto.registaVenda(v);
     }
     
+    /** @return @c true se o cliente desta ComprasPorCliente comprou no mês passado como parâmetro. */
     public boolean comprouNoMes(int mes){
         return quantasComprasPorMes[mes] > 0;
     }
@@ -59,5 +66,8 @@ public class ComprasPorCliente implements java.io.Serializable
         return mapAux.values().stream().map(ComprasDoProduto::clone).collect(Collectors.toSet());        
     }
     
+    public boolean comprouProdutoMes(String codigoProduto, int mes){
+        return comprasPorMes.get(mes).containsKey(codigoProduto);
+    }
     /* definir compareTo a ordenar por nome */
 }

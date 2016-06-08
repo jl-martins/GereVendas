@@ -175,6 +175,13 @@ public class Hipermercado implements Serializable{
     }
     
     // Query4
+    public FatProdMes getFatProdMes(String codigoProduto, int mes) throws MesInvalidoException{
+        return faturacao.getFatProdMes(codigoProduto, mes);
+    }
+    
+    public int quantosCompraramProdutoMes(String codigoProduto, int mes){
+        return filiais.quantosCompraramProdutoMes(codigoProduto, mes);
+    }
     
     // Query5
     
