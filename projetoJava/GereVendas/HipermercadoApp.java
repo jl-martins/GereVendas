@@ -568,14 +568,14 @@ public class HipermercadoApp {
         
         formatador.format("%9s", "");
         for(rank = 1; rank <= 3; ++rank)
-            formatador.format("| %17dº%18s |", rank, "");
+            formatador.format("| %18dº%19s |", rank, "");
         
         formatador.format("%n");
         for(filial = 1; filial <= Constantes.N_FILIAIS; ++filial){
             formatador.format("Filial %d ", filial);
             for(rank = 1; rank <= 3; ++rank){
                 ParCliFat par = res[filial-1][rank-1];
-                formatador.format("| Cliente: %s, Faturado: %.2f |", par.getCli(), par.getFat());
+                formatador.format("| Cliente: %s, Faturado: %12.2f |", par.getCli(), par.getFat());
             }
             formatador.format("%n");
         }
