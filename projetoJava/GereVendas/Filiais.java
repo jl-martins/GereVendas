@@ -52,12 +52,6 @@ public class Filiais implements java.io.Serializable{
     }
 
     /* query 5 - apagar este comentario */
-    Comparator<ParProdQtd> compCompras =
-        (p1, p2) -> {
-            if(p1.getQtd() > p2.getQtd()) return -1;
-            if(p1.getQtd() < p2.getQtd()) return 1;
-            else return p1.getProd().compareTo(p2.getProd()); /* verificar para string a null */
-        }; 
 
     public List<ComprasDoProduto> comprasFeitasTotal(String idCliente){
         List<ComprasDoProduto> compras = new ArrayList<>();
@@ -68,6 +62,13 @@ public class Filiais implements java.io.Serializable{
     }
 
     public List<ParProdQtd> produtosMaisComprados(List<ComprasDoProduto> compras){
+        Comparator<ParProdQtd> compCompras =
+            (p1, p2) -> {
+                if(p1.getQtd() > p2.getQtd()) return -1;
+                if(p1.getQtd() < p2.getQtd()) return 1;
+                else return p1.getProd().compareTo(p2.getProd()); /* verificar para string a null */
+            }; 
+
         Map<String, List<ComprasDoProduto>> comprasPorProduto = compras.stream().collect(Collectors.groupingBy(ComprasDoProduto::getCodigoProduto));
         List<ParProdQtd> resultado = new ArrayList<>();
         for(Map.Entry<String, List<ComprasDoProduto>> e : comprasPorProduto.entrySet()){
@@ -100,27 +101,27 @@ public class Filiais implements java.io.Serializable{
     public static double quantoGastou(Set<ComprasDoProduto> compras){
         return compras.stream().mapToDouble(ComprasDoProduto::getFaturacao).sum();
     }
-    
+
     // Query4
     public int quantosCompraramProdutoMes(String codigoProduto, int mes){
         Set<String> clientesCompraram = new TreeSet<>();
-    
+
         for(int i = 0; i < filiais.length; ++i)
             clientesCompraram.addAll(filiais[i].clientesCompraramProdutoMes(codigoProduto, mes));
-    
+
         return clientesCompraram.size();
     }
-    
+
     // Query6
     public int quantosCompraramProduto(String codigoProduto){
         Set<String> clientesCompraram = new TreeSet<>();
-    
+
         for(int i = 0; i < filiais.length; ++i)
             clientesCompraram.addAll(filiais[i].clientesCompraramProduto(codigoProduto));
-    
+
         return clientesCompraram.size();
     }
-    
+
     // Query7
     public ParCliFat[] tresMaioresCompradores(int f){ // VER SE VALE A PENA ATIRAR FilialInvalidaException
         return filiais[f-1].tresMaioresCompradores();
