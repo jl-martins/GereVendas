@@ -103,11 +103,21 @@ public class Filiais implements java.io.Serializable{
     
     // Query4
     public int quantosCompraramProdutoMes(String codigoProduto, int mes){
-    	Set<String> clientesCompraram = new TreeSet<>();
+        Set<String> clientesCompraram = new TreeSet<>();
     
-    	for(int i = 0; i < filiais.length; ++i)
-    		clientesCompraram.addAll(filiais[i].clientesCompraramProdutoMes(codigoProduto, mes));
+        for(int i = 0; i < filiais.length; ++i)
+            clientesCompraram.addAll(filiais[i].clientesCompraramProdutoMes(codigoProduto, mes));
     
-    	return clientesCompraram.size();
+        return clientesCompraram.size();
+    }
+    
+    // Query6
+    public int quantosCompraramProduto(String codigoProduto){
+        Set<String> clientesCompraram = new TreeSet<>();
+    
+        for(int i = 0; i < filiais.length; ++i)
+            clientesCompraram.addAll(filiais[i].clientesCompraramProduto(codigoProduto));
+    
+        return clientesCompraram.size();
     }
 }

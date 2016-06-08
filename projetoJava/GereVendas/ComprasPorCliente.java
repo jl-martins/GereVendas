@@ -69,5 +69,15 @@ public class ComprasPorCliente implements java.io.Serializable{
     public boolean comprouProdutoMes(String codigoProduto, int mes){
         return comprasPorMes.get(mes).containsKey(codigoProduto);
     }
+    
+    // Query6
+    public boolean comprouProduto(String codigoProduto){
+    	boolean comprou = false;
+    
+    	for(int mes = 1; mes <= Constantes.N_MESES && !comprou; ++mes)
+    		comprou = comprouProdutoMes(codigoProduto, mes);
+    
+    	return comprou;
+    }
     /* definir compareTo a ordenar por nome */
 }

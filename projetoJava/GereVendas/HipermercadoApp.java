@@ -316,15 +316,12 @@ public class HipermercadoApp {
                         break;
                     case 2:
                         query2();
-                        enterParaContinuar();
                         break;
                     case 3:
                         query3();
-                        enterParaContinuar();
                         break;
                     case 4:
                         query4();
-                        enterParaContinuar();
                         break;
                     case 5:
                         query5();
@@ -363,12 +360,12 @@ public class HipermercadoApp {
         out.println(est.toString());
     }
     
-    private void imprimeOpcoesNavega(){
+    private void imprimeOpcoesNavega(int pag, int totalPags){
         final String separador = System.getProperty("line.separator");
         final String opcoesNavega = "[1] Pag. ant.  [2] Pag. seg.   [3] Selec. pag.   [4] Prim. pag.   [5] Ult. pag  [6] Info.  [0] Sair";
         
         out.println(separador + opcoesNavega);
-        out.print(">>> ");
+        out.printf("(%d/%d): ", pag, totalPags);
     }
     
     private void navega(LStrings lStr){
@@ -382,7 +379,7 @@ public class HipermercadoApp {
             return;
         }
         
-        int op;
+        int op, totalPags;
         List<String> pagina;
         String info = lStr.getInfo();
 
@@ -390,11 +387,12 @@ public class HipermercadoApp {
         enterParaContinuar();
         
         header = (header == null) ? ""  : (header + System.getProperty("line.separator"));
+        totalPags = lStr.getTotalPags();
         do{
-            System.out.println(header);
+            System.out.print(header);
             pagina = lStr.getPagina();
             pagina.forEach(System.out :: println);
-            imprimeOpcoesNavega();
+            imprimeOpcoesNavega(lStr.getNumPag(), totalPags);
             op = Input.lerInt();
             switch(op){
                 case 0: // Sair
@@ -436,8 +434,7 @@ public class HipermercadoApp {
         Crono.start();
         LStrings nuncaComprados = new LStrings(hipermercado.nuncaComprados());
         Crono.stop();
-        imprimeTempoQuery(Crono.print());
-        enterParaContinuar();
+        imprimeTempoQuery();
         navega(nuncaComprados);
     }
 
@@ -456,7 +453,7 @@ public class HipermercadoApp {
                         "; Número de clientes distintos que compraram: " + totalClientes
                         );
             Crono.stop();
-            imprimeTempoQuery(Crono.print());
+            imprimeTempoQuery();
         }catch(MesInvalidoException e){ err.println(e.getMessage()); }
     }
 
@@ -480,7 +477,7 @@ public class HipermercadoApp {
             out.println("Mes: " + i + ", Total de compras: " + dadosDoMes.getInt1() + ", Produtos Distintos comprados: " + dadosDoMes.getInt2() + ", Total Gasto: " + dadosDoMes.getDouble());
         }
         Crono.stop();
-        imprimeTempoQuery(Crono.print());
+        imprimeTempoQuery();
     }
 
     private void query4() {
@@ -506,7 +503,7 @@ public class HipermercadoApp {
             }
             formatador.flush();
             Crono.stop();
-            imprimeTempoQuery(Crono.print());
+            imprimeTempoQuery();
         }catch(MesInvalidoException e) { err.println(e.getMessage()); }
     }
     
@@ -521,7 +518,7 @@ public class HipermercadoApp {
         
         Crono.start();
         List<ParProdQtd> prodsMaisComprados = hipermercado.produtosMaisComprados(codigoCliente);
-        List<String> resultados = new ArrayList<>();
+        List<String> resultados = new ArrayList<>(prodsMaisComprados.size());
         String header = "Produto | Quantidade Comprada";
         
         for(ParProdQtd par : prodsMaisComprados){
@@ -529,12 +526,33 @@ public class HipermercadoApp {
         }
         LStrings l = new LStrings(resultados);
         Crono.stop();
-        imprimeTempoQuery(Crono.print());
+        imprimeTempoQuery();
         navega(l, header);        
     }
 
     private void query6() {
-        out.println("Por implementar...");
+        int X;
+        List<ParProdNumClis> topX;
+        
+        out.print("Quantos elementos quer no top de produtos mais vendidos? ");
+        X = Input.lerInt();
+        
+        Crono.start();
+        topX = hipermercado.maisVendidos(X);
+        if(topX.isEmpty())
+            out.println("Lista vazia");
+        else{
+            List<String> resultados = new ArrayList<>(topX.size());
+            final String header = "Produto | Nº de clientes que compraram";
+            
+            for(ParProdNumClis par : topX)
+                resultados.add(String.format("%7s | %28d", par.getProd(), par.getNumClis()));
+            
+            LStrings l = new LStrings(resultados);
+            Crono.stop();
+            imprimeTempoQuery();
+            navega(l, header);
+        }
     }
 
     private void query7() {
@@ -562,9 +580,10 @@ public class HipermercadoApp {
             err.println("Não existem dados para guardar. Primeiro deverá ler os dados.");
     }
     
-    private void imprimeTempoQuery(String tempo){
+    private void imprimeTempoQuery(){
         StringBuilder sb = new StringBuilder();
-        sb.append("Tempo gasto na query: ").append(tempo).append("s");
+        sb.append("Tempo gasto na query: ").append(Crono.print()).append("s");
         out.println(sb.toString());
+        enterParaContinuar();
     }
 }

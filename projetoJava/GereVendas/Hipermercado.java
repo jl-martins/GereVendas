@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Hipermercado implements Serializable{
     private CatalogoProdutos catalogoProdutos;
@@ -189,9 +190,20 @@ public class Hipermercado implements Serializable{
         return filiais.produtosMaisComprados(compras);
     }
     
-    
     // Query6
-    
+    public List<ParProdNumClis> maisVendidos(int X){
+        List<String> prodsMaisVendidos = faturacao.maisVendidos(X);
+        
+        if(prodsMaisVendidos.isEmpty()) // X <= 0
+            return Collections.emptyList();
+        
+        List<ParProdNumClis> res = new ArrayList<>(X);
+        for(int i = 0; i < X; ++i){
+            String prod = prodsMaisVendidos.get(i);
+            res.add(new ParProdNumClis(prod, filiais.quantosCompraramProduto(prod)));
+        }
+        return res;
+    }
     // Query7
     
     // Query8

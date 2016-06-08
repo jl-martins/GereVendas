@@ -79,4 +79,15 @@ public class Filial implements java.io.Serializable{
                     res.add(cpc.getCodigoCliente());
         return res;
     }
+    
+    // Query6
+    public Set<String> clientesCompraramProduto(String codigoProduto){
+    	Set<String> res = new TreeSet<>();
+    
+    	for(Map<String, ComprasPorCliente> map : clientesOrdenados)
+    		for(ComprasPorCliente cpc : map.values())
+    			if(cpc.comprouProduto(codigoProduto))
+    				res.add(cpc.getCodigoCliente());
+    	return res;
+    }
 }
