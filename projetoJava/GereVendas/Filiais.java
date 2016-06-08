@@ -1,6 +1,9 @@
 import java.util.Set;
+import java.util.Map;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 /**
  * Write a description of class Filiais here.
  * 
@@ -50,6 +53,36 @@ public class Filiais implements java.io.Serializable
         }
         return compras;
     }
+    
+    /* query 5 - apagar este comentario */
+    public Set<ComprasDoProduto> comprasFeitasTotal(String idCliente){
+        Set<ComprasDoProduto> compras = new TreeSet<>();
+        for(int i = 1; i < 13; i++){
+            compras.addAll(comprasFeitasMes(idCliente, i));
+        }
+        return compras;        
+    }
+    
+    Comparator<ParProdQtd> compCompras =
+        (p1, p2) -> {
+                if(p1.getQtd() > p2.getQtd()) return -1;
+                if(p1.getQtd() < p2.getQtd()) return 1;
+                else return p1.getProd().compareTo(p2.getProd()); /* verificar para string a null */
+         }; 
+    
+    public Set<ParProdQtd> produtosMaisComprados(Set<ComprasDoProduto> compras){
+        Map<String, List<ComprasDoProduto>> comprasPorProduto = compras.stream().collect(Collectors.groupingBy(ComprasDoProduto::getCodigoProduto));
+        Set<ParProdQtd> resultado = new TreeSet<>(compCompras);
+        for(Map.Entry<String, List<ComprasDoProduto>> e : comprasPorProduto.entrySet()){
+            int quantidadeVendida = e.getValue().stream().mapToInt(ComprasDoProduto::getUnidadesCompradas).sum();
+            resultado.add(new ParProdQtd(e.getKey(),quantidadeVendida));
+        }
+        return resultado;
+    }
+    
+    
+    
+    /* */
     
     public int[] quantasComprasPorMes(String idCliente){
         int[] quantasComprasPorMes = new int[13];
