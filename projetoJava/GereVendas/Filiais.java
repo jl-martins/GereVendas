@@ -5,6 +5,8 @@ import java.util.TreeSet;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class Filiais implements java.io.Serializable{
     Filial[] filiais;
@@ -65,13 +67,14 @@ public class Filiais implements java.io.Serializable{
         return compras;        
     }
 
-    public Set<ParProdQtd> produtosMaisComprados(List<ComprasDoProduto> compras){
+    public List<ParProdQtd> produtosMaisComprados(List<ComprasDoProduto> compras){
         Map<String, List<ComprasDoProduto>> comprasPorProduto = compras.stream().collect(Collectors.groupingBy(ComprasDoProduto::getCodigoProduto));
-        Set<ParProdQtd> resultado = new TreeSet<>(compCompras);
+        List<ParProdQtd> resultado = new ArrayList<>();
         for(Map.Entry<String, List<ComprasDoProduto>> e : comprasPorProduto.entrySet()){
             int quantidadeVendida = e.getValue().stream().mapToInt(ComprasDoProduto::getUnidadesCompradas).sum();
             resultado.add(new ParProdQtd(e.getKey(),quantidadeVendida));
         }
+        Collections.sort(resultado, compCompras);
         return resultado;
     }
 

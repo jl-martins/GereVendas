@@ -184,6 +184,11 @@ public class Hipermercado implements Serializable{
     }
     
     // Query5
+    public List<ParProdQtd> produtosMaisComprados(String idCliente){
+        List<ComprasDoProduto> compras = filiais.comprasFeitasTotal(idCliente);
+        return filiais.produtosMaisComprados(compras);
+    }
+    
     
     // Query6
     

@@ -12,6 +12,7 @@ import static java.lang.System.out;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Formatter;
 
 public class HipermercadoApp {
@@ -371,6 +372,10 @@ public class HipermercadoApp {
     }
     
     private void navega(LStrings lStr){
+        navega(lStr, null);
+    }
+    
+    private void navega(LStrings lStr, String header){
         if(lStr.estaVazia()){
             out.println("Lista vazia");
             enterParaContinuar();
@@ -383,7 +388,10 @@ public class HipermercadoApp {
 
         out.println(info);
         enterParaContinuar();
+        
+        header = (header == null) ? ""  : (header + System.getProperty("line.separator"));
         do{
+            System.out.println(header);
             pagina = lStr.getPagina();
             pagina.forEach(System.out :: println);
             imprimeOpcoesNavega();
@@ -503,7 +511,26 @@ public class HipermercadoApp {
     }
     
     private void query5() {
-        out.println("Por implementar...");
+        out.print("Que cliente pretende consultar? ");
+        String codigoCliente = Input.lerString();
+        
+        if(!hipermercado.existeCliente(codigoCliente)){
+             out.println("O Cliente que pretende consultar não foi registado");
+             return;
+        }
+        
+        Crono.start();
+        List<ParProdQtd> prodsMaisComprados = hipermercado.produtosMaisComprados(codigoCliente);
+        List<String> resultados = new ArrayList<>();
+        String header = "Produto | Quantidade Comprada";
+        
+        for(ParProdQtd par : prodsMaisComprados){
+            resultados.add(String.format("%7s | %19d", par.getProd(), par.getQtd()));
+        }
+        LStrings l = new LStrings(resultados);
+        Crono.stop();
+        imprimeTempoQuery(Crono.print());
+        navega(l, header);        
     }
 
     private void query6() {
