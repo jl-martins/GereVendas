@@ -1,8 +1,11 @@
 import java.util.Map;
 import java.util.Set;
 import java.util.List;
+
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.TreeSet;
+
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -89,6 +92,16 @@ public class ComprasPorCliente implements java.io.Serializable{
                 total += cdp.getFaturacao();
     
         return total;
+    }
+    
+    // Query8
+    public Set<String> produtosCompradosAno(){
+        Set<String> produtosComprados = new TreeSet<>();
+    
+        for(Map<String, ComprasDoProduto> map : comprasPorMes)
+            produtosComprados.addAll(map.keySet());
+    
+        return produtosComprados;
     }
     /* definir compareTo a ordenar por nome */
 }

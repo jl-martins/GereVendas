@@ -1,12 +1,13 @@
 import java.util.Set;
 import java.util.Map;
 import java.util.List;
+import java.util.Comparator;
+import java.util.Collections;
+
 import java.util.TreeSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.stream.Collectors;
-import java.util.Comparator;
-import java.util.ArrayList;
-import java.util.Collections;
 
 public class Filiais implements java.io.Serializable{
     Filial[] filiais;
@@ -124,5 +125,39 @@ public class Filiais implements java.io.Serializable{
     // Query7
     public ParCliFat[] tresMaioresCompradores(int f){ // VER SE VALE A PENA ATIRAR FilialInvalidaException
         return filiais[f-1].tresMaioresCompradores();
+    }
+    
+    // Query8
+    public List<ParCliProdsDif> clisCompraramMaisProdsDif(int X){
+        List<Map<String, Set<String>>> mapsParciais = new ArrayList<>(filiais.length);
+        Map<String, Set<String>> mapGeral = new HashMap<>(); // map de codigo de cliente para conjunto de produtos comprados pelo cliente
+
+        Comparator<Map.Entry<String, Set<String>>> ordemDecNumProdsDif =
+            (e1, e2) -> {
+                int n1 = e1.getValue().size();
+                int n2 = e2.getValue().size();
+                return n1 < n2 ? 1 : n1 > n2 ? -1 : e1.getKey().compareTo(e2.getKey());
+            };
+        
+        for(int i = 0; i < filiais.length; ++i)
+            mapsParciais.add(filiais[i].mapClienteProdsComp());
+    
+        for(Map<String, Set<String>> m : mapsParciais){
+            for(Map.Entry<String, Set<String>> e : m.entrySet()){
+                String codigoCliente = e.getKey();
+                Set<String> prodsDif = mapGeral.get(codigoCliente);
+    
+                if(prodsDif == null) // o cliente ainda nao esta no mapGeral
+                    mapGeral.put(codigoCliente, e.getValue());
+                else
+                    prodsDif.addAll(e.getValue());
+            }
+        }
+        return mapGeral.entrySet()
+                       .stream()
+                       .sorted(ordemDecNumProdsDif)
+                       .limit(X)
+                       .map(e -> new ParCliProdsDif(e.getKey(), e.getValue().size()))
+                       .collect(Collectors.toCollection(ArrayList :: new));
     }
 }

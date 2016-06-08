@@ -128,4 +128,15 @@ public class Filial implements java.io.Serializable{
         Arrays.sort(arrTop3, Collections.reverseOrder(ordemCrescFaturacao));
         return arrTop3;
     }
+    
+    // Query8
+    public Map<String, Set<String>> mapClienteProdsComp(){
+    	Map<String, Set<String>> res = new HashMap<>();
+    
+    	for(Map<String, ComprasPorCliente> map : clientesOrdenados)
+    		for(ComprasPorCliente cpc : map.values())
+    			res.put(cpc.getCodigoCliente(), cpc.produtosCompradosAno());
+    
+    	return res;
+    }
 }

@@ -567,13 +567,13 @@ public class HipermercadoApp {
         Formatter formatador = new Formatter(bw);
         
         formatador.format("%9s", "");
-        for(rank = 1; rank <= 3; ++rank)
+        for(rank = 1; rank <= 3; ++rank) // Imprime linha tabela com as posicoes do ranking
             formatador.format("| %18dº%19s |", rank, "");
         
         formatador.format("%n");
-        for(filial = 1; filial <= Constantes.N_FILIAIS; ++filial){
+        for(filial = 1; filial <= Constantes.N_FILIAIS; ++filial){ // Imprime resultados, filial a filial
             formatador.format("Filial %d ", filial);
-            for(rank = 1; rank <= 3; ++rank){
+            for(rank = 1; rank <= 3; ++rank){ 
                 ParCliFat par = res[filial-1][rank-1];
                 formatador.format("| Cliente: %s, Faturado: %12.2f |", par.getCli(), par.getFat());
             }
@@ -585,7 +585,23 @@ public class HipermercadoApp {
     }
 
     private void query8() {
-        out.println("Por implementar...");
+        int X;
+        
+        out.print("Número de clientes: ");
+        X = Input.lerInt();
+        
+        Crono.start();
+        List<ParCliProdsDif> topX = hipermercado.clisCompraramMaisProdsDif(X);
+        List<String> resultados = new ArrayList<>(topX.size());
+        final String header = "Cliente | Nº de produtos diferentes comprados";
+            
+        for(ParCliProdsDif par : topX)
+            resultados.add(String.format("%7s | %35d", par.getCli(), par.getProdsDif()));
+            
+        LStrings l = new LStrings(resultados);
+        Crono.stop();
+        imprimeTempoQuery();
+        navega(l, header);
     }
 
     private void query9() {

@@ -209,6 +209,9 @@ public class Hipermercado implements Serializable{
         return filiais.tresMaioresCompradores(filial);
     }
     // Query8
+    public List<ParCliProdsDif> clisCompraramMaisProdsDif(int X){
+        return filiais.clisCompraramMaisProdsDif(X);
+    }
     
     // Query9
     
