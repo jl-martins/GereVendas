@@ -568,7 +568,7 @@ public class HipermercadoApp {
         
         formatador.format("%9s", "");
         for(rank = 1; rank <= 3; ++rank)
-            formatador.format("| %17dº%17s |", rank, "");
+            formatador.format("| %17dº%18s |", rank, "");
         
         formatador.format("%n");
         for(filial = 1; filial <= Constantes.N_FILIAIS; ++filial){
