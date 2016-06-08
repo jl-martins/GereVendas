@@ -205,7 +205,9 @@ public class Hipermercado implements Serializable{
         return res;
     }
     // Query7
-    
+    public ParCliFat[] tresMaioresCompradores(int filial){
+        return filiais.tresMaioresCompradores(filial);
+    }
     // Query8
     
     // Query9

@@ -72,12 +72,23 @@ public class ComprasPorCliente implements java.io.Serializable{
     
     // Query6
     public boolean comprouProduto(String codigoProduto){
-    	boolean comprou = false;
+        boolean comprou = false;
     
-    	for(int mes = 1; mes <= Constantes.N_MESES && !comprou; ++mes)
-    		comprou = comprouProdutoMes(codigoProduto, mes);
+        for(int mes = 1; mes <= Constantes.N_MESES && !comprou; ++mes)
+            comprou = comprouProdutoMes(codigoProduto, mes);
     
-    	return comprou;
+        return comprou;
+    }
+    
+    // Query7
+    public double totalGastoAno(){
+        double total = 0.0;
+    
+        for(Map<String, ComprasDoProduto> map : comprasPorMes)
+            for(ComprasDoProduto cdp : map.values())
+                total += cdp.getFaturacao();
+    
+        return total;
     }
     /* definir compareTo a ordenar por nome */
 }

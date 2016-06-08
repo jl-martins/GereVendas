@@ -120,4 +120,9 @@ public class Filiais implements java.io.Serializable{
     
         return clientesCompraram.size();
     }
+    
+    // Query7
+    public ParCliFat[] tresMaioresCompradores(int f){ // VER SE VALE A PENA ATIRAR FilialInvalidaException
+        return filiais[f-1].tresMaioresCompradores();
+    }
 }

@@ -556,7 +556,32 @@ public class HipermercadoApp {
     }
 
     private void query7() {
-        out.println("Por implementar...");
+        int rank, filial;
+        ParCliFat[][] res = new ParCliFat[Constantes.N_FILIAIS][];
+        
+        Crono.start();
+        for(filial = 1; filial <= Constantes.N_FILIAIS; ++filial)
+            res[filial-1] = hipermercado.tresMaioresCompradores(filial);
+        
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        Formatter formatador = new Formatter(bw);
+        
+        formatador.format("%9s", "");
+        for(rank = 1; rank <= 3; ++rank)
+            formatador.format("| %17dº%17s |", rank, "");
+        
+        formatador.format("%n");
+        for(filial = 1; filial <= Constantes.N_FILIAIS; ++filial){
+            formatador.format("Filial %d ", filial);
+            for(rank = 1; rank <= 3; ++rank){
+                ParCliFat par = res[filial-1][rank-1];
+                formatador.format("| Cliente: %s, Faturado: %.2f |", par.getCli(), par.getFat());
+            }
+            formatador.format("%n");
+        }
+        formatador.flush();
+        Crono.stop();
+        imprimeTempoQuery();
     }
 
     private void query8() {

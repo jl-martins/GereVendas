@@ -1,9 +1,16 @@
 import java.util.Set;
 import java.util.Map;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Queue;
+import java.util.Comparator;
+import java.util.Collections;
+
 import java.util.TreeSet;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.PriorityQueue;
+
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class Filial implements java.io.Serializable{
@@ -82,12 +89,43 @@ public class Filial implements java.io.Serializable{
     
     // Query6
     public Set<String> clientesCompraramProduto(String codigoProduto){
-    	Set<String> res = new TreeSet<>();
+        Set<String> res = new TreeSet<>();
     
-    	for(Map<String, ComprasPorCliente> map : clientesOrdenados)
-    		for(ComprasPorCliente cpc : map.values())
-    			if(cpc.comprouProduto(codigoProduto))
-    				res.add(cpc.getCodigoCliente());
-    	return res;
+        for(Map<String, ComprasPorCliente> map : clientesOrdenados)
+            for(ComprasPorCliente cpc : map.values())
+                if(cpc.comprouProduto(codigoProduto))
+                    res.add(cpc.getCodigoCliente());
+        return res;
+    }
+    
+    public static class OrdemCrescFaturacao implements Comparator<ParCliFat>{
+        public int compare(ParCliFat p1, ParCliFat p2){
+            return p1.getFat() < p2.getFat() ? -1 : p1.getFat() > p2.getFat() ? 1 : 0;
+        }
+    }
+
+    // Query7
+    public ParCliFat[] tresMaioresCompradores(){
+        Comparator<ParCliFat> ordemCrescFaturacao = 
+            (p1,p2) -> p1.getFat() < p2.getFat() ? -1 : p1.getFat() > p2.getFat() ? 1 : 0;
+        /* o comprador do top3 que gastou menos dinheiro e mantido na cabeca da queue para que      *
+         * possa ser facilmente removido, caso surja um comprador que gastou mais dinheiro que ele. */
+        Queue<ParCliFat> top3 = new PriorityQueue<>(3, ordemCrescFaturacao);
+    
+        for(Map<String, ComprasPorCliente> map : clientesOrdenados){
+            for(ComprasPorCliente cpc : map.values()){
+                ParCliFat par = new ParCliFat(cpc.getCodigoCliente(), cpc.totalGastoAno());
+    
+                if(top3.size() < 3)
+                    top3.add(par);
+                else if(ordemCrescFaturacao.compare(top3.peek(), par) < 0){
+                    top3.poll();
+                    top3.add(par);
+                }
+            }
+        }
+        ParCliFat[] arrTop3 = top3.toArray(new ParCliFat[3]);
+        Arrays.sort(arrTop3, Collections.reverseOrder(ordemCrescFaturacao));
+        return arrTop3;
     }
 }
