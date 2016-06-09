@@ -161,4 +161,13 @@ public class Filiais implements java.io.Serializable{
                        .map(e -> new ParCliProdsDif(e.getKey(), e.getValue().size()))
                        .collect(Collectors.toCollection(ArrayList :: new));
     }
+    
+    public int quantosClientesCompraramPorMes(int mes){
+        Set<String> clientes = new TreeSet<>();
+        for(int i = 0; i < filiais.length; i++){
+            clientes.addAll(filiais[i].clientesCompraramMes(mes));
+        }
+        return clientes.size();
+        
+    }
 }
