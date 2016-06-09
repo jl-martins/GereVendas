@@ -17,7 +17,7 @@ public class EstatisticasFicheiro implements Serializable{
         totalVendasErr = est.getTotalVendasErr();
         totalProdutos = est.getTotalProdutos();
         totalDifProdsCompr = est.getTotalDifProdsCompr();
-        totalClientes = est.getTotalDifProdsCompr();
+        totalClientes = est.getTotalClientes();
         totalCliCompr = est.getTotalCliCompr();
         totalComprasZero = est.getTotalComprasZero();
         faturacaoTotal = est.getFaturacaoTotal();
@@ -91,6 +91,18 @@ public class EstatisticasFicheiro implements Serializable{
     
     public String toString(){
         StringBuilder str = new StringBuilder();
+		str.append("Ficheiro: ").append(ficheiro).append("\n\n");
+		
+		str.append("Total Clientes: ").append(totalClientes).append("\n");
+		str.append("Clientes que compraram: ").append(totalCliCompr).append("\n\n");
+
+		str.append("Total Produtos: ").append(totalProdutos).append("\n");
+		str.append("Total produtos diferentes: ").append(totalDifProdsCompr).append("\n\n");
+
+		str.append("Total vendas inválidas: ").append(totalVendasErr).append("\n");
+		str.append("Total compras a zero: ").append(totalComprasZero).append("\n\n");
+
+		str.append("Total facturado: ").append(faturacaoTotal).append("\n");
         return str.toString();
     }
 }
