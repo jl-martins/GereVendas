@@ -3,14 +3,33 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.HashMap;
+import java.util.Arrays;
+
+/**
+ * Classe de objetos que guardam informação relativa à faturação de um dado mês,
+ * como a faturação de cada um dos produtos vendidos nesse mês, o total de vendas
+ * e o total faturado.
+ * 
+ * @author LI3_Grupo1
+ * @version 1.0 (6/2016)
+ */
 
 public class FatMes implements Serializable {
+    /** Mês desta faturação. */
     private final int mes;
+    /** Total de vendas registadas no mês. */
     private int totalVendas;
+    /** Total faturado no mês. */
     private double totalFaturado;
+    /** Mapeia códigos de produto na respetiva FatProdMes. */
     private Map<String, FatProdMes> fatProds;
-
-    /** Constrói uma faturação vazia para o mês passado como parâmetro. */
+    
+    /** Construtores */
+    
+    /** 
+     * Constrói uma faturação vazia para o mês passado como parâmetro.
+     * @param mes Mês a que a faturação a construir diz respeito.
+     */
     public FatMes(int mes) {
         this.mes = mes;
         totalVendas = 0;
@@ -26,21 +45,33 @@ public class FatMes implements Serializable {
         fatProds = fatMes.getFatProds();
     }
     
-    /** @return Mês a que esta faturação diz respeito. */
+    /** Getters */
+    
+    /** 
+     * Devolve o mês a que esta faturação do mês diz respeito.
+     * @return Mês desta faturação do mês.
+     */
     public int getMes(){
         return mes;
     }
     
-    /** @return Total de vendas registadas nesta faturação do mês. */
+    /** 
+     * Devolve o total de vendas realizadas no mês a que esta faturação do mês diz respeito.
+     * @return Total de vendas registadas nesta faturação do mês.
+     */
     public int getTotalVendas(){
         return totalVendas;
     }
 
-    /** @return Faturação total registada nesta faturação do mês. */
+    /**
+     * Devolve a faturação total do mês a que esta faturação do mês diz respeito.
+     * @return Faturação total registada nesta faturação do mês.
+     */
     public double getTotalFaturado(){
         return totalFaturado;
     }
-
+    
+    /** @return Cópia do mapeamento de código de produto para a sua faturação do mês. */
     private Map<String, FatProdMes> getFatProds(){
         /* O fator de carga por omissao de um HashMap e 0.75, por isso se dividirmos o tamanho do map 
          * original por 0.75 e arredondarmos o resultado por excesso, evitamos a realizacao de rehashing. */
@@ -53,6 +84,8 @@ public class FatMes implements Serializable {
     }
 
     /**
+     * Devolve uma cópia da faturação do produto passado como parâmetro, no mês desta FatMes.
+     * @param codigoProduto Código do produto cuja faturação do mês se pretende obter.
      * @return Se nesta faturação do mês existirem vendas do produto cujo código foi passado parâmetro,
      *         então é devolvida a faturação desse produto no mês em causa; caso contrário é devolvido null.
      */
@@ -86,6 +119,11 @@ public class FatMes implements Serializable {
             fatProds.put(codigoProduto, new FatProdMes(mes, codigoProduto, unidadesVendidas, faturado, filial));
     }
     
+    /**
+     * Devolve um array que na posição de índice <code>i</code> tem a faturação
+     * total registada nesta faturação do mês, para filial <code>i</code>.
+     * @return Faturação de cada filial, no mês a que esta FatMes diz respeito.
+     */
     public double[] faturacaoPorFilial(){
         double[] res = new double[Constantes.N_FILIAIS+1];
         
@@ -98,12 +136,20 @@ public class FatMes implements Serializable {
         return res;
     }
     
-    /** @return Cópia desta faturação do mês. */
+    /** 
+     * Constrói e devolve uma cópia desta faturação do mês.
+     * @return Cópia desta faturação do mês.
+     */
+    @Override
     public FatMes clone(){
         return new FatMes(this);
     }
 
-    /** @return true se esta faturação do mês for igual ao objeto passado como parâmetro. */
+    /**
+     * Indica se esta faturação do mês é igual ao objeto passado como parâmetro.
+     * @return <code>true</code> se esta faturação do mês for igual ao objeto passado como parâmetro.
+     */
+    @Override
     public boolean equals(Object o){
         if(this == o)
             return true;
@@ -116,7 +162,11 @@ public class FatMes implements Serializable {
                fatProds.equals(fatMes.getFatProds());
     }
 
-    /** @return Representação textual desta faturação do mês. */
+    /**
+     * Gera e devolve uma representação textual desta faturação do mês.
+     * @return Representação textual desta faturação do mês.
+     */
+    @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
         String separadorLinhas = System.getProperty("line.separator");
@@ -131,15 +181,12 @@ public class FatMes implements Serializable {
         return sb.toString();
     }
 
-    /** @return Valor do hash code desta faturação do mês. */
+    /**
+     * Calcula e devolve o valor do hash code desta faturação do mês.
+     * @return Valor do hash code desta faturação do mês.
+     */
+    @Override
     public int hashCode(){
-        int hash = 7;
-        long aux;
-
-        hash = 31*hash + totalVendas;
-        aux = Double.doubleToLongBits(totalFaturado);
-        hash = 31*hash + (int) (aux ^ (aux >>> 32));
-        hash = 31*hash + fatProds.hashCode();
-        return hash;
+        return Arrays.hashCode(new Object[]{mes, totalVendas, totalFaturado, fatProds});
     }
 }

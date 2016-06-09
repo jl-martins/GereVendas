@@ -21,30 +21,30 @@ public class HipermercadoApp {
     private Menu menuLeitura, menuEstatisticas, menuQueries;
 
     private static final String[] opcoesMenuPrincipal = {
-        "Ler dados",
-        "Consultas estatísticas",
-        "Consultas interativas",
-        "Gravar estado"
-    };
+            "Ler dados",
+            "Consultas estatísticas",
+            "Consultas interativas",
+            "Gravar estado"
+        };
     private static final String[] opcoesMenuLeitura = {"Ficheiros de texto", "Ficheiro de estado"};
-    
+
     private static final String[] opcoesMenuEstatisticas = {
-        "Dados do último ficheiro lido",
-        "Dados gerais",
-        "Voltar ao menu principal"
-    };
+            "Dados do último ficheiro lido",
+            "Dados gerais",
+            "Voltar ao menu principal"
+        };
     private static final String[] opcoesMenuQueries = {
-        "Códigos dos produtos nunca comprados e total",
-        "Vendas gerais e nº de clientes distintos que compraram num mês",
-        "Compras, produtos distintos comprados e total gasto por um cliente, mês a mês",
-        "Quantas vezes um produto foi comprado, por quantos clientes distintos e total faturado",
-        "Lista de códigos de produto mais comprados por um cliente",
-        "X produtos mais vendidos em todo o ano",
-        "Lista dos 3 maiores compradores, para cada filial",
-        "X clientes que compraram mais produtos diferentes",
-        "Conjunto dos X clientes que mais compraram um produto e valor gasto",
-        "Voltar ao menu principal"
-    };
+            "Códigos dos produtos nunca comprados e total",
+            "Vendas gerais e nº de clientes distintos que compraram num mês",
+            "Compras, produtos distintos comprados e total gasto por um cliente, mês a mês",
+            "Quantas vezes um produto foi comprado, por quantos clientes distintos e total faturado",
+            "Lista de códigos de produto mais comprados por um cliente",
+            "X produtos mais vendidos em todo o ano",
+            "Lista dos 3 maiores compradores, para cada filial",
+            "X clientes que compraram mais produtos diferentes",
+            "Conjunto dos X clientes que mais compraram um produto e valor gasto",
+            "Voltar ao menu principal"
+        };
     private static final String[] respostaSimNao = {"Sim", "Não"};
 
     public HipermercadoApp() {
@@ -75,7 +75,7 @@ public class HipermercadoApp {
         catch(IOException e){err.println("Erro de I/O: Não foi possível apresentar o ecrã inicial.");}
     }
 
-    private void limparEcra() { out.print("\f"); }
+    private void limparEcra() { out.print("\f"); } // So funciona no bluej
 
     private void enterParaContinuar() {
         out.print("Prima ENTER para continuar... ");
@@ -97,30 +97,30 @@ public class HipermercadoApp {
             menuPrincipal.executa();
             op = menuPrincipal.getOpcao();
             limparEcra();
-            
+
             if(op > 0){
                 switch(op){
                     case 1:
-                        lerDados();
-                        enterParaContinuar();
-                        break;
+                    lerDados();
+                    enterParaContinuar();
+                    break;
                     case 2:
-                        // a atribuicao op = menuEstatisticas() permite-nos sair do ciclo 'do while', 
-                        // quando o utilizador opta por sair do programa em menuEstatisticas().
-                        if(appPopulada())
-                            op = menuEstatisticas();
-                        else
-                            err.println("Erro: Primeiro precisa de ler os ficheiros de dados.");
-                        break;
+                    // a atribuicao op = menuEstatisticas() permite-nos sair do ciclo 'do while', 
+                    // quando o utilizador opta por sair do programa em menuEstatisticas().
+                    if(appPopulada())
+                        op = menuEstatisticas();
+                    else
+                        err.println("Erro: Primeiro precisa de ler os ficheiros de dados.");
+                    break;
                     case 3:
-                        if(appPopulada())
-                            op = menuQueries();
-                        else
-                            err.println("Erro: Primeiro precisa de ler os ficheiros de dados.");
-                        break;
+                    if(appPopulada())
+                        op = menuQueries();
+                    else
+                        err.println("Erro: Primeiro precisa de ler os ficheiros de dados.");
+                    break;
                     case 4:
-                        gravarEstado();
-                        break;
+                    gravarEstado();
+                    break;
                 }
             }
         }
@@ -144,137 +144,130 @@ public class HipermercadoApp {
 
         return nomeFicheiro;
     }
-    
+
     private void lerDados() {
         int op;
-        
+        Hipermercado anterior = hipermercado; // guarda a instancia anterior de hipermercado para a recuperarmos se a leitura falhar
+
         menuLeitura.executa();
         op = menuLeitura.getOpcao();
-        if(op == 1)
-            lerFicheirosTexto();
-        else
-            lerEstado();
+        try{
+            if(op == 1)
+                lerFicheirosTexto();
+            else
+                lerEstado();
+        }catch(IOException | ClassNotFoundException e){ hipermercado = anterior; err.println(e.getMessage()); }
     }
-    
+
     public boolean appPopulada(){
         return hipermercado != null;
     }
-    
-    private void lerFicheirosTexto(){
+
+    private void lerFicheirosTexto() throws IOException{
         int nprodutos, nclientes;
         String fichProdutos, fichClientes, fichVendas;
         String caminhoData = "data" + File.separator;
-        
+        Hipermercado anterior = hipermercado;
+
         hipermercado = new Hipermercado();
         fichProdutos = obterNomeFicheiro(caminhoData + "Produtos.txt", "produtos");
         nprodutos = leFicheiroProdutos(fichProdutos);
-            
+
         fichClientes = obterNomeFicheiro(caminhoData + "Clientes.txt", "clientes");
         nclientes = leFicheiroClientes(fichClientes);
-            
+
         fichVendas = obterNomeFicheiro(caminhoData + "Vendas_1M.txt", "vendas");
         leFicheiroVendas(fichVendas);
     }
-    
-    private void lerEstado(){
+
+    private void lerEstado() throws IOException, ClassNotFoundException{
         String fich = obterNomeFicheiro("data" + File.separator + "hipermercado.dat", "estado");
         
-        try{
-            Crono.start();
-            hipermercado = Hipermercado.leObj(fich);
-            Crono.stop();
-            out.println("Ficheiro '" + fich + "' lido em " + Crono.print() + "segundos");
-        }
-        catch(IOException | ClassNotFoundException e){ err.println(e.getMessage()); }
+        Crono.start();
+        hipermercado = Hipermercado.leObj(fich);
+        Crono.stop();
+        out.println("Ficheiro '" + fich + "' lido em " + Crono.print() + "segundos");
     }
-    
+
     private void imprimeDadosLeitura(String fich, int nLinhasValidas){
         out.println("--------------------------------");
         out.println("Ficheiro lido: " + fich);
         out.println("Número de linhas válidas: " + nLinhasValidas);
         out.println("Tempo: " + Crono.print());
     }
-    
-    private int leFicheiroProdutos(String fich) {
+
+    private int leFicheiroProdutos(String fich) throws IOException {
         int nprodutos = 0;
         String produto = null;
         BufferedReader inStream = null;
-        
-        try{
-            Crono.start();
-            inStream = new BufferedReader(new FileReader(fich));
-            while((produto = inStream.readLine()) != null){
-                hipermercado.registaProduto(produto);
-                ++nprodutos;
-            }
-            Crono.stop();
-            imprimeDadosLeitura(fich, nprodutos); 
+
+        Crono.start();
+        inStream = new BufferedReader(new FileReader(fich));
+        while((produto = inStream.readLine()) != null){
+            hipermercado.registaProduto(produto);
+            ++nprodutos;
         }
-        catch(IOException e) { err.println(e.getMessage()); nprodutos = -1; }
-        
+        Crono.stop();
+        imprimeDadosLeitura(fich, nprodutos); 
+
         return nprodutos;
     }
-    
-    private int leFicheiroClientes(String fich) {
+
+    private int leFicheiroClientes(String fich) throws IOException{
         int nclientes = 0;
         String cliente = null;
         BufferedReader inStream = null;
-        
-        try{
-            Crono.start();
-            inStream = new BufferedReader(new FileReader(fich));
-            while((cliente = inStream.readLine()) != null){
-                hipermercado.registaCliente(cliente);
-                ++nclientes;
-            }
-            Crono.stop();
-            imprimeDadosLeitura(fich, nclientes);
+
+        Crono.start();
+        inStream = new BufferedReader(new FileReader(fich));
+        while((cliente = inStream.readLine()) != null){
+            hipermercado.registaCliente(cliente);
+            ++nclientes;
         }
-        catch(IOException e) { err.println(e.getMessage()); nclientes = -1; }
-        
+        Crono.stop();
+        imprimeDadosLeitura(fich, nclientes);
+
         return nclientes;
     }
-    
-    private int leFicheiroVendas(String fich){
+
+    private int leFicheiroVendas(String fich) throws IOException{
         Venda v = null;
         String linha = null;
         double faturacaoTotal;
         int nlinhas, nvalidas, ngratis;
         BufferedReader inStream = null;
         Set<String> produtosVendidos, clientesCompraram;
-        
-        try{
-            Crono.start();
-            inStream = new BufferedReader(new FileReader(fich));
-            produtosVendidos = new TreeSet<>();
-            clientesCompraram = new TreeSet<>();
-            faturacaoTotal = 0.0;
-            nlinhas = nvalidas = ngratis = 0;
-            
-            while((linha = inStream.readLine()) != null){
-                v = Venda.parseLinhaVenda(linha);
-                ++nlinhas;
-                if(v.eValida() && hipermercado.existeProduto(v.getCodigoProduto()) && hipermercado.existeCliente(v.getCodigoCliente())){
-                    ++nvalidas;
-                    hipermercado.registaVenda(v);
-                    produtosVendidos.add(v.getCodigoProduto());
-                    clientesCompraram.add(v.getCodigoCliente());
-                    
-                    if(v.getPrecoUnitario() == 0.0)
-                        ++ngratis;
-                    else
-                        faturacaoTotal += v.getUnidadesVendidas() * v.getPrecoUnitario();
-                }
+
+        Crono.start();
+        inStream = new BufferedReader(new FileReader(fich));
+        produtosVendidos = new TreeSet<>();
+        clientesCompraram = new TreeSet<>();
+        faturacaoTotal = 0.0;
+        nlinhas = nvalidas = ngratis = 0;
+
+        while((linha = inStream.readLine()) != null){
+            v = Venda.parseLinhaVenda(linha);
+            ++nlinhas;
+            // CRIAR SE VALIDA NA CLASSE HIPERMERCADOAPP
+            if(v.eValida() && hipermercado.existeProduto(v.getCodigoProduto()) && hipermercado.existeCliente(v.getCodigoCliente())){
+                ++nvalidas;
+                hipermercado.registaVenda(v);
+                produtosVendidos.add(v.getCodigoProduto());
+                clientesCompraram.add(v.getCodigoCliente());
+
+                if(v.getPrecoUnitario() == 0.0)
+                    ++ngratis;
+                else
+                    faturacaoTotal += v.getUnidadesVendidas() * v.getPrecoUnitario();
             }
-            hipermercado.criaEstatisticasFicheiro(fich, nlinhas - nvalidas, produtosVendidos.size(), clientesCompraram.size(), ngratis, faturacaoTotal);
-            Crono.stop();
-            imprimeDadosLeitura(fich, nvalidas);
         }
-        catch(IOException e) { err.println(e.getMessage()); nvalidas = -1; }
-        
+        hipermercado.criaEstatisticasFicheiro(fich, nlinhas - nvalidas, produtosVendidos.size(), clientesCompraram.size(), ngratis, faturacaoTotal);
+        Crono.stop();
+        imprimeDadosLeitura(fich, nvalidas);
+
         return nvalidas;
     }
-    
+
     private int menuEstatisticas() {
         int op;
 
@@ -285,15 +278,15 @@ public class HipermercadoApp {
             if(op > 0){
                 switch(op){
                     case 1:
-                        imprimeEstatisticasFicheiro();
-                        enterParaContinuar();
-                        break;
+                    imprimeEstatisticasFicheiro();
+                    enterParaContinuar();
+                    break;
                     case 2:
-                        imprimeEstatisticasGerais();
-                        enterParaContinuar();
-                        break;
+                    imprimeEstatisticasGerais();
+                    enterParaContinuar();
+                    break;
                     case 3:
-                        break;
+                    break;
                 }
             }
         }
@@ -312,34 +305,34 @@ public class HipermercadoApp {
             if(op > 0){
                 switch(op){
                     case 1:
-                        query1();
-                        break;
+                    query1();
+                    break;
                     case 2:
-                        query2();
-                        break;
+                    query2();
+                    break;
                     case 3:
-                        query3();
-                        break;
+                    query3();
+                    break;
                     case 4:
-                        query4();
-                        break;
+                    query4();
+                    break;
                     case 5:
-                        query5();
-                        break;
+                    query5();
+                    break;
                     case 6:
-                        query6();
-                        break;
+                    query6();
+                    break;
                     case 7:
-                        query7();
-                        break;
+                    query7();
+                    break;
                     case 8:
-                        query8();
-                        break;
+                    query8();
+                    break;
                     case  9:
-                        query9();
-                        break;
+                    query9();
+                    break;
                     case 10:
-                        break;
+                    break;
                 }
             }
         }
@@ -347,45 +340,46 @@ public class HipermercadoApp {
 
         return op;
     }
-    
-     private void imprimeEstatisticasFicheiro(){
+
+    private void imprimeEstatisticasFicheiro(){
         EstatisticasFicheiro est = hipermercado.getEstatisticasFicheiro();
-        
+
         out.println(est.toString());
     }
-    
+
     private void imprimeEstatisticasGerais(){
         EstatisticasGerais est = hipermercado.getEstatisticasGerais();
-        
+
         out.println(est.toString());
     }
-    
+
     private void imprimeOpcoesNavega(int pag, int totalPags){
         final String separador = System.getProperty("line.separator");
         final String opcoesNavega = "[1] Pag. ant.  [2] Pag. seg.   [3] Selec. pag.   [4] Prim. pag.   [5] Ult. pag  [6] Info.  [0] Sair";
-        
+
         out.println(separador + opcoesNavega);
         out.printf("(%d/%d): ", pag, totalPags);
     }
     
+    /** Navega a LStrings passada como parametro, sem especificar um titulo. */
     private void navega(LStrings lStr){
         navega(lStr, null);
     }
-    
+
     private void navega(LStrings lStr, String header){
         if(lStr.estaVazia()){
             out.println("Lista vazia");
             enterParaContinuar();
             return;
         }
-        
+
         int op, totalPags;
         List<String> pagina;
         String info = lStr.getInfo();
 
         out.println(info);
         enterParaContinuar();
-        
+
         header = (header == null) ? ""  : (header + System.getProperty("line.separator"));
         totalPags = lStr.getTotalPags();
         do{
@@ -396,40 +390,40 @@ public class HipermercadoApp {
             op = Input.lerInt();
             switch(op){
                 case 0: // Sair
-                    break;
+                break;
                 case 1: // Pagina anterior
-                    lStr.pagAnt();
-                    break;
+                lStr.pagAnt();
+                break;
                 case 2: // Proxima pagina
-                    lStr.proxPag();
-                    break;
+                lStr.proxPag();
+                break;
                 case 3: // Ir para pagina
-                    out.print("Para que página pretende ir? ");
-                    int numPag = Input.lerInt();
-                    if(!lStr.irParaPag(numPag)){
-                        out.println("A página '" + numPag + "' não existe!");
-                        enterParaContinuar();
-                    }
-                    break;
+                out.print("Para que página pretende ir? ");
+                int numPag = Input.lerInt();
+                if(!lStr.irParaPag(numPag)){
+                    out.println("A página '" + numPag + "' não existe!");
+                    enterParaContinuar();
+                }
+                break;
                 case 4: // Primeira pagina
-                    lStr.primPag();
-                    break;
+                lStr.primPag();
+                break;
                 case 5: // Ultima pagina
-                    lStr.ultimaPag();
-                    break;
+                lStr.ultimaPag();
+                break;
                 case 6: // Informacao sobre a LStrings
-                    out.println(info);
-                    enterParaContinuar();
-                    break;
+                out.println(info);
+                enterParaContinuar();
+                break;
                 default:
-                    out.println("Opção inválida!");
-                    enterParaContinuar();
+                out.println("Opção inválida!");
+                enterParaContinuar();
             }
             limparEcra();
         }
         while(op != 0);
     }
-                
+
     private void query1() {
         Crono.start();
         LStrings nuncaComprados = new LStrings(hipermercado.nuncaComprados());
@@ -441,7 +435,7 @@ public class HipermercadoApp {
     private void query2() {
         int mes;
         int totalVendas, totalClientes;
-        
+
         out.print("Para que mês pretende obter os resultados? ");
         mes = Input.lerInt();
         try{
@@ -449,9 +443,9 @@ public class HipermercadoApp {
             totalVendas = hipermercado.totalGlobalVendas(mes);
             totalClientes = hipermercado.totalClientesCompraram(mes);
             out.println("-> Mês: " + mes + 
-                        "; Total global de vendas: " + totalVendas +
-                        "; Número de clientes distintos que compraram: " + totalClientes
-                        );
+                "; Total global de vendas: " + totalVendas +
+                "; Número de clientes distintos que compraram: " + totalClientes
+            );
             Crono.stop();
             imprimeTempoQuery();
         }catch(MesInvalidoException e){ err.println(e.getMessage()); }
@@ -460,18 +454,18 @@ public class HipermercadoApp {
     private void query3() {
         String codigoCliente;
         List<TriploIntIntDouble> dadosCliente;
-        
+
         out.print("Que cliente pretende consultar? ");
         codigoCliente = Input.lerString();
-        
+
         if(!hipermercado.existeCliente(codigoCliente)){
-             out.println("O cliente que pretende consultar não foi registado");
-             return;
+            out.println("O cliente que pretende consultar não foi registado");
+            return;
         }
-        
+
         Crono.start();
         dadosCliente = hipermercado.infoPorMes(codigoCliente);
-        
+
         for(int i = 1; i < 13; i++){
             TriploIntIntDouble dadosDoMes = dadosCliente.get(i);
             out.println("Mes: " + i + ", Total de compras: " + dadosDoMes.getInt1() + ", Produtos Distintos comprados: " + dadosDoMes.getInt2() + ", Total Gasto: " + dadosDoMes.getDouble());
@@ -482,7 +476,7 @@ public class HipermercadoApp {
 
     private void query4() {
         String codigoProduto;
-        
+
         out.print("Código de produto: ");
         codigoProduto = Input.lerString();
         if(!hipermercado.existeProduto(codigoProduto)){
@@ -492,13 +486,13 @@ public class HipermercadoApp {
         Crono.start();
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         Formatter formatador = new Formatter(bw);
-        
+
         formatador.format("Mês | Quantidade comprada | Nº de clientes distintos que compraram | Faturação%n");
         try{
             for(int mes = 1; mes <= Constantes.N_MESES; ++mes){
                 FatProdMes fProdMes = hipermercado.getFatProdMes(codigoProduto, mes);
                 int quantosClisCompraram = hipermercado.quantosCompraramProdutoMes(codigoProduto, mes);
-                
+
                 formatador.format("%3d | %19d | %38d | %.2f%n", mes, fProdMes.totalUnidsVendidas(), quantosClisCompraram, fProdMes.totalFaturado());
             }
             formatador.flush();
@@ -506,21 +500,21 @@ public class HipermercadoApp {
             imprimeTempoQuery();
         }catch(MesInvalidoException e) { err.println(e.getMessage()); }
     }
-    
+
     private void query5() {
         out.print("Que cliente pretende consultar? ");
         String codigoCliente = Input.lerString();
-        
+
         if(!hipermercado.existeCliente(codigoCliente)){
-             out.println("O cliente que pretende consultar não foi registado");
-             return;
+            out.println("O cliente que pretende consultar não foi registado");
+            return;
         }
-        
+
         Crono.start();
         List<ParProdQtd> prodsMaisComprados = hipermercado.produtosMaisComprados(codigoCliente);
         List<String> resultados = new ArrayList<>(prodsMaisComprados.size());
         String header = "Produto | Quantidade Comprada";
-        
+
         for(ParProdQtd par : prodsMaisComprados){
             resultados.add(String.format("%7s | %19d", par.getProd(), par.getQtd()));
         }
@@ -533,10 +527,10 @@ public class HipermercadoApp {
     private void query6() {
         int X;
         List<ParProdNumClis> topX;
-        
+
         out.print("Quantos elementos quer no top de produtos mais vendidos? ");
         X = Input.lerInt();
-        
+
         Crono.start();
         topX = hipermercado.maisVendidos(X);
         if(topX.isEmpty())
@@ -544,10 +538,10 @@ public class HipermercadoApp {
         else{
             List<String> resultados = new ArrayList<>(topX.size());
             final String header = "Produto | Nº de clientes que compraram";
-            
+
             for(ParProdNumClis par : topX)
                 resultados.add(String.format("%7s | %28d", par.getProd(), par.getNumClis()));
-            
+
             LStrings l = new LStrings(resultados);
             Crono.stop();
             imprimeTempoQuery();
@@ -558,18 +552,18 @@ public class HipermercadoApp {
     private void query7() {
         int rank, filial;
         ParCliFat[][] res = new ParCliFat[Constantes.N_FILIAIS][];
-        
+
         Crono.start();
         for(filial = 1; filial <= Constantes.N_FILIAIS; ++filial)
             res[filial-1] = hipermercado.tresMaioresCompradores(filial);
-        
+
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         Formatter formatador = new Formatter(bw);
-        
+
         formatador.format("%9s", "");
         for(rank = 1; rank <= 3; ++rank) // Imprime linha tabela com as posicoes do ranking
             formatador.format("| %18dº%19s |", rank, "");
-        
+
         formatador.format("%n");
         for(filial = 1; filial <= Constantes.N_FILIAIS; ++filial){ // Imprime resultados, filial a filial
             formatador.format("Filial %d ", filial);
@@ -586,18 +580,18 @@ public class HipermercadoApp {
 
     private void query8() {
         int X;
-        
+
         out.print("Número de clientes: ");
         X = Input.lerInt();
-        
+
         Crono.start();
         List<ParCliProdsDif> topX = hipermercado.clisCompraramMaisProdsDif(X);
         List<String> resultados = new ArrayList<>(topX.size());
         final String header = "Cliente | Nº de produtos diferentes comprados";
-            
+
         for(ParCliProdsDif par : topX)
             resultados.add(String.format("%7s | %35d", par.getCli(), par.getProdsDif()));
-            
+
         LStrings l = new LStrings(resultados);
         Crono.stop();
         imprimeTempoQuery();
@@ -607,35 +601,35 @@ public class HipermercadoApp {
     private void query9() {
         int X;
         String codigoProduto;
-        
+
         out.print("Código de produto a considerar: ");
         codigoProduto = Input.lerString();
         if(!hipermercado.existeProduto(codigoProduto)){
             out.println("O produto '" + codigoProduto + "' não consta no hipermercado.");
             return;
         }
-        
+
         out.print("Número de clientes: ");
         X = Input.lerInt();
-        
+
         Crono.start();
         List<ParCliFat> topX = hipermercado.clientesMaisCompraram(codigoProduto, X);
         List<String> resultados = new ArrayList<>(topX.size());
         final String header = "Cliente | Valor total gasto no produto " + codigoProduto;
-        
+
         for(ParCliFat par : topX)
             resultados.add(String.format("%7s | %35.2f", par.getCli(), par.getFat()));
-        
+
         LStrings l = new LStrings(resultados);
         Crono.stop();
         imprimeTempoQuery();
         navega(l, header);
     }
-    
+
     private void gravarEstado(){
         if(appPopulada()){
             String fichEstado = obterNomeFicheiro("hipermercado.dat", "estado");
-            
+
             try{
                 hipermercado.gravaObj(fichEstado);
                 out.println("-> Estado gravado com sucesso!");
@@ -644,7 +638,7 @@ public class HipermercadoApp {
         else
             err.println("Não existem dados para guardar. Primeiro deverá ler os dados.");
     }
-    
+
     private void imprimeTempoQuery(){
         StringBuilder sb = new StringBuilder();
         sb.append("Tempo gasto na query: ").append(Crono.print()).append("s");

@@ -12,24 +12,51 @@ import java.util.Queue;
 import java.util.PriorityQueue;
 import java.util.Arrays;
 
-public class Faturacao implements Serializable {
-    private FatMes[] fatMensal; // Faturacao de cada mes (a posicao de indice i tem a faturacao do mes i)
-    private Map<String, FatAnualProd> todosProdutos; // Map de codigo de produto para a sua faturacao anual
+/**
+ * <p>
+ * Classe que representa a faturação do projeto <strong>GereVendas</strong>.
+ * Cada instância de <code>Faturacao</code> relaciona produtos com as suas respetivas vendas,
+ * filial a filial e globalmente, possibilitando a obtenção de informações relativas 
+ * às vendas mensais e/ou anuais desses produtos
+ * <p>
+ * Uma instância de faturação referencia todos os produtos da loja/hipermercado
+ * em questão (mesmo os que nunca foram vendidos), sem fazer qualquer referência
+ * a clientes.
+ * 
+ * @author LI3_Grupo1
+ * @version 1.0 (6/2016)
+ */
 
+public class Faturacao implements Serializable {
+    /** 
+     * Faturação de cada mês (a posição de índice <code>i</code> armazena a faturação do mês <code>i</code>)
+     * Para cada mês, só é feita referência aos produtos vendidos nesse mês.
+     */
+    private FatMes[] fatMensal;
+    
+    /** Mapeia códigos de produto na respetiva faturação do ano (referencia todos os produtos) */
+    private Map<String, FatAnualProd> todosProdutos;
+    
+    /** Construtores */
+    
+    /** Cria uma faturação com os totais de unidades  vendidas e de valor gasto inicializados a zero. */
     public Faturacao(){
         fatMensal = new FatMes[Constantes.N_MESES+1];
         
-        for(int i = 1; i <= Constantes.N_MESES; ++i)
-            fatMensal[i] = new FatMes(i);
+        for(int mes = 1; mes <= Constantes.N_MESES; ++mes)
+            fatMensal[mes] = new FatMes(mes);
         todosProdutos = new TreeMap<>();
     }
-
-    public Faturacao(Faturacao f){
-        todosProdutos = f.getTodosProdutos();
-        fatMensal = f.getFatMensal();
+    
+    /** Cria uma cópia da faturação passada como parâmetro. */
+    public Faturacao(Faturacao original){
+        todosProdutos = original.getTodosProdutos();
+        fatMensal = original.getFatMensal();
     }
     
-    /* Devolve uma cópia do array da faturação mensal. */
+    /** Getters */
+    
+    /** @return Cópia do array de faturação mensal. */
     private FatMes[] getFatMensal(){
         FatMes[] copia = new FatMes[Constantes.N_MESES+1];
 
@@ -39,7 +66,7 @@ public class Faturacao implements Serializable {
         return copia;
     }
     
-    /* Devolve uma copia do Map todosProdutos. */
+    /** @return Cópia do mapeamento de código de produto para a respetiva faturação do ano. */
     private Map<String, FatAnualProd> getTodosProdutos() {
         Map<String, FatAnualProd> copia = new TreeMap<>();
         
@@ -48,27 +75,37 @@ public class Faturacao implements Serializable {
         
         return copia;
     }
-
+    
+    // Nota: Esta classe não tem setters para que não seja possível alterar diretamente fatMensal e todosProdutos.
+    // A alteração e atualização dos campos da faturação é feita através dos métodos registaProduto() e registaVenda().
+    
     /**
-     * Regista um produto nesta faturação global.
+     * Regista um produto nesta faturação.
      * @param codigoProduto Código do produto a registar.
-     * @return @c true se o produto a adicionar ainda não tinha sido registado.
+     * @return <code>true</code> se o produto a adicionar ainda não tinha sido registado.
      */ 
     public boolean registaProduto(String codigoProduto){
         return todosProdutos.putIfAbsent(codigoProduto, new FatAnualProd(codigoProduto)) == null;
     }
     
     /**
-     * Regista uma venda nesta faturação global.
+     * Regista uma venda nesta faturação.
      * @param venda Venda a registar.
      * @return true se a venda foi registada com sucesso.
+     * @throws NullPointerException se a venda passada como parâmetro for <code>null</code>.
      */
     public void registaVenda(Venda v){
         // quando este metodo e invocado, todosProdutos ja tem todos os produtos registados.
-        todosProdutos.get(v.getCodigoProduto()).adicionaUnidades(v.getFilial(), v.getUnidadesVendidas());
+        FatAnualProd fAnualProd = todosProdutos.get(v.getCodigoProduto());
+        fAnualProd.adicionaUnidades(v.getFilial(), v.getUnidadesVendidas());
         fatMensal[v.getMes()].registaVenda(v);
     }
     
+    /**
+     * Devolve um array de inteiros que na posição de índice <code>i</code> armazena o número de compras registadas no mês <code>i</code>.
+     * (por número de compras entende-se o número de vendas registadas e não a quantidade vendida)
+     * @return Array de inteiros com o número de compras de cada mês.
+     */
     public int[] comprasPorMes(){
         int[] res = new int[Constantes.N_MESES+1];
         
@@ -77,6 +114,11 @@ public class Faturacao implements Serializable {
         return res;
     }
     
+    /** 
+     * Devolve uma matriz de doubles que na posição <code>(i,j)</code> armazena a
+     * faturação total do mês <code>i</code>, na filial <code>j</code>.
+     * @return Matriz com a faturação total por mês, para cada filial.
+     */
     public double[][] faturacaoPorFilialPorMes(){
         double res[][] = new double[Constantes.N_MESES+1][Constantes.N_FILIAIS+1];
         
@@ -88,7 +130,10 @@ public class Faturacao implements Serializable {
 
     // Query1
 
-    /** @return Conjunto dos produtos que nunca foram comprados. */
+    /** 
+     * Cria e retorna o conjunto dos códigos de produtos que nunca foram comprados.
+     * @return Conjunto dos códigos dos produtos nunca comprados. 
+     */
     public Set<String> nuncaComprados(){
         Set<String> res = new TreeSet<>();
 
@@ -121,9 +166,7 @@ public class Faturacao implements Serializable {
      * com informação sobre a faturação do produto escolhido, no mês especificado.
      * @param codigoProduto Código de produto a considerar na consulta.
      * @param mes Mês para o qual se pretende obter a faturação do produto especificado.
-     * @return Se o produto identificado por @c codigoProduto tiver sido vendido no mês @c mes,
-     *         é devolvido um objeto da classe FatProdMes correspondente ao produto e mês especificados, 
-     *         se não é devolvido null.
+     * @return Faturação do produto identificado por <code>codigoProduto</code>, no mês especificado.
      * @throws MesInvalidoException se o mês passado como parâmetro não pertencer ao intervalo [1,12].
      */
     public FatProdMes getFatProdMes(String codigoProduto, int mes) throws MesInvalidoException{
@@ -134,7 +177,14 @@ public class Faturacao implements Serializable {
         // Se o produto nao foi vendido no mes escolhido, devolvemos uma FatProdMes com o num de unidades vendidas e faturacao a 0
         return (fProdMes != null) ? fProdMes.clone() : new FatProdMes(mes, codigoProduto);
     }
-
+    
+    /** 
+     * Produz a lista dos <code>X</code> produtos mais vendidos em todo o ano (em número de unidades vendidas).
+     * @param X tamanho do top de produtos mais vendidos do ano.
+     * @return Lista com os códigos dos <code>X</code> produtos mais vendidos em todo o ano.
+     *         Se <code>X</code> não for positivo, é devolvida uma lista vazia.
+     *         Se <code>X</code> for superior ao número de produtos, é devolvida uma lista de tamanho igual ao número de produtos.
+     */
     public List<String> maisVendidos(int X){
         if(X <= 0)
             return Collections.emptyList();
@@ -147,10 +197,20 @@ public class Faturacao implements Serializable {
                             .collect(Collectors.toCollection(ArrayList :: new));
     }
     
+    /**
+     * Cria e retorna uma cópia desta faturação.
+     * @return Cópia desta faturação. 
+     */
+    @Override
     public Faturacao clone(){
         return new Faturacao(this);
     }
     
+    /**
+     * Testa se esta faturação é igual ao objeto passado como parâmetro.
+     * @return <code>true</code> se os objetos comparados forem iguais.
+     */
+    @Override
     public boolean equals(Object o){
         if(this == o)
             return true;
@@ -161,6 +221,11 @@ public class Faturacao implements Serializable {
         return Arrays.equals(fatMensal, f.fatMensal) && todosProdutos.equals(f.todosProdutos);
     }
     
+    /** 
+     * Calcula e devolve o valor do <i>hash code</i> desta faturação.
+     * @return Valor do <i>hash code</i> desta faturação.
+     */
+    @Override
     public int hashCode(){
         return Arrays.hashCode(new Object[] {fatMensal, todosProdutos});
     }

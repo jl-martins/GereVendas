@@ -2,96 +2,131 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
+/**
+ * Classe de objetos que guardam informação relativa à faturação anual de um produto.
+ * 
+ * @author LI3_Grupo1
+ * @version 1.0 (6/2016)
+ */
+
 public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
-	private String codigoProduto;
-	private int[] totalUnids;
+    /** Código do produto a que a que uma instância de FatAnualProd diz respeito. */
+    private String codigoProduto;
+    /** Array cuja posição de índice i guarda o total de unidades vendidas na filial i. */
+    private int[] totalUnids;
 
-	/** Constrói a faturação anual do produto com o código passado como parâmetro. */
-	public FatAnualProd(String codigoProduto){
-		this.codigoProduto = codigoProduto;
-		totalUnids = new int[Constantes.N_FILIAIS+1];
-	}
+    /** Constrói a faturação anual do produto com o código passado como parâmetro. */
+    public FatAnualProd(String codigoProduto){
+        this.codigoProduto = codigoProduto;
+        totalUnids = new int[Constantes.N_FILIAIS+1];
+    }
 
-	/** Constrói uma cópia da faturação anual do produto passado como parâmetro. */
-	public FatAnualProd(FatAnualProd fAnualProd){
-		codigoProduto = fAnualProd.getCodigoProduto();
-		totalUnids = fAnualProd.getTotalUnids();
-	}
+    /** Constrói uma cópia da faturação anual do produto passado como parâmetro. */
+    public FatAnualProd(FatAnualProd fAnualProd){
+        codigoProduto = fAnualProd.getCodigoProduto();
+        totalUnids = fAnualProd.getTotalUnids();
+    }
 
-	/** @return Código do produto a que esta FatAnualProd diz respeito. */
-	public String getCodigoProduto(){
-		return codigoProduto;
-	}
+    /**
+     * Devolve o código do produto a que esta FatAnualProd diz respeito.
+     * @return Código do produto desta FatAnualProd. */
+    public String getCodigoProduto(){
+        return codigoProduto;
+    }
 
-	/** 
-	 * @return Array que na posição de índice @c i tem o total de unidades 
-	 * 		   vendidas na filial @c i, para esta FatAnualProd.
+    /**
+     * Devolve um array que na posição de índice <code>i</code> tem o total de unidades 
+     * vendidas na filial <code>i</code>, para esta FatAnualProd.
+     * @return Total de unidades vendidas em cada filial.
+     */
+    public int[] getTotalUnids(){
+        return totalUnids.clone(); // totalUnids e um array de ints, logo podemos fazer uma shallow copy
+    }
+
+    /**
+     * Adiciona um determinado número de unidades ao total de unidades
+     * vendidas na filial passada como primeiro argumento.
+     * @param filial Filial cujo número total de unidades vendidas se pretende atualizar.
+     * @param unidadesVendidas Número de unidades a acrescentar às vendas da filial <code>filial</code>.
+     * @throws FilialInvalidaException se <code>filial</code> for inválida.
+     */
+    public void adicionaUnidades(int filial, int unidadesVendidas) {
+        totalUnids[filial] += unidadesVendidas;
+    }
+
+    /**
+     * Calcula e devolve o total de unidades vendidas no ano todo, 
+     * para o produto ao qual esta FatAnualProd diz respeito.
+     * @return Número total global de unidades vendidas, registadas nesta FatAnualProd.
+     */
+    public int totalUnidsGlobal(){
+        return IntStream.of(totalUnids).sum();
+    }
+
+    /**
+     * Indica se o produto desta FatAnualProd não foi vendido.
+     * @return <code>true</code> se esta FatAnualProd não tem registo de qualquer unidade vendida.
+     */
+    public boolean zeroUnidsVendidas(){
+        return totalUnidsGlobal() == 0;
+    }
+    
+    /**
+	 * Compara o código de produto desta FatAnualProd com o código de produto registado na FatAnualProd passada como parâmetro.
+	 * @return Valor de retorno conforme o método <code>compareTo</code> da classe String.
 	 */
-	public int[] getTotalUnids(){
-		return totalUnids.clone(); // totalUnids e um array de ints, logo podemos fazer uma shallow copy
-	}
+    @Override
+    public int compareTo(FatAnualProd fAnualProd){
+        return codigoProduto.compareTo(fAnualProd.getCodigoProduto());
+    }
 
-	/**
-	 * Adiciona um determinado número de unidades ao total de
-	 * unidades vendidas na filial passada como primeiro argumento.
-	 * @param filial Filial cujo número total de unidades vendidas se pretende atualizar.
-	 * @param unidadesVendidas Número de unidades a acrescentar às vendas da filial @c filial.
-	 * @throws FilialInvalidaException se @c filial for inválida, i.e. se não pertencer a [1,3].
-	 */
-	public void adicionaUnidades(int filial, int unidadesVendidas) {
-		totalUnids[filial] += unidadesVendidas;
-	}
+    /**
+     * Cria e devolve uma cópia desta faturação anual do produto.
+     * @return Cópia desta FatAnualProd.
+     */
+    @Override
+    public FatAnualProd clone(){
+        return new FatAnualProd(this);
+    }
 
-	/** @return Número total global de unidades vendidas, registadas nesta FatAnualProd. */
-	public int totalUnidsGlobal(){
-		return IntStream.of(totalUnids).sum();
-	}
+    /**
+     * Testa se esta FatAnualProd é igual ao objeto passado como parâmetro.
+     * @return <code>true</code> se os objetos comparados forem iguais.
+     */
+    @Override
+    public boolean equals(Object o){
+        if(this == o)
+            return true;
+        if(o == null || this.getClass() != o.getClass())
+            return false;
 
-	/** @return true se esta FatAnualProd não tem registo de qualquer unidade vendida. */
-	public boolean zeroUnidsVendidas(){
-		return totalUnidsGlobal() == 0;
-	}
+        FatAnualProd fAnualProd = (FatAnualProd) o;
+        return codigoProduto.equals(fAnualProd.getCodigoProduto()) &&
+               Arrays.equals(totalUnids, fAnualProd.getTotalUnids());
+    }
 
-	@Override
-	public int compareTo(FatAnualProd fAnualProd){
-		return codigoProduto.compareTo(fAnualProd.getCodigoProduto());
-	}
+    /**
+     * Gera e devolve uma representação textual desta faturação anual do produto.
+     * @return Representação textual desta FatAnualProd.
+     */
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
 
-	/** @return Cópia desta FatAnualProd. */
-	public FatAnualProd clone(){
-		return new FatAnualProd(this);
-	}
+        sb.append("Faturação anual do produto '" + codigoProduto + "'\n");
+        sb.append("Vendas:\n");
+        for(int i = 1; i <= Constantes.N_FILIAIS; ++i)
+            sb.append("Filial ").append(i + ": ").append(totalUnids[i] + "\n");
 
-	/** @return true se esta FatAnualProd for igual ao objeto passado como parâmetro. */
-	public boolean equals(Object o){
-		if(this == o)
-			return true;
-		if(o == null || this.getClass() != o.getClass())
-			return false;
+        return sb.toString();
+    }
 
-		FatAnualProd fAnualProd = (FatAnualProd) o;
-		return codigoProduto.equals(fAnualProd.getCodigoProduto()) &&
-			   Arrays.equals(totalUnids, fAnualProd.getTotalUnids());
-	}
-
-	/** @return Representação textual desta FatAnualProd. */
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("Faturação anual do produto '" + codigoProduto + "'\n");
-		sb.append("Vendas:\n");
-		for(int i = 1; i <= Constantes.N_FILIAIS; ++i)
-			sb.append("Filial ").append(i + ": ").append(totalUnids[i] + "\n");
-
-		return sb.toString();
-	}
-
-	/** @return Valor do hash code desta FatAnualProd. */
-	public int hashCode(){
-		int hash = 7;
-
-		hash = 31*hash + codigoProduto.hashCode();
-		hash = 31*hash + Arrays.hashCode(totalUnids);
-		return hash;
-	}
+    /**
+     * Calcula e devolve o hash code desta faturação anual do produto.
+     * @return Valor do hash code desta FatAnualProd.
+     */
+    @Override
+    public int hashCode(){
+        return Arrays.hashCode(new Object[]{codigoProduto, totalUnids});
+    }
 }

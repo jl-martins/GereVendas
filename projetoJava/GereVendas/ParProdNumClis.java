@@ -1,3 +1,12 @@
+import java.util.Arrays;
+
+/**
+ * Classe que representa pares de código de produto, número de clientes distintos que o compraram.
+ * 
+ * @author LI3_Grupo1
+ * @version 1.0 (6/2016)
+ */
+
 public class ParProdNumClis {
 	private String prod;
 	private int numClis;
