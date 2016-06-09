@@ -36,16 +36,16 @@ public class EstatisticasGerais implements Serializable{
     public int[] getTotalCliDistintos() { return Arrays.copyOf(totalCliDistintos, totalCliDistintos.length); }
     // length do nosso array para o caso do array argumento ser maior
     public void setTotalCompras(int[] totalCompras) {
-        this.totalCompras = Arrays.copyOf(totalCompras, totalCompras.length);
+        this.totalCompras = Arrays.copyOf(totalCompras, this.totalCompras.length);
     }
     
     public void setTotalFaturado(double[][] totalFaturado) { 
         for(int i = 1; i < totalFaturado.length; i++)
-            this.totalFaturado[i] = Arrays.copyOf(totalFaturado[i], totalFaturado[i].length);
+            this.totalFaturado[i] = Arrays.copyOf(totalFaturado[i], this.totalFaturado[i].length);
     }
     
     public void setTotalCliDistintos(int[] totalCliDistintos) {
-        this.totalCliDistintos = Arrays.copyOf(totalCliDistintos,    totalCliDistintos.length);
+        this.totalCliDistintos = Arrays.copyOf(totalCliDistintos, this.totalCliDistintos.length);
     }
 
     /* Adicionar alguns métodos para atualizar a as variaveis por mês ou assim, se facilitar */
@@ -73,6 +73,35 @@ public class EstatisticasGerais implements Serializable{
 
     public String toString(){
         StringBuilder str = new StringBuilder();
+
+		str.append("- Total de compras e total de clientes distintos que compraram por mês: \n");
+		str.append("|  Meses  |");
+		str.append("|  Total Compras  |"); 
+		str.append("|  Clientes Distintos  |\n");
+		for(int i = 1; i <= Constantes.N_MESES; i++)
+		{
+			str.append(String.format("|%7d  |", i));
+			str.append(String.format("|%15d  |", totalCompras[i]));
+			str.append(String.format("|%20d  |\n", totalCliDistintos[i]));
+		}
+		str.append("\n");
+		
+		str.append("- Total faturado por mês por cada Filial: \n");
+		str.append("|  Meses  |");
+		for(int i = 1; i <= Constantes.N_FILIAIS; i++)
+		    str.append("|        Filial ").append(i).append("    |");
+
+		str.append("\n");
+
+		for(int i = 1; i <= Constantes.N_MESES; i++)
+		{
+		    str.append(String.format("|%7d  |", i));
+			for(int j = 1; j <= Constantes.N_FILIAIS; j++){
+				str.append(String.format("|%16.2f    |", totalFaturado[i][j]));
+			}
+			str.append("\n");
+		}
+
         return str.toString();
     }
 }
