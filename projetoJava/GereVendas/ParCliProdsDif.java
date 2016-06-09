@@ -1,7 +1,7 @@
 import java.util.Arrays;
 
 /**
- * Classe que representa pares de código de cliente, número de produtos diferentes comprados pelo cliente.
+ * Classe que representa pares compostos por um código de cliente e pelo número de produtos diferentes comprados pelo mesmo.
  * 
  * @author LI3_Grupo1
  * @version 1.0 (6/2016)
@@ -15,8 +15,8 @@ public class ParCliProdsDif{
     /** Construtores */
     
     /** Construtor por omissão 
-     * (declarado como privado para não ser possível construir instâncias de ParCliProdsDif sem especificar
-     *  o código de cliente e o número de produtos diferentes comprados pelo mesmo)
+     * (declarado como privado para não ser possível construir instâncias de ParCliProdsDif sem 
+     *  especificar o código de cliente e o número de produtos diferentes comprados pelo mesmo)
      */
     private ParCliProdsDif(){
         cli = "";
