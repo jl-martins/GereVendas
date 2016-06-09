@@ -168,6 +168,12 @@ public class Filiais implements java.io.Serializable{
             clientes.addAll(filiais[i].clientesCompraramMes(mes));
         }
         return clientes.size();
-        
+    }
+    
+    public int[] quantosClientesPorMes(){
+        int[] resultados = new int[13];
+        for(int i = 1; i < 13; i++)
+            resultados[i] = quantosClientesCompraramPorMes(i);
+        return resultados;
     }
 }
