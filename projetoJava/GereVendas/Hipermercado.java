@@ -175,7 +175,7 @@ public class Hipermercado implements Serializable{
         List<TriploIntIntDouble> dadosPorMes = new ArrayList<>(13);
         dadosPorMes.add(null); /* adiciona padding para podermos aceder ao mes pelo seu indice sem fazer -1 */
         for(int i = 1; i < 13; i++){
-            Set<ComprasDoProduto> comprasDoMes = filiais.comprasFeitasMes(codigoCliente, i);
+            List<ComprasDoProduto> comprasDoMes = filiais.comprasFeitasMes(codigoCliente, i);
             int totalCompras = quantasComprasPorMes[i];
             int produtosDistintosComprados = Filiais.quantosProdutosDistintosComprou(comprasDoMes);
             double totalGasto = Filiais.quantoGastou(comprasDoMes); 

@@ -49,8 +49,16 @@ public class Filiais implements java.io.Serializable{
     }
 
     /* Dado um cliente e um mes, devolve as compras feitas nesse mes pelo Cliente */
-    public Set<ComprasDoProduto> comprasFeitasMes(String idCliente, int mes){
+    /*public Set<ComprasDoProduto> XcomprasFeitasMes(String idCliente, int mes){
         Set<ComprasDoProduto> compras = new TreeSet<>();
+        for(int i = 0; i < filiais.length; i++){
+            compras.addAll(filiais[i].comprasFeitasMes(idCliente,mes));
+        }
+        return compras;
+    }*/
+    
+    public List<ComprasDoProduto> comprasFeitasMes(String idCliente, int mes){
+        List<ComprasDoProduto> compras = new ArrayList<>();
         for(int i = 0; i < filiais.length; i++){
             compras.addAll(filiais[i].comprasFeitasMes(idCliente,mes));
         }
@@ -99,12 +107,12 @@ public class Filiais implements java.io.Serializable{
 
     /* Dado um código de cliente, determinar, para cada mês, quantas compras fez, quantos produtos distintos comprou e quanto gastou no total.*/
 
-    public static int quantosProdutosDistintosComprou(Set<ComprasDoProduto> compras){
+    public static int quantosProdutosDistintosComprou(List<ComprasDoProduto> compras){
         Set<String> produtosComprados = compras.stream().map(ComprasDoProduto::getCodigoProduto).collect(Collectors.toSet());
         return produtosComprados.size();
     }
 
-    public static double quantoGastou(Set<ComprasDoProduto> compras){
+    public static double quantoGastou(List<ComprasDoProduto> compras){
         return compras.stream().mapToDouble(ComprasDoProduto::getFaturacao).sum();
     }
 
