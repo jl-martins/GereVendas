@@ -66,6 +66,14 @@ public class Hipermercado implements Serializable{
         );
     }
     
+    private void criaEstatisticasGerais(){
+        estatisticasGerais = new EstatisticasGerais(
+            faturacao.comprasPorMes(),            // total de compras por mes
+            faturacao.faturacaoPorFilialPorMes(), // faturacao por filial, para cada mes
+            filiais.quantosClientesPorMes() // numero de clientes distintos que compraram em cada mes
+        );
+    }
+    
     // getters
     private CatalogoProdutos getCatalogoProdutos(){
         return (catalogoProdutos != null) ? catalogoProdutos.clone() : null;
@@ -88,6 +96,8 @@ public class Hipermercado implements Serializable{
     }
     
     public EstatisticasGerais getEstatisticasGerais(){
+        if(estatisticasGerais == null)
+            criaEstatisticasGerais(); // cria estatisticas gerais a partir dos dados da faturacao e das filiais
         return (estatisticasGerais != null) ? estatisticasGerais.clone() : null;
     }
     

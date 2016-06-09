@@ -1,6 +1,8 @@
 import java.io.Serializable;
+
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.HashMap;
 
 public class FatMes implements Serializable {
     private final int mes;
@@ -13,7 +15,7 @@ public class FatMes implements Serializable {
         this.mes = mes;
         totalVendas = 0;
         totalFaturado = 0.0;
-        fatProds = new TreeMap<>();
+        fatProds = new HashMap<>();
     }
 
     /** Constrói uma cópia da faturação do mês passada como parâmetro. */
@@ -40,11 +42,13 @@ public class FatMes implements Serializable {
     }
 
     private Map<String, FatProdMes> getFatProds(){
-        Map<String, FatProdMes> copia = new TreeMap<>();
+        /* O fator de carga por omissao de um HashMap e 0.75, por isso se dividirmos o tamanho do map 
+         * original por 0.75 e arredondarmos o resultado por excesso, evitamos a realizacao de rehashing. */
+        Map<String, FatProdMes> copia = new HashMap<>((int) Math.ceil(fatProds.size() / 0.75));
 
         for(Map.Entry<String, FatProdMes> fProd : fatProds.entrySet())
             copia.put(fProd.getKey(), fProd.getValue().clone());
-
+            
         return copia;
     }
 
@@ -66,22 +70,34 @@ public class FatMes implements Serializable {
         double faturado;
         int mes, unidadesVendidas, filial;
         String codigoProduto = v.getCodigoProduto();
-        
+        // Obtem os campos de Venda necessarios
         mes = v.getMes();
-        unidadesVendidas = v.getUnidadesVendidas();
         filial = v.getFilial();
+        unidadesVendidas = v.getUnidadesVendidas();
         faturado = unidadesVendidas * v.getPrecoUnitario();
-        
+        // Atualiza os totais do mes
         ++totalVendas;
         totalFaturado += faturado;
-        
+        // Se a faturacao do produto vendido ja existir, atualiza-a, se nao, cria-a.
         FatProdMes fProdMes = fatProds.get(codigoProduto);
         if(fProdMes != null)
             fProdMes.adiciona(unidadesVendidas, faturado, filial);
         else
             fatProds.put(codigoProduto, new FatProdMes(mes, codigoProduto, unidadesVendidas, faturado, filial));
     }
-
+    
+    public double[] faturacaoPorFilial(){
+        double[] res = new double[Constantes.N_FILIAIS+1];
+        
+        for(FatProdMes fProdMes : fatProds.values()){
+            double[] faturacaoProd = fProdMes.getFaturacao();
+            for(int i = 1; i <= Constantes.N_FILIAIS; ++i){
+                res[i] += faturacaoProd[i];
+            }
+        }
+        return res;
+    }
+    
     /** @return Cópia desta faturação do mês. */
     public FatMes clone(){
         return new FatMes(this);

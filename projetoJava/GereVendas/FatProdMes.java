@@ -3,7 +3,7 @@ import java.io.Serializable;
 import java.util.stream.IntStream;
 import java.util.stream.DoubleStream;
 
-public class FatProdMes implements Serializable {
+public class FatProdMes implements Serializable { // VER SE VALE A PENA IMPLEMENTAR Comparable
     private final int mes;
     private String codigoProduto;
     private int[] unidsVendFilial; // a posicao i da o numero de unidades vendidas na filial i, para o produto e mes considerados

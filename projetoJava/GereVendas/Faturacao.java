@@ -76,6 +76,15 @@ public class Faturacao implements Serializable {
             res[mes] = fatMensal[mes].getTotalVendas();
         return res;
     }
+    
+    public double[][] faturacaoPorFilialPorMes(){
+        double res[][] = new double[Constantes.N_MESES+1][Constantes.N_FILIAIS+1];
+        
+        for(int mes = 1; mes <= Constantes.N_MESES; ++mes)
+            res[mes] = fatMensal[mes].faturacaoPorFilial();
+        
+        return res;
+    }
 
     // Query1
 
@@ -122,6 +131,7 @@ public class Faturacao implements Serializable {
             throw new MesInvalidoException("O mês '" + mes + "' é inválido!");
         
         FatProdMes fProdMes = fatMensal[mes].getFatProdMes(codigoProduto);
+        // Se o produto nao foi vendido no mes escolhido, devolvemos uma FatProdMes com o num de unidades vendidas e faturacao a 0
         return (fProdMes != null) ? fProdMes.clone() : new FatProdMes(mes, codigoProduto);
     }
 
@@ -148,7 +158,10 @@ public class Faturacao implements Serializable {
             return false;
 
         Faturacao f = (Faturacao) o;
-
         return Arrays.equals(fatMensal, f.fatMensal) && todosProdutos.equals(f.todosProdutos);
+    }
+    
+    public int hashCode(){
+        return Arrays.hashCode(new Object[] {fatMensal, todosProdutos});
     }
 }

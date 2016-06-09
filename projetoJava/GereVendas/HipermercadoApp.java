@@ -136,7 +136,7 @@ public class HipermercadoApp {
     private String obterNomeFicheiro(String ficheiroPadrao, String tipoFicheiro) {
         String nomeFicheiro;
 
-        out.printf("Insira o caminho do ficheiro de %s (ENTER para abrir ficheiro padrão): ", tipoFicheiro);
+        out.printf("Insira o caminho do ficheiro de %s (ENTER para selecionar o ficheiro padrão): ", tipoFicheiro);
         nomeFicheiro = Input.lerString().trim();
 
         if(nomeFicheiro.isEmpty())
