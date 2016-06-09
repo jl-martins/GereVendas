@@ -28,7 +28,7 @@ public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
 	 * 		   vendidas na filial @c i, para esta FatAnualProd.
 	 */
 	public int[] getTotalUnids(){
-		return (int []) totalUnids.clone(); // totalUnids e um array de ints, logo podemos fazer uma shallow copy
+		return totalUnids.clone(); // totalUnids e um array de ints, logo podemos fazer uma shallow copy
 	}
 
 	/**

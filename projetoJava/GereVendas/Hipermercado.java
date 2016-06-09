@@ -214,5 +214,7 @@ public class Hipermercado implements Serializable{
     }
     
     // Query9
-    
+    public List<ParCliFat> clientesMaisCompraram(String codigoProduto, int X){
+        return filiais.clientesMaisCompraram(codigoProduto, X);
+    }
 }

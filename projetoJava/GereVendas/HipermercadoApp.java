@@ -465,7 +465,7 @@ public class HipermercadoApp {
         codigoCliente = Input.lerString();
         
         if(!hipermercado.existeCliente(codigoCliente)){
-             out.println("O Cliente que pretende consultar não foi registado");
+             out.println("O cliente que pretende consultar não foi registado");
              return;
         }
         
@@ -512,7 +512,7 @@ public class HipermercadoApp {
         String codigoCliente = Input.lerString();
         
         if(!hipermercado.existeCliente(codigoCliente)){
-             out.println("O Cliente que pretende consultar não foi registado");
+             out.println("O cliente que pretende consultar não foi registado");
              return;
         }
         
@@ -605,7 +605,31 @@ public class HipermercadoApp {
     }
 
     private void query9() {
-        out.println("Por implementar...");
+        int X;
+        String codigoProduto;
+        
+        out.print("Código de produto a considerar: ");
+        codigoProduto = Input.lerString();
+        if(!hipermercado.existeProduto(codigoProduto)){
+            out.println("O produto '" + codigoProduto + "' não consta no hipermercado.");
+            return;
+        }
+        
+        out.print("Número de clientes: ");
+        X = Input.lerInt();
+        
+        Crono.start();
+        List<ParCliFat> topX = hipermercado.clientesMaisCompraram(codigoProduto, X);
+        List<String> resultados = new ArrayList<>(topX.size());
+        final String header = "Cliente | Valor total gasto no produto " + codigoProduto;
+        
+        for(ParCliFat par : topX)
+            resultados.add(String.format("%7s | %35.2f", par.getCli(), par.getFat()));
+        
+        LStrings l = new LStrings(resultados);
+        Crono.stop();
+        imprimeTempoQuery();
+        navega(l, header);
     }
     
     private void gravarEstado(){

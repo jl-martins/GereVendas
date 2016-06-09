@@ -103,5 +103,21 @@ public class ComprasPorCliente implements java.io.Serializable{
     
         return produtosComprados;
     }
+    
+    // Query9
+    public ParQtdValor totalCompradoEgasto(String codigoProduto){
+    	int qtdTotal = 0;
+    	double valorTotal = 0.0;
+    
+    	for(Map<String, ComprasDoProduto> map : comprasPorMes){
+    		ComprasDoProduto compraMes = map.get(codigoProduto);
+    
+    		if(compraMes != null){ // o cliente comprou o produto no mes a que o Map<String, ComprasDoProduto> atual diz respeito
+    			qtdTotal += compraMes.getUnidadesCompradas();
+    			valorTotal += compraMes.getFaturacao();
+    		}
+    	}
+    	return new ParQtdValor(qtdTotal, valorTotal);
+    }
     /* definir compareTo a ordenar por nome */
 }

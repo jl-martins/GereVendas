@@ -97,12 +97,6 @@ public class Filial implements java.io.Serializable{
                     res.add(cpc.getCodigoCliente());
         return res;
     }
-    
-    public static class OrdemCrescFaturacao implements Comparator<ParCliFat>{
-        public int compare(ParCliFat p1, ParCliFat p2){
-            return p1.getFat() < p2.getFat() ? -1 : p1.getFat() > p2.getFat() ? 1 : 0;
-        }
-    }
 
     // Query7
     public ParCliFat[] tresMaioresCompradores(){
@@ -136,6 +130,17 @@ public class Filial implements java.io.Serializable{
     	for(Map<String, ComprasPorCliente> map : clientesOrdenados)
     		for(ComprasPorCliente cpc : map.values())
     			res.put(cpc.getCodigoCliente(), cpc.produtosCompradosAno());
+    
+    	return res;
+    }
+    
+    // Query9
+    public Map<String, ParQtdValor> mapClienteParQtdValor(String codigoProduto){
+    	Map<String, ParQtdValor> res = new HashMap<>();
+    
+    	for(Map<String, ComprasPorCliente> map : clientesOrdenados)
+    		for(ComprasPorCliente cpc : map.values())
+    			res.put(cpc.getCodigoCliente(), cpc.totalCompradoEgasto(codigoProduto));
     
     	return res;
     }

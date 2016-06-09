@@ -13,7 +13,7 @@ import java.util.PriorityQueue;
 import java.util.Arrays;
 
 public class Faturacao implements Serializable {
-    private FatMes[] fatMensal;
+    private FatMes[] fatMensal; // Faturacao de cada mes (a posicao de indice i tem a faturacao do mes i)
     private Map<String, FatAnualProd> todosProdutos; // Map de codigo de produto para a sua faturacao anual
 
     public Faturacao(){
@@ -67,6 +67,14 @@ public class Faturacao implements Serializable {
         // quando este metodo e invocado, todosProdutos ja tem todos os produtos registados.
         todosProdutos.get(v.getCodigoProduto()).adicionaUnidades(v.getFilial(), v.getUnidadesVendidas());
         fatMensal[v.getMes()].registaVenda(v);
+    }
+    
+    public int[] comprasPorMes(){
+        int[] res = new int[Constantes.N_MESES+1];
+        
+        for(int mes = 1; mes <= 12; ++mes)
+            res[mes] = fatMensal[mes].getTotalVendas();
+        return res;
     }
 
     // Query1
@@ -123,10 +131,10 @@ public class Faturacao implements Serializable {
 
         return todosProdutos.values()
                             .stream()
-                            .sorted(Collections.reverseOrder(new ComparadorMaisVendidos())) // ordem decrescente de quantidade comprada
+                            .sorted(Collections.reverseOrder(new ComparadorMaisVendidos()))
                             .limit(X)
                             .map(FatAnualProd :: getCodigoProduto)
-                            .collect(Collectors.toCollection(ArrayList<String> :: new));
+                            .collect(Collectors.toCollection(ArrayList :: new));
     }
     
     public Faturacao clone(){

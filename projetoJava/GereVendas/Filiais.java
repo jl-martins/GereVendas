@@ -33,14 +33,19 @@ public class Filiais implements java.io.Serializable{
     }
 
     /* Dado um mês válido, determinar o número total de clientes distintos que as fizeram */
-    public int quantosClientesCompraramMes(int mes) throws MesInvalidoException{
-        if(mes < 1 || mes > 12)
-            throw new MesInvalidoException("O mês inserido é inválido");
+    public int quantosClientesCompraramMes(int mes){
         Set<String> clientes = new TreeSet<>();
         for(int i = 0; i < filiais.length; i++){
             clientes.addAll(filiais[i].clientesCompraramMes(mes));
         }
         return clientes.size();       
+    }
+
+    public int[] quantosClientesPorMes(){
+        int[] resultados = new int[Constantes.N_MESES+1];
+        for(int i = 1; i < Constantes.N_MESES; i++)
+            resultados[i] = quantosClientesCompraramMes(i);
+        return resultados;
     }
 
     /* Dado um cliente e um mes, devolve as compras feitas nesse mes pelo Cliente */
@@ -161,19 +166,38 @@ public class Filiais implements java.io.Serializable{
                        .map(e -> new ParCliProdsDif(e.getKey(), e.getValue().size()))
                        .collect(Collectors.toCollection(ArrayList :: new));
     }
+
+    // Query9
+    public List<ParCliFat> clientesMaisCompraram(String codigoProduto, int X){
+        List<Map<String, ParQtdValor>> mapsParciais = new ArrayList<>(filiais.length);
+        Map<String, ParQtdValor> mapGeral;
+        Comparator<Map.Entry<String, ParQtdValor>> ordemDecQtd =
+           (e1,e2) -> {
+               int qtd1 = e1.getValue().getQtd();
+               int qtd2 = e2.getValue().getQtd();
+               return qtd1 < qtd2 ? 1 : qtd1 > qtd2 ? -1 : e1.getKey().compareTo(e2.getKey());
+           };
+           
+        int i;
+        for(i = 0; i < filiais.length; ++i)
+            mapsParciais.add(filiais[i].mapClienteParQtdValor(codigoProduto));
     
-    public int quantosClientesCompraramPorMes(int mes){
-        Set<String> clientes = new TreeSet<>();
-        for(int i = 0; i < filiais.length; i++){
-            clientes.addAll(filiais[i].clientesCompraramMes(mes));
+        mapGeral = mapsParciais.get(0); // comeca a construir o mapGeral a partir do primeiro map parcial
+        for(i = 1; i < filiais.length; ++i){
+            for(Map.Entry<String, ParQtdValor> e : mapsParciais.get(i).entrySet()){
+                ParQtdValor par = mapGeral.get(e.getKey());
+    
+                if(par == null)
+                    mapGeral.put(e.getKey(), par);
+                else
+                    par.adiciona(e.getValue()); // incrementa os campos do parQtdValor que ja esta no mapGeral
+            }
         }
-        return clientes.size();
-    }
-    
-    public int[] quantosClientesPorMes(){
-        int[] resultados = new int[13];
-        for(int i = 1; i < 13; i++)
-            resultados[i] = quantosClientesCompraramPorMes(i);
-        return resultados;
+        return mapGeral.entrySet()
+                       .stream()
+                       .sorted(ordemDecQtd)
+                       .limit(X)
+                       .map(e -> new ParCliFat(e.getKey(), e.getValue().getValor()))
+                       .collect(Collectors.toCollection(ArrayList :: new));
     }
 }
