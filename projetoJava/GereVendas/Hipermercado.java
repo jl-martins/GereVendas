@@ -255,7 +255,7 @@ public class Hipermercado implements Serializable{
     /**
      * Verifica se o código de cliente passado como parâmetro faz parte deste hipermercado.
      * @param codigoCliente Código de cliente a considerar.
-     * @throws FilialInvalidaException se este hipermercado não tiver o cliente passado como parâmetro.
+     * @throws ClienteInexistenteException se este hipermercado não tiver o cliente passado como parâmetro.
      */
     public void requerClienteExistente(String codigoCliente) throws ClienteInexistenteException {
         if(!existeCliente(codigoCliente))
@@ -399,7 +399,7 @@ public class Hipermercado implements Serializable{
      * @return Array de ParCliFat, ordenado decrescentemente pelo total gasto, com os 3 maiores compradores
      *         da filial <code>filial</code> e a quantia que gastaram.
      * 
-     * @throws FilialInexistenteException se a filial passada como parâmetro não fizer parte deste hipermercado.
+     * @throws FilialInvalidaException se a filial passada como parâmetro não fizer parte deste hipermercado.
      */
     public ParCliFat[] tresMaioresCompradores(int filial) throws FilialInvalidaException {
         requerFilialValida(filial);
@@ -427,11 +427,14 @@ public class Hipermercado implements Serializable{
      * com os <code>X</code> clientes que mais compraram o produto passado como parâmetro e a respetiva
      * quantidade comprada e total gasto. A lista devolvida está ordenada decrescentemente pelo número
      * de unidades compradas do produto identificado por <code>codigoProduto</code>.
+     * 
      * @param codigoProduto Código de produto a considerar na consulta.
      * @param X Tamanho do <i>top</i> de clientes que mais compraram o produto identificado por <code>codigoProduto</code>.
      * @return Lista de TriploCliQtdGasto em que cada elemento tem o código de um cliente do top <code>X</code> de clientes
      *         que mais compraram o produto passado como parâmetro, bem como a quantidade comprada e o total gasto. A lista
      *         devolvida está ordenada por ordem decrescente de quantidade comprada.
+     * 
+     * @throws ProdutoInexistenteException se o produto passado como parâmetro não constar neste hipermercado.
      */
     public List<TriploCliQtdGasto> clientesMaisCompraram(String codigoProduto, int X) throws ProdutoInexistenteException {
         requerProdutoExistente(codigoProduto);
