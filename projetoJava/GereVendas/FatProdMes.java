@@ -3,7 +3,6 @@ import java.io.Serializable;
 import java.util.stream.IntStream;
 import java.util.stream.DoubleStream;
 
-
 /**
  * Classe de objetos que guardam informação relativa à faturação de um produto num mês.
  * 

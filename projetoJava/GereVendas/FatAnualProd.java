@@ -55,7 +55,6 @@ public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
      * vendidas na filial passada como primeiro argumento.
      * @param filial Filial cujo número total de unidades vendidas se pretende atualizar.
      * @param unidadesVendidas Número de unidades a acrescentar às vendas da filial <code>filial</code>.
-     * @throws FilialInvalidaException se <code>filial</code> for inválida.
      */
     public void adicionaUnidades(int filial, int unidadesVendidas) {
         totalUnids[filial] += unidadesVendidas;

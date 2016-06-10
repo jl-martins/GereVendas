@@ -155,17 +155,16 @@ public class Filiais implements java.io.Serializable{
         
         for(int i = 0; i < filiais.length; ++i)
             mapsParciais.add(filiais[i].mapClienteProdsComp());
+        // Cria um mapeamento geral a partir dos mapeamentos parciais
+        for(Map<String, Set<String>> map : mapsParciais){
+            map.forEach( (cli, prodsDifParc) -> {
+                Set<String> prodsDifGeral = mapGeral.get(cli);
     
-        for(Map<String, Set<String>> m : mapsParciais){
-            for(Map.Entry<String, Set<String>> e : m.entrySet()){
-                String codigoCliente = e.getKey();
-                Set<String> prodsDif = mapGeral.get(codigoCliente);
-    
-                if(prodsDif == null) // o cliente ainda nao esta no mapGeral
-                    mapGeral.put(codigoCliente, e.getValue());
+                if(prodsDifGeral == null) // o cliente ainda nao esta no mapGeral
+                    mapGeral.put(cli, prodsDifParc);
                 else
-                    prodsDif.addAll(e.getValue());
-            }
+                    prodsDifGeral.addAll(prodsDifParc);
+            });
         }
         return mapGeral.entrySet()
                        .stream()
@@ -176,7 +175,7 @@ public class Filiais implements java.io.Serializable{
     }
 
     // Query9
-    public List<ParCliFat> clientesMaisCompraram(String codigoProduto, int X){
+    public List<TriploCliQtdGasto> clientesMaisCompraram(String codigoProduto, int X){
         List<Map<String, ParQtdValor>> mapsParciais = new ArrayList<>(filiais.length);
         Map<String, ParQtdValor> mapGeral;
         Comparator<Map.Entry<String, ParQtdValor>> ordemDecQtd =
@@ -192,20 +191,20 @@ public class Filiais implements java.io.Serializable{
     
         mapGeral = mapsParciais.get(0); // comeca a construir o mapGeral a partir do primeiro map parcial
         for(i = 1; i < filiais.length; ++i){
-            for(Map.Entry<String, ParQtdValor> e : mapsParciais.get(i).entrySet()){
-                ParQtdValor par = mapGeral.get(e.getKey());
+            mapsParciais.get(i).forEach( (cli, parParcial) -> {
+                ParQtdValor parGeral = mapGeral.get(cli);
     
-                if(par == null)
-                    mapGeral.put(e.getKey(), par);
+                if(parGeral == null)
+                    mapGeral.put(cli, parParcial);
                 else
-                    par.adiciona(e.getValue()); // incrementa os campos do parQtdValor que ja esta no mapGeral
-            }
+                    parGeral.adiciona(parParcial); // incrementa os campos do parQtdValor que já estava no mapGeral
+            });
         }
         return mapGeral.entrySet()
                        .stream()
                        .sorted(ordemDecQtd)
                        .limit(X)
-                       .map(e -> new ParCliFat(e.getKey(), e.getValue().getValor()))
+                       .map(e -> new TriploCliQtdGasto(e.getKey(), e.getValue().getQtd(), e.getValue().getValor()))
                        .collect(Collectors.toCollection(ArrayList :: new));
     }
 }

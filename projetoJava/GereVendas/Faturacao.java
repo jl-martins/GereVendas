@@ -176,12 +176,8 @@ public class Faturacao implements Serializable {
      * Dado um mês, devolve o número total global de vendas realizadas nesse mês.
      * @param mes Mês cujo número total global de vendas se pretende consultar.
      * @return Número total global de vendas do mês especificado.
-     * @throws MesInvalidoException se o mês passado como parâmetro não pertencer ao intervalo [1,12].
      */
-    public int totalVendasMes(int mes) throws MesInvalidoException{
-        if(mes <= 0 || mes > 12)
-            throw new MesInvalidoException("O mês '" + mes + "' é inválido!");
-
+    public int totalVendasMes(int mes) {
         return fatMensal[mes].getTotalVendas();
     }
 
@@ -193,12 +189,8 @@ public class Faturacao implements Serializable {
      * @param codigoProduto Código de produto a considerar na consulta.
      * @param mes Mês para o qual se pretende obter a faturação do produto especificado.
      * @return Faturação do produto identificado por <code>codigoProduto</code>, no mês especificado.
-     * @throws MesInvalidoException se o mês passado como parâmetro não pertencer ao intervalo [1,12].
      */
-    public FatProdMes getFatProdMes(String codigoProduto, int mes) throws MesInvalidoException{
-        if(mes <= 0 || mes > Constantes.N_MESES)
-            throw new MesInvalidoException("O mês '" + mes + "' é inválido!");
-        
+    public FatProdMes getFatProdMes(String codigoProduto, int mes) {   
         FatProdMes fProdMes = fatMensal[mes].getFatProdMes(codigoProduto);
         // Se o produto nao foi vendido no mes escolhido, devolvemos uma FatProdMes com o num de unidades vendidas e faturacao a 0
         return (fProdMes != null) ? fProdMes.clone() : new FatProdMes(mes, nfiliais, codigoProduto);

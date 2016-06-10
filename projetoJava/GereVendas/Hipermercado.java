@@ -147,6 +147,16 @@ public class Hipermercado implements Serializable{
         return catalogoClientes.totalClientes();
     }
     
+    public void requerMesValido(int mes) throws MesInvalidoException {
+        if(mes < 1 || mes > Constantes.N_MESES)
+            throw new MesInvalidoException("O mês '" + mes + "' é inválido!");
+    }
+    
+    public void requerFilialValida(int filial) throws FilialInvalidaException {
+        if(filial < 1 || filial > filiais.quantasFiliais())
+            throw new FilialInvalidaException("A filial '" + filial + "' é inválida!");
+    }
+    
     // Query1
     /** @return Conjunto ordenado alfabeticamente dos códigos dos produtos que nunca foram comprados. */
     public Set<String> nuncaComprados(){
@@ -156,11 +166,13 @@ public class Hipermercado implements Serializable{
     // Query2
     /** @return Total global de vendas realizadas no mês passado como parâmetro. */
     public int totalGlobalVendas(int mes) throws MesInvalidoException{
+        requerMesValido(mes);
         return faturacao.totalVendasMes(mes);
     }
     
     /** @return Total de clientes distintos que compraram no mês passado como parâmetro. */
     public int totalClientesCompraram(int mes) throws MesInvalidoException{
+        requerMesValido(mes);
         return filiais.quantosClientesCompraramMes(mes);
     }
     
@@ -174,7 +186,7 @@ public class Hipermercado implements Serializable{
         int[] quantasComprasPorMes = filiais.quantasComprasPorMes(codigoCliente);
         List<TriploComprasProdutosGasto> dadosPorMes = new ArrayList<>(13);
         dadosPorMes.add(null); /* adiciona padding para podermos aceder ao mes pelo seu indice sem fazer -1 */
-        for(int i = 1; i < 13; i++){
+        for(int i = 1; i <= Constantes.N_MESES; i++){
             List<ComprasDoProduto> comprasDoMes = filiais.comprasFeitasMes(codigoCliente, i);
             int totalCompras = quantasComprasPorMes[i];
             int produtosDistintosComprados = Filiais.quantosProdutosDistintosComprou(comprasDoMes);
@@ -186,11 +198,13 @@ public class Hipermercado implements Serializable{
     }
     
     // Query4
-    public FatProdMes getFatProdMes(String codigoProduto, int mes) throws MesInvalidoException{
+    public FatProdMes getFatProdMes(String codigoProduto, int mes) throws MesInvalidoException {
+        requerMesValido(mes);
         return faturacao.getFatProdMes(codigoProduto, mes);
     }
     
-    public int quantosCompraramProdutoMes(String codigoProduto, int mes){
+    public int quantosCompraramProdutoMes(String codigoProduto, int mes) throws MesInvalidoException {
+        requerMesValido(mes);
         return filiais.quantosCompraramProdutoMes(codigoProduto, mes);
     }
     
@@ -217,6 +231,7 @@ public class Hipermercado implements Serializable{
     }
     // Query7
     public ParCliFat[] tresMaioresCompradores(int filial){
+        // requerFilialValida(filial);
         return filiais.tresMaioresCompradores(filial);
     }
     // Query8
@@ -225,7 +240,7 @@ public class Hipermercado implements Serializable{
     }
     
     // Query9
-    public List<ParCliFat> clientesMaisCompraram(String codigoProduto, int X){
+    public List<TriploCliQtdGasto> clientesMaisCompraram(String codigoProduto, int X){
         return filiais.clientesMaisCompraram(codigoProduto, X);
     }
 }

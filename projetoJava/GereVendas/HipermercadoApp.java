@@ -616,12 +616,12 @@ public class HipermercadoApp {
         X = Input.lerInt();
 
         Crono.start();
-        List<ParCliFat> topX = hipermercado.clientesMaisCompraram(codigoProduto, X);
+        List<TriploCliQtdGasto> topX = hipermercado.clientesMaisCompraram(codigoProduto, X);
         List<String> resultados = new ArrayList<>(topX.size());
-        final String header = "Cliente | Valor total gasto no produto " + codigoProduto;
+        final String header = "Cliente | Quantidade comprada | Valor total gasto ";
 
-        for(ParCliFat par : topX)
-            resultados.add(String.format("%7s | %35.2f", par.getCli(), par.getFat()));
+        for(TriploCliQtdGasto triplo : topX)
+            resultados.add(String.format("%7s | %19d | %17.2f", triplo.getCli(), triplo.getQtd(), triplo.getGasto()));
 
         LStrings l = new LStrings(resultados);
         Crono.stop();
