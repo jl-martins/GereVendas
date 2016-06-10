@@ -144,4 +144,8 @@ public class Filial implements java.io.Serializable{
     
     	return res;
     }
+    
+    public Filial clone(){
+        return new Filial(); /* alterar para comportamento esperado */
+    }
 }

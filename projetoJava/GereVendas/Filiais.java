@@ -3,15 +3,28 @@ import java.util.Map;
 import java.util.List;
 import java.util.Comparator;
 import java.util.Collections;
-
 import java.util.TreeSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+import java.util.Arrays;
+
+/** Classe que guarda informações relativas às diversas filiais de um Hipermercado e que permite fazer operações sobre as várias queries em conjunto.
+ * 
+ * @author LI3_Grupo1
+ * @version 1.1 (06/2016)
+ */
 
 public class Filiais implements java.io.Serializable{
     Filial[] filiais;
-    /* ver o que fazer com o construtor padrão - por um numero padrao de filiais*/
+
+    /** Construtor por omissão, cria por defeito Constantes.N_FILIAIS filiais.*/
+    public Filiais(){
+        this(Constantes.N_FILIAIS);
+    }
+
+    /** Constrói e inicializa n filiais.
+    @param n Número de filiais guardadas na Filiais.*/
     public Filiais(int n){
         filiais = new Filial[n];
         for(int i = 0; i < n; i++){
@@ -19,20 +32,33 @@ public class Filiais implements java.io.Serializable{
         }
     }
 
-    public Filiais(){
-        this(Constantes.N_FILIAIS);
+    /** Constrói uma cópia da Filiais passada como argumento.
+     * @param f Filiais a ser copiada.
+     */
+    public Filiais(Filiais f){
+        int quantasFiliais = f.quantasFiliais();
+        this.filiais = new Filial[quantasFiliais];
+        for(int i = 0; i < quantasFiliais; i++){
+            this.filiais[i] = f.filiais[i].clone();
+        }
     }
 
+    /** Devolve quantas filiais é que estão guardadas no objeto sobre o qual o método foi invocado.
+    @return Quantas filiais é que estão guardadas */
     public int quantasFiliais(){
         return filiais.length;
     }
 
+    /** Regista os dados de uma venda na filial onde a venda foi feita. */
     public void registaVenda(Venda v){
         int f = v.getFilial();
         filiais[f-1].registaVenda(v);
     }
 
-    /* Dado um mês válido, determinar o número total de clientes distintos que as fizeram */
+    /** Determina o número total de clientes distintos que fizeram compras num determinado mês, em todas as filiais.
+    @param mes Mês para o qual se pretende obter informação.
+    @return Número total de clientes distintos que fizeram compras num determinado mês, em todas as filiais.
+     */
     public int quantosClientesCompraramMes(int mes){
         Set<String> clientes = new TreeSet<>();
         for(int i = 0; i < filiais.length; i++){
@@ -41,63 +67,80 @@ public class Filiais implements java.io.Serializable{
         return clientes.size();       
     }
 
+    /** Determina, para cada mês, o número total de clientes distintos que fizeram compras nesse mês, em todas as filiais.
+    @return Array de inteiros cujo valor no indice i corresponde ao número de clientes distintos que compraram no mês i.
+     */
     public int[] quantosClientesPorMes(){
         int[] resultados = new int[Constantes.N_MESES+1];
-        for(int i = 1; i < Constantes.N_MESES; i++)
+        for(int i = 1; i <= Constantes.N_MESES; i++)
             resultados[i] = quantosClientesCompraramMes(i);
         return resultados;
     }
 
-    /* Dado um cliente e um mes, devolve as compras feitas nesse mes pelo Cliente */
-    /*public Set<ComprasDoProduto> XcomprasFeitasMes(String idCliente, int mes){
-        Set<ComprasDoProduto> compras = new TreeSet<>();
-        for(int i = 0; i < filiais.length; i++){
-            compras.addAll(filiais[i].comprasFeitasMes(idCliente,mes));
-        }
-        return compras;
-    }*/
-    
-    public List<ComprasDoProduto> comprasFeitasMes(String idCliente, int mes){
+    /** Devolve uma lista de ComprasDoProduto que contem informação das compras que um determinado cliente fez num determinado mês em todas as filiais.
+     * @param codigoCliente Código do cliente cuja informação se pretende consultar. 
+     * @param mes Mês em que se pretende consultar a informação.
+     * @return Lista de ComprasDoProduto com informação das compras do cliente no mês pretendido. */
+    public List<ComprasDoProduto> comprasFeitasMes(String codigoCliente, int mes){
         List<ComprasDoProduto> compras = new ArrayList<>();
         for(int i = 0; i < filiais.length; i++){
-            compras.addAll(filiais[i].comprasFeitasMes(idCliente,mes));
+            compras.addAll(filiais[i].comprasFeitasMes(codigoCliente,mes));
         }
         return compras;
     }
 
-    /* query 5 - apagar este comentario */
-
-    public List<ComprasDoProduto> comprasFeitasTotal(String idCliente){
+    /* query 5 */
+    /** Devolve uma lista de ComprasDoProduto que contem informação das compras que um determinado cliente fez em todas as filiais.
+     * @param codigoCliente Código do cliente cuja informação se pretende consultar. 
+     * @return Lista de ComprasDoProduto com informação das compras do cliente.*/
+    public List<ComprasDoProduto> comprasFeitasTotal(String codigoCliente){
         List<ComprasDoProduto> compras = new ArrayList<>();
         for(int i = 1; i < 13; i++){
-            compras.addAll(comprasFeitasMes(idCliente, i));
+            compras.addAll(comprasFeitasMes(codigoCliente, i));
         }
         return compras;        
     }
 
-    public List<ParProdQtd> produtosMaisComprados(List<ComprasDoProduto> compras){
+    /** Devolve uma lista de ParProdQtd, ordenada decrescentemente pela quantidade vendida e, no caso de serem iguais, ordenada pelo código de produto correspondente.
+     * @param compras Lista de ComprasDoProduto. Estes dados servem de base para calcular a quantidade vendida.
+     * @return Lista de ParProdQtd, ordenada decrescentemente pela quantidade vendida e, no caso de serem iguais, ordenada pelo código de produto correspondente.
+     */
+    public static List<ParProdQtd> produtosMaisComprados(List<ComprasDoProduto> compras){
         Comparator<ParProdQtd> compCompras =
             (p1, p2) -> {
-                if(p1.getQtd() > p2.getQtd()) return -1;
-                if(p1.getQtd() < p2.getQtd()) return 1;
-                else return p1.getProd().compareTo(p2.getProd()); /* verificar para string a null */
+                if(p1.getQtd() > p2.getQtd()){
+                    return -1;
+                }if(p1.getQtd() < p2.getQtd()){
+                    return 1;
+                }else {
+                    String prod1 = p1.getProd();
+                    String prod2 = p2.getProd();
+                    return prod1 != null? prod1.compareTo(prod2) : (prod2 == null? 0 : -1);
+                }
             }; 
 
         Map<String, List<ComprasDoProduto>> comprasPorProduto = compras.stream().collect(Collectors.groupingBy(ComprasDoProduto::getCodigoProduto));
         List<ParProdQtd> resultado = new ArrayList<>();
-        for(Map.Entry<String, List<ComprasDoProduto>> e : comprasPorProduto.entrySet()){
-            int quantidadeVendida = e.getValue().stream().mapToInt(ComprasDoProduto::getUnidadesCompradas).sum();
-            resultado.add(new ParProdQtd(e.getKey(),quantidadeVendida));
-        }
+
+        comprasPorProduto.forEach( 
+            (key, value) -> {             
+                int quantidadeVendida = value.stream().mapToInt(ComprasDoProduto::getUnidadesCompradas).sum();
+                resultado.add(new ParProdQtd(key,quantidadeVendida));
+            }
+        );
+
         Collections.sort(resultado, compCompras);
         return resultado;
     }
 
-    /* */
-    public int[] quantasComprasPorMes(String idCliente){
+    /** Determina, para cada mês, o número total de compras que um determinado cliente fez em todas as filiais.
+     * @param codigoCliente Código do cliente sobre o qual se pretende consultar informação.
+     * @return Array de inteiros cujo valor no indice i corresponde ao número total de compras que um determinado cliente fez em todas as filiais no mês i.
+     */
+    public int[] quantasComprasPorMes(String codigoCliente){
         int[] quantasComprasPorMes = new int[13];
         for(int i = 0; i < filiais.length; i++){
-            int[] quantasComprasPorMesPorFilial = filiais[i].quantasComprasPorMes(idCliente);
+            int[] quantasComprasPorMesPorFilial = filiais[i].quantasComprasPorMes(codigoCliente);
             for(int j = 1; j < 13; j++){
                 quantasComprasPorMes[j] += quantasComprasPorMesPorFilial[j];
             }
@@ -105,18 +148,28 @@ public class Filiais implements java.io.Serializable{
         return quantasComprasPorMes;
     }
 
-    /* Dado um código de cliente, determinar, para cada mês, quantas compras fez, quantos produtos distintos comprou e quanto gastou no total.*/
-
+    /** Dada uma lista de ComprasDoProduto, calcula quantos produtos distintos foram comprados.
+     * @param compras Lista de ComprasDoProduto.
+     * @return Número de produtos distintos que foram comprados, calculada com base na lista de ComprasDoProduto passada como argumento.
+     */
     public static int quantosProdutosDistintosComprou(List<ComprasDoProduto> compras){
         Set<String> produtosComprados = compras.stream().map(ComprasDoProduto::getCodigoProduto).collect(Collectors.toSet());
         return produtosComprados.size();
     }
 
+    /** Dada uma lista de ComprasDoProduto, calcula o total gasto(i.e. total faturado do ponto de vista do Hipermercado) nas compras.
+     * @param compras Lista de ComprasDoProduto para a qual se pretende calcular o total gasto.
+     * @return Total gasto, calculado com base na lista de ComprasDoProduto.
+     */
     public static double quantoGastou(List<ComprasDoProduto> compras){
         return compras.stream().mapToDouble(ComprasDoProduto::getFaturacao).sum();
     }
 
-    // Query4
+    /** Dado um código de produto e um mês, calcula quantos clientes compraram esse produto num determinado mês, em todas as filiais.
+     * @param codigoProduto Código do produto para o qual se pretende calcular quantos clientes o compraram num mês.
+     * @param mes Mês para o qual se pretende calcular o número de clientes que compraram o produto.
+     * @return Quantos clientes compraram o produto no mês pretendido.
+     */
     public int quantosCompraramProdutoMes(String codigoProduto, int mes){
         Set<String> clientesCompraram = new TreeSet<>();
 
@@ -126,7 +179,10 @@ public class Filiais implements java.io.Serializable{
         return clientesCompraram.size();
     }
 
-    // Query6
+    /** Dado um código de produto, calcula quantos clientes compraram ese produto em todas as filiais e todos os meses.
+     * @param codigoProduto Código do produto para o qual se pretende calcular quantos clientes o compraram.
+     * @return Quantos clientes compraram o produto.
+     */
     public int quantosCompraramProduto(String codigoProduto){
         Set<String> clientesCompraram = new TreeSet<>();
 
@@ -136,12 +192,18 @@ public class Filiais implements java.io.Serializable{
         return clientesCompraram.size();
     }
 
-    // Query7
+    /** Calcula os três maiores compradores de uma dada filial
+     * @param f Filial para a qual se pretende calcular o resultado.
+     * @result Array de 3 ParCliFat ordenados decrescentemente pela total gasto pelo cliente.
+     */
     public ParCliFat[] tresMaioresCompradores(int f){ // VER SE VALE A PENA ATIRAR FilialInvalidaException
         return filiais[f-1].tresMaioresCompradores();
     }
-    
+
     // Query8
+    /**
+     * 
+     */
     public List<ParCliProdsDif> clisCompraramMaisProdsDif(int X){
         List<Map<String, Set<String>>> mapsParciais = new ArrayList<>(filiais.length);
         Map<String, Set<String>> mapGeral = new HashMap<>(); // map de codigo de cliente para conjunto de produtos comprados pelo cliente
@@ -152,26 +214,26 @@ public class Filiais implements java.io.Serializable{
                 int n2 = e2.getValue().size();
                 return n1 < n2 ? 1 : n1 > n2 ? -1 : e1.getKey().compareTo(e2.getKey());
             };
-        
+
         for(int i = 0; i < filiais.length; ++i)
             mapsParciais.add(filiais[i].mapClienteProdsComp());
         // Cria um mapeamento geral a partir dos mapeamentos parciais
         for(Map<String, Set<String>> map : mapsParciais){
             map.forEach( (cli, prodsDifParc) -> {
-                Set<String> prodsDifGeral = mapGeral.get(cli);
-    
-                if(prodsDifGeral == null) // o cliente ainda nao esta no mapGeral
-                    mapGeral.put(cli, prodsDifParc);
-                else
-                    prodsDifGeral.addAll(prodsDifParc);
-            });
+                    Set<String> prodsDifGeral = mapGeral.get(cli);
+
+                    if(prodsDifGeral == null) // o cliente ainda nao esta no mapGeral
+                        mapGeral.put(cli, prodsDifParc);
+                    else
+                        prodsDifGeral.addAll(prodsDifParc);
+                });
         }
         return mapGeral.entrySet()
-                       .stream()
-                       .sorted(ordemDecNumProdsDif)
-                       .limit(X)
-                       .map(e -> new ParCliProdsDif(e.getKey(), e.getValue().size()))
-                       .collect(Collectors.toCollection(ArrayList :: new));
+        .stream()
+        .sorted(ordemDecNumProdsDif)
+        .limit(X)
+        .map(e -> new ParCliProdsDif(e.getKey(), e.getValue().size()))
+        .collect(Collectors.toCollection(ArrayList :: new));
     }
 
     // Query9
@@ -179,32 +241,75 @@ public class Filiais implements java.io.Serializable{
         List<Map<String, ParQtdValor>> mapsParciais = new ArrayList<>(filiais.length);
         Map<String, ParQtdValor> mapGeral;
         Comparator<Map.Entry<String, ParQtdValor>> ordemDecQtd =
-           (e1,e2) -> {
-               int qtd1 = e1.getValue().getQtd();
-               int qtd2 = e2.getValue().getQtd();
-               return qtd1 < qtd2 ? 1 : qtd1 > qtd2 ? -1 : e1.getKey().compareTo(e2.getKey());
-           };
-           
+            (e1,e2) -> {
+                int qtd1 = e1.getValue().getQtd();
+                int qtd2 = e2.getValue().getQtd();
+                return qtd1 < qtd2 ? 1 : qtd1 > qtd2 ? -1 : e1.getKey().compareTo(e2.getKey());
+            };
+
         int i;
         for(i = 0; i < filiais.length; ++i)
             mapsParciais.add(filiais[i].mapClienteParQtdValor(codigoProduto));
-    
+
         mapGeral = mapsParciais.get(0); // comeca a construir o mapGeral a partir do primeiro map parcial
         for(i = 1; i < filiais.length; ++i){
             mapsParciais.get(i).forEach( (cli, parParcial) -> {
-                ParQtdValor parGeral = mapGeral.get(cli);
-    
-                if(parGeral == null)
-                    mapGeral.put(cli, parParcial);
-                else
-                    parGeral.adiciona(parParcial); // incrementa os campos do parQtdValor que já estava no mapGeral
-            });
+                    ParQtdValor parGeral = mapGeral.get(cli);
+
+                    if(parGeral == null)
+                        mapGeral.put(cli, parParcial);
+                    else
+                        parGeral.adiciona(parParcial); // incrementa os campos do parQtdValor que já estava no mapGeral
+                });
         }
         return mapGeral.entrySet()
-                       .stream()
-                       .sorted(ordemDecQtd)
-                       .limit(X)
-                       .map(e -> new TriploCliQtdGasto(e.getKey(), e.getValue().getQtd(), e.getValue().getValor()))
-                       .collect(Collectors.toCollection(ArrayList :: new));
+        .stream()
+        .sorted(ordemDecQtd)
+        .limit(X)
+        .map(e -> new TriploCliQtdGasto(e.getKey(), e.getValue().getQtd(), e.getValue().getValor()))
+        .collect(Collectors.toCollection(ArrayList :: new));
+    }
+
+    /**
+     * Calcula e devolve o valor do hash code deste Filiais.
+     * @return Valor do hash code deste Filiais.
+     */
+    public int hashCode(){
+        return Arrays.hashCode(filiais);
+    }
+
+    /**
+     * Gera e devolve uma representação textual deste Filiais.
+     * @return Representação textual da instância que invocou o método.
+     */
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < filiais.length; i++){
+            sb.append("Filial " + (i+1) + ":\n");
+            sb.append(filiais[i].toString());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Testa se este Filiais é igual ao objeto passado como parâmetro.
+     * @return <code>true</code> se os objetos comparados forem iguais.
+     */
+    public boolean equals(Object o){
+        if(this == o)
+            return true;
+        if(o == null || this.getClass() != o.getClass())
+            return false;
+        Filiais f = (Filiais) o;
+        return Arrays.deepEquals(this.filiais, f.filiais);
+    }
+
+    /**
+     * Cria e devolve uma cópia deste Filiais.
+     * @return Cópia deste Filiais.
+     */
+    public Filiais clone(){
+        return new Filiais(this);
     }
 }
