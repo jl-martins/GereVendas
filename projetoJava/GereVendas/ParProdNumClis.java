@@ -111,7 +111,7 @@ public class ParProdNumClis {
         StringBuilder sb = new StringBuilder();
         String separador = System.getProperty("line.separator");
 
-        sb.append("Produto: " + (prod == null ? "n/a" : prod)).append(separador);
+        sb.append("Produto: " + (prod == null ? "n/a" : prod) + separador);
         sb.append("Nº de clientes: " + numClis + separador);
         return sb.toString();
     }

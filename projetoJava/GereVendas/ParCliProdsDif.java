@@ -103,7 +103,10 @@ public class ParCliProdsDif{
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
+        String separador = System.getProperty("line.separator");
         
+        sb.append("Código de cliente: " + (cli != null ? cli : "n/a") + separador);
+        sb.append("Nº de produtos diferentes comprados: " + prodsDif + separador);
         return sb.toString();
     }
     
