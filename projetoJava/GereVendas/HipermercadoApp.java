@@ -459,22 +459,19 @@ public class HipermercadoApp {
 
         out.print("Que cliente pretende consultar? ");
         codigoCliente = Input.lerString();
-
-        if(!hipermercado.existeCliente(codigoCliente)){
-            out.println("O cliente que pretende consultar não foi registado");
-            return;
-        }
-
-        Crono.start();
-        dadosCliente = hipermercado.infoPorMes(codigoCliente);
-
-        for(int mes = 1; mes <= Constantes.N_MESES; mes++){
-            TriploComprasProdutosGasto dadosDoMes = dadosCliente.get(mes);
-            out.printf("Mes: %2d, Total de compras: %3d, Nº de produtos distintos comprados: %3d, Total Gasto: %.2f%n",
-                        mes, dadosDoMes.getTotalCompras(), dadosDoMes.getProdutosDistintos(), dadosDoMes.getTotalGasto());
-        }
-        Crono.stop();
-        imprimeTempoQuery();
+        
+        try{
+            Crono.start();
+            dadosCliente = hipermercado.infoPorMes(codigoCliente);
+    
+            for(int mes = 1; mes <= Constantes.N_MESES; mes++){
+                TriploComprasProdutosGasto dadosDoMes = dadosCliente.get(mes);
+                out.printf("Mes: %2d, Total de compras: %3d, Nº de produtos distintos comprados: %3d, Total Gasto: %.2f%n",
+                            mes, dadosDoMes.getTotalCompras(), dadosDoMes.getProdutosDistintos(), dadosDoMes.getTotalGasto());
+            }
+            Crono.stop();
+            imprimeTempoQuery();
+        }catch(ClienteInexistenteException e){ err.println(e.getMessage()); }
     }
 
     private void query4() {
@@ -507,24 +504,21 @@ public class HipermercadoApp {
     private void query5() {
         out.print("Que cliente pretende consultar? ");
         String codigoCliente = Input.lerString();
-
-        if(!hipermercado.existeCliente(codigoCliente)){
-            out.println("O cliente que pretende consultar não foi registado");
-            return;
-        }
-
-        Crono.start();
-        List<ParProdQtd> prodsMaisComprados = hipermercado.produtosMaisComprados(codigoCliente);
-        List<String> resultados = new ArrayList<>(prodsMaisComprados.size());
-        String header = "Produto | Quantidade Comprada";
-
-        for(ParProdQtd par : prodsMaisComprados){
-            resultados.add(String.format("%7s | %19d", par.getProd(), par.getQtd()));
-        }
-        LStrings l = new LStrings(resultados);
-        Crono.stop();
-        imprimeTempoQuery();
-        navega(l, header);        
+        
+        try{
+            Crono.start();
+            List<ParProdQtd> prodsMaisComprados = hipermercado.produtosMaisComprados(codigoCliente);
+            List<String> resultados = new ArrayList<>(prodsMaisComprados.size());
+            String header = "Produto | Quantidade Comprada";
+    
+            for(ParProdQtd par : prodsMaisComprados){
+                resultados.add(String.format("%7s | %19d", par.getProd(), par.getQtd()));
+            }
+            LStrings l = new LStrings(resultados);
+            Crono.stop();
+            imprimeTempoQuery();
+            navega(l, header);
+        }catch(ClienteInexistenteException e){ err.println(e.getMessage()); }
     }
 
     private void query6() {
@@ -557,8 +551,14 @@ public class HipermercadoApp {
         ParCliFat[][] res = new ParCliFat[Constantes.N_FILIAIS][];
 
         Crono.start();
-        for(filial = 1; filial <= Constantes.N_FILIAIS; ++filial)
-            res[filial-1] = hipermercado.tresMaioresCompradores(filial);
+        try{
+            for(filial = 1; filial <= Constantes.N_FILIAIS; ++filial)
+                res[filial-1] = hipermercado.tresMaioresCompradores(filial);
+        }
+        catch(FilialInvalidaException e){
+            err.println(e.getMessage());
+            return;
+        }
 
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         Formatter formatador = new Formatter(bw);
@@ -607,26 +607,23 @@ public class HipermercadoApp {
 
         out.print("Código de produto a considerar: ");
         codigoProduto = Input.lerString();
-        if(!hipermercado.existeProduto(codigoProduto)){
-            out.println("O produto '" + codigoProduto + "' não consta no hipermercado.");
-            return;
-        }
-
+        
         out.print("Número de clientes: ");
         X = Input.lerInt();
-
-        Crono.start();
-        List<TriploCliQtdGasto> topX = hipermercado.clientesMaisCompraram(codigoProduto, X);
-        List<String> resultados = new ArrayList<>(topX.size());
-        final String header = "Cliente | Quantidade comprada | Valor total gasto ";
-
-        for(TriploCliQtdGasto triplo : topX)
-            resultados.add(String.format("%7s | %19d | %17.2f", triplo.getCli(), triplo.getQtd(), triplo.getGasto()));
-
-        LStrings l = new LStrings(resultados);
-        Crono.stop();
-        imprimeTempoQuery();
-        navega(l, header);
+        try{
+            Crono.start();
+            List<TriploCliQtdGasto> topX = hipermercado.clientesMaisCompraram(codigoProduto, X);
+            List<String> resultados = new ArrayList<>(topX.size());
+            final String header = "Cliente | Quantidade comprada | Valor total gasto ";
+    
+            for(TriploCliQtdGasto triplo : topX)
+                resultados.add(String.format("%7s | %19d | %17.2f", triplo.getCli(), triplo.getQtd(), triplo.getGasto()));
+    
+            LStrings l = new LStrings(resultados);
+            Crono.stop();
+            imprimeTempoQuery();
+            navega(l, header);
+        }catch(ProdutoInexistenteException e){ err.println(e.getMessage()); }
     }
 
     private void gravarEstado(){
