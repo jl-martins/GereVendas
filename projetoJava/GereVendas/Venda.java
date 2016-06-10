@@ -69,14 +69,16 @@ public class Venda implements Serializable {
     /**
      * Faz o <i>parsing</i> de uma linha com os dados de uma venda.
      * Cada linha deverá ser formada por:
-     * <ol>Código de produto</ol>
-     * <ol>Preço unitário decimal</ol>
-     * <ol>Número inteiro de unidades compradas</ol>
-     * <ol>Tipo de compra (letra N ou P, conforme a compra tenha sido normal ou em promoção)</ol>
-     * <ol>Código de cliente</ol>
-     * <ol>Mês da compra</ol>
-     * <ol>Filial</ol>
-     * 
+     * <ol>
+     *      <li>Código de produto;</li>
+     *      <li>Preço unitário decimal;</li>
+     *      <li>Número inteiro de unidades compradas;</li>
+     *      <li>Tipo de compra (letra N ou P, conforme a compra tenha sido normal ou em promoção);</li>
+     *      <li>Código de cliente;</li>
+     *      <li>Mês da compra;</li>
+     *      <li>Filial</li>
+     * </ol>
+     * Os elementos enumerados deverão surgir na linha pela ordem apresentada e com um espaço entre elementos consecutivos.
      * @param linha Linha com os dados de uma venda.
      * @return Se a linha passada como parâmetro for válida, é devolvida uma instância de 
      *         Venda criada a partir da linha, se não é devolvido <code>null</code>.
@@ -105,7 +107,7 @@ public class Venda implements Serializable {
     }
     
     /**
-     * Faz o <i>parsing</i> de um <pre>{@code ArrayList<String>}</pre> para um <pre>{@code ArrayList<Venda>}</pre>.
+     * Faz o <i>parsing</i> de um {@code ArrayList<String>} para um {@code ArrayList<Venda>}.
      * @param linhas Lista de Strings, em cada String tem os dados de uma venda.
      * 
      * @return <code>ArrayList</code> de objetos do tipo Venda, resultante do <i>parsing</i> de <code>linhas</code> 
@@ -122,7 +124,7 @@ public class Venda implements Serializable {
     }
     
     /**
-     * Faz o <i>parsing</i> de um <pre>{@code ArrayList<String>}</pre> para um <pre>{@code HashSet<Venda>}</pre>.
+     * Faz o <i>parsing</i> de um {@code ArrayList<String>} para um {@code HashSet<Venda>}.
      * @param linhas Lista de Strings, em cada String tem os dados de uma venda.
      * 
      * @return <code>ArrayList</code> de objetos do tipo Venda, resultante do <i>parsing</i> de <code>linhas</code> 
@@ -165,7 +167,8 @@ public class Venda implements Serializable {
     }
     
     /**
-     * Devolve o código do cliente que e
+     * Devolve o código do cliente que efetuou a compra.
+     * @return Código de cliente.
      */
     public String getCodigoCliente(){
         return codigoCliente;
@@ -181,29 +184,34 @@ public class Venda implements Serializable {
     
     /**
      * Devolve a filial em que se realizou esta venda.
-     * @return Filial onde decorreu esta venda.
+     * @return Filial onde foi registada esta venda.
      */
     public int getFilial(){
         return filial;
     }
-
     
-
-   
-
-    
-
     /*public TipoVenda getTipoVenda(){
     return tipoVenda;
     }*/
 
     /* nao definimos setters porque queremos que as instancias desta class sejam imutaveis */
 
-    /* Metodos standard */
+    /** Restantes métodos */
+    
+    /**
+     * Cria e devolve uma cópia desta venda.
+     * @return Cópia desta venda.
+     */
+    @Override
     public Venda clone(){
         return new Venda(this);
     }
     
+    /**
+     * Testa se esta venda é igual ao objeto passado como parâmetro.
+     * @return <code>true</code> se os objetos comparados forem iguais.
+     */
+    @Override
     public boolean equals(Object o){
         if(this == o)
             return true;
@@ -211,34 +219,39 @@ public class Venda implements Serializable {
             return false;
         
         Venda v = (Venda) o;
-        return this.unidadesVendidas == v.unidadesVendidas && this.mes == v.mes && this.filial == v.filial &&
+        return  this.unidadesVendidas == v.unidadesVendidas && this.mes == v.mes && this.filial == v.filial &&
                (this.codigoProduto == null ? v.codigoProduto == null : this.codigoProduto.equals(v.codigoProduto)) &&
                (this.codigoCliente == null ? v.codigoCliente == null : this.codigoCliente.equals(v.codigoCliente)) &&
-               this.precoUnitario == v.precoUnitario;
-        /* && this.tipoVenda == v.tipoVenda;*/
+                this.precoUnitario == v.precoUnitario; /* && this.tipoVenda == v.tipoVenda;*/
     }
-    public int hashCode(){
-        return Arrays.hashCode(new Object[]{unidadesVendidas, mes, filial, codigoProduto, codigoCliente, precoUnitario/*, tipoVenda*/});
-    }
-
+    
+    /**
+     * Gera e devolve uma representação textual dos campos desta venda.
+     * @return Representação textual desta venda.
+     */
+    @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
         String separador = System.getProperty("line.separator");
         
         sb.append("-> Venda" + separador);
         sb.append("Unidades vendidas: " + unidadesVendidas + separador);
-        sb.append("Mes: " + mes + separador);
+        sb.append("Mês: " + mes + separador);
         sb.append("Filial: " + filial + separador);
         sb.append("Código de produto: " + codigoProduto + separador);
         sb.append("Código de cliente: " + codigoCliente + separador);
         sb.append("Preço unitário" + precoUnitario + separador);
-        /*sb.append("\ntipoVenda: ");
-        sb.append(tipoVenda + "\n");*/
+        // sb.append("Tipo de venda: " + separador);
         return sb.toString();
     }
-
-
-
-
+    
+    /**
+     * Calcula e devolve o <i>hash code</i> desta venda.
+     * @return Valor do <i>hash code</i> desta venda.
+     */
+    @Override
+    public int hashCode(){
+        return Arrays.hashCode(new Object[]{unidadesVendidas, mes, filial, codigoProduto, codigoCliente, precoUnitario/*, tipoVenda*/});
+    }
 }
 
