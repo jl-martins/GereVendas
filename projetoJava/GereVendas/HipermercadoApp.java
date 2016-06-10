@@ -453,7 +453,7 @@ public class HipermercadoApp {
 
     private void query3() {
         String codigoCliente;
-        List<TriploIntIntDouble> dadosCliente;
+        List<TriploComprasProdutosGasto> dadosCliente;
 
         out.print("Que cliente pretende consultar? ");
         codigoCliente = Input.lerString();
@@ -467,8 +467,8 @@ public class HipermercadoApp {
         dadosCliente = hipermercado.infoPorMes(codigoCliente);
 
         for(int i = 1; i < 13; i++){
-            TriploIntIntDouble dadosDoMes = dadosCliente.get(i);
-            out.println("Mes: " + i + ", Total de compras: " + dadosDoMes.getInt1() + ", Produtos Distintos comprados: " + dadosDoMes.getInt2() + ", Total Gasto: " + dadosDoMes.getDouble());
+            TriploComprasProdutosGasto dadosDoMes = dadosCliente.get(i);
+            out.println("Mes: " + i + ", Total de compras: " + dadosDoMes.getTotalCompras() + ", Produtos Distintos comprados: " + dadosDoMes.getProdutosDistintos() + ", Total Gasto: " + dadosDoMes.getTotalGasto());
         }
         Crono.stop();
         imprimeTempoQuery();

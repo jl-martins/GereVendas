@@ -170,9 +170,9 @@ public class Hipermercado implements Serializable{
      * O triplo contém o total de compras do mes(para obter, invoca-se o método getInt1), o numero de produtos comprados e o total gasto.
      * @param codigoCliente Código do cliente a quem a consulta diz respeito.
      */
-    public List<TriploIntIntDouble> infoPorMes(String codigoCliente){
+    public List<TriploComprasProdutosGasto> infoPorMes(String codigoCliente){
         int[] quantasComprasPorMes = filiais.quantasComprasPorMes(codigoCliente);
-        List<TriploIntIntDouble> dadosPorMes = new ArrayList<>(13);
+        List<TriploComprasProdutosGasto> dadosPorMes = new ArrayList<>(13);
         dadosPorMes.add(null); /* adiciona padding para podermos aceder ao mes pelo seu indice sem fazer -1 */
         for(int i = 1; i < 13; i++){
             List<ComprasDoProduto> comprasDoMes = filiais.comprasFeitasMes(codigoCliente, i);
@@ -180,7 +180,7 @@ public class Hipermercado implements Serializable{
             int produtosDistintosComprados = Filiais.quantosProdutosDistintosComprou(comprasDoMes);
             double totalGasto = Filiais.quantoGastou(comprasDoMes); 
             
-            dadosPorMes.add(new TriploIntIntDouble(totalCompras, produtosDistintosComprados, totalGasto));
+            dadosPorMes.add(new TriploComprasProdutosGasto(totalCompras, produtosDistintosComprados, totalGasto));
         }
         return dadosPorMes;
     }
