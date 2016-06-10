@@ -1,6 +1,14 @@
+/**
+ * Classe de constantes da aplicação <code>GereVendas</code>, onde
+ * se encontra definido o número de filiais e o número de meses a
+ * considerar.
+ * 
+ * @author LI3_Grupo1
+ * @version 1.0 (6/2016)
+ */
 public final class Constantes {
-	/** Constantes da aplicacao GereVendas */
-	
-	public static final int N_FILIAIS = 3; // Numero de filiais do hipermercado
-	public static final int N_MESES = 12; // Numero de meses a considerar
+    /** Número de filiais do hipermercado */
+	public static final int N_FILIAIS = 3;
+	/** Número de meses a considerar */
+	public static final int N_MESES = 12;
 }
