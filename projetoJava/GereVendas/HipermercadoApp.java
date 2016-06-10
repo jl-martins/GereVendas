@@ -435,6 +435,7 @@ public class HipermercadoApp {
     private void query2() {
         int mes;
         int totalVendas, totalClientes;
+        String separador = "-------------------------------------------------------";
 
         out.print("Para que mês pretende obter os resultados? ");
         mes = Input.lerInt();
@@ -442,10 +443,11 @@ public class HipermercadoApp {
             Crono.start();
             totalVendas = hipermercado.totalGlobalVendas(mes);
             totalClientes = hipermercado.totalClientesCompraram(mes);
-            out.println("-> Mês: " + mes + 
-                "; Total global de vendas: " + totalVendas +
-                "; Número de clientes distintos que compraram: " + totalClientes
-            );
+            out.println(separador);
+            out.println("-> Mês: " + mes);
+            out.println("-> Total global de vendas: " + totalVendas);
+            out.println("-> Número de clientes distintos que compraram: " + totalClientes);
+            out.println(separador);
             Crono.stop();
             imprimeTempoQuery();
         }catch(MesInvalidoException e){ err.println(e.getMessage()); }
@@ -466,9 +468,10 @@ public class HipermercadoApp {
         Crono.start();
         dadosCliente = hipermercado.infoPorMes(codigoCliente);
 
-        for(int i = 1; i < 13; i++){
-            TriploComprasProdutosGasto dadosDoMes = dadosCliente.get(i);
-            out.println("Mes: " + i + ", Total de compras: " + dadosDoMes.getTotalCompras() + ", Produtos Distintos comprados: " + dadosDoMes.getProdutosDistintos() + ", Total Gasto: " + dadosDoMes.getTotalGasto());
+        for(int mes = 1; mes <= Constantes.N_MESES; mes++){
+            TriploComprasProdutosGasto dadosDoMes = dadosCliente.get(mes);
+            out.printf("Mes: %2d, Total de compras: %3d, Nº de produtos distintos comprados: %3d, Total Gasto: %.2f%n",
+                        mes, dadosDoMes.getTotalCompras(), dadosDoMes.getProdutosDistintos(), dadosDoMes.getTotalGasto());
         }
         Crono.stop();
         imprimeTempoQuery();
@@ -526,7 +529,7 @@ public class HipermercadoApp {
 
     private void query6() {
         int X;
-        List<ParProdNumClis> topX;
+        List<TriploProdQtdClis> topX;
 
         out.print("Quantos elementos quer no top de produtos mais vendidos? ");
         X = Input.lerInt();
@@ -537,10 +540,10 @@ public class HipermercadoApp {
             out.println("Lista vazia");
         else{
             List<String> resultados = new ArrayList<>(topX.size());
-            final String header = "Produto | Nº de clientes que compraram";
+            final String header = "Produto | Quantidade comprada | Nº de clientes que compraram";
 
-            for(ParProdNumClis par : topX)
-                resultados.add(String.format("%7s | %28d", par.getProd(), par.getNumClis()));
+            for(TriploProdQtdClis triplo : topX)
+                resultados.add(String.format("%7s | %19d | %28d", triplo.getProd(), triplo.getQtd(), triplo.getClis()));
 
             LStrings l = new LStrings(resultados);
             Crono.stop();

@@ -29,8 +29,8 @@ import java.util.Arrays;
 
 public class Faturacao implements Serializable {
     /** 
-     * Faturação de cada mês (a posição de índice <code>i</code> armazena a faturação do mês <code>i</code>)
-     * Para cada mês, só é feita referência aos produtos vendidos nesse mês.
+     * Faturação de cada mês (a posição de índice i armazena a faturação do mês i)
+     * Em cada mês só é feita referência aos produtos vendidos nesse mês.
      */
     private FatMes[] fatMensal;
     
@@ -48,7 +48,10 @@ public class Faturacao implements Serializable {
         todosProdutos = new TreeMap<>();
     }
     
-    /** Cria uma cópia da faturação passada como parâmetro. */
+    /** 
+     * Cria uma cópia da faturação passada como parâmetro. 
+     * @param original Faturação a copiar.
+     */
     public Faturacao(Faturacao original){
         todosProdutos = original.getTodosProdutos();
         fatMensal = original.getFatMensal();
@@ -90,8 +93,8 @@ public class Faturacao implements Serializable {
     
     /**
      * Regista uma venda nesta faturação.
-     * @param venda Venda a registar.
-     * @return true se a venda foi registada com sucesso.
+     * @param v Venda a registar.
+     * @return <code>true</code> se a venda foi registada com sucesso.
      * @throws NullPointerException se a venda passada como parâmetro for <code>null</code>.
      */
     public void registaVenda(Venda v){
@@ -115,8 +118,8 @@ public class Faturacao implements Serializable {
     }
     
     /** 
-     * Devolve uma matriz de doubles que na posição <code>(i,j)</code> armazena a
-     * faturação total do mês <code>i</code>, na filial <code>j</code>.
+     * Devolve uma matriz de doubles que na posição <code>(i,j)</code> armazena o
+     * valor total faturado no mês <code>i</code>, na filial <code>j</code>.
      * @return Matriz com a faturação total por mês, para cada filial.
      */
     public double[][] faturacaoPorFilialPorMes(){
@@ -179,13 +182,15 @@ public class Faturacao implements Serializable {
     }
     
     /** 
-     * Produz a lista dos <code>X</code> produtos mais vendidos em todo o ano (em número de unidades vendidas).
+     * Produz uma lista de pares de (código, quantidade vendida) dos <code>X</code> produtos mais vendidos, 
+     * ordenada decrescentemente pelo número de unidades vendidas.
+     * Nota: Se <code>X</code> for menor ou igual a 0, é devolvida uma lista vazia.
+     *       Se <code>X</code> for superior ao número de produtos, é devolvida uma lista de tamanho igual ao número de produtos.
      * @param X tamanho do top de produtos mais vendidos do ano.
-     * @return Lista com os códigos dos <code>X</code> produtos mais vendidos em todo o ano.
-     *         Se <code>X</code> não for positivo, é devolvida uma lista vazia.
-     *         Se <code>X</code> for superior ao número de produtos, é devolvida uma lista de tamanho igual ao número de produtos.
+     * @return Lista de ParProdQtd com os códigos dos <code>X</code> produtos mais vendidos em todo o ano.
+
      */
-    public List<String> maisVendidos(int X){
+    public List<ParProdQtd> maisVendidos(int X){
         if(X <= 0)
             return Collections.emptyList();
 
@@ -193,7 +198,7 @@ public class Faturacao implements Serializable {
                             .stream()
                             .sorted(Collections.reverseOrder(new ComparadorMaisVendidos()))
                             .limit(X)
-                            .map(FatAnualProd :: getCodigoProduto)
+                            .map(fatAnualProd -> new ParProdQtd(fatAnualProd.getCodigoProduto(), fatAnualProd.totalUnidsGlobal()))
                             .collect(Collectors.toCollection(ArrayList :: new));
     }
     
@@ -217,8 +222,8 @@ public class Faturacao implements Serializable {
         else if(o == null || this.getClass() != o.getClass())
             return false;
 
-        Faturacao f = (Faturacao) o;
-        return Arrays.equals(fatMensal, f.fatMensal) && todosProdutos.equals(f.todosProdutos);
+        Faturacao faturacao = (Faturacao) o;
+        return Arrays.equals(fatMensal, faturacao.fatMensal) && todosProdutos.equals(faturacao.todosProdutos);
     }
     
     /** 

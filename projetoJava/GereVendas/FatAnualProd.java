@@ -15,13 +15,19 @@ public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
     /** Array cuja posição de índice i guarda o total de unidades vendidas na filial i. */
     private int[] totalUnids;
 
-    /** Constrói a faturação anual do produto com o código passado como parâmetro. */
+    /** 
+     * Constrói a faturação anual do produto com o código passado como parâmetro.
+     * @param codigoProduto Código do produto cuja faturação anual se pretende criar.
+     */
     public FatAnualProd(String codigoProduto){
         this.codigoProduto = codigoProduto;
         totalUnids = new int[Constantes.N_FILIAIS+1];
     }
 
-    /** Constrói uma cópia da faturação anual do produto passado como parâmetro. */
+    /** 
+     * Constrói uma cópia da faturação anual do produto passado como parâmetro. 
+     * @param fAnualProd FatAnualProd a copiar.
+     */
     public FatAnualProd(FatAnualProd fAnualProd){
         codigoProduto = fAnualProd.getCodigoProduto();
         totalUnids = fAnualProd.getTotalUnids();
@@ -29,7 +35,8 @@ public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
 
     /**
      * Devolve o código do produto a que esta FatAnualProd diz respeito.
-     * @return Código do produto desta FatAnualProd. */
+     * @return Código do produto desta FatAnualProd.
+     */
     public String getCodigoProduto(){
         return codigoProduto;
     }
@@ -40,7 +47,7 @@ public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
      * @return Total de unidades vendidas em cada filial.
      */
     public int[] getTotalUnids(){
-        return totalUnids.clone(); // totalUnids e um array de ints, logo podemos fazer uma shallow copy
+        return totalUnids.clone(); // totalUnids é um array de ints, logo podemos fazer uma shallow copy
     }
 
     /**
@@ -72,9 +79,9 @@ public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
     }
     
     /**
-	 * Compara o código de produto desta FatAnualProd com o código de produto registado na FatAnualProd passada como parâmetro.
-	 * @return Valor de retorno conforme o método <code>compareTo</code> da classe String.
-	 */
+     * Compara o código de produto desta FatAnualProd com o código de produto registado na FatAnualProd passada como parâmetro.
+     * @return Valor de retorno conforme o método <code>compareTo</code> da classe String.
+     */
     @Override
     public int compareTo(FatAnualProd fAnualProd){
         return codigoProduto.compareTo(fAnualProd.getCodigoProduto());
@@ -112,11 +119,12 @@ public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
+        String separador = System.getProperty("line.separator");
 
-        sb.append("Faturação anual do produto '" + codigoProduto + "'\n");
-        sb.append("Vendas:\n");
+        sb.append("Faturação anual do produto '" + codigoProduto + separador);
+        sb.append("Vendas: " + separador);
         for(int i = 1; i <= Constantes.N_FILIAIS; ++i)
-            sb.append("Filial ").append(i + ": ").append(totalUnids[i] + "\n");
+            sb.append("Filial ").append(i + ": ").append(totalUnids[i] + separador);
 
         return sb.toString();
     }

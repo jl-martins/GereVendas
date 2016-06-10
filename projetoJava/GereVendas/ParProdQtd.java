@@ -28,7 +28,7 @@ public class ParProdQtd {
     /** 
      * Constrói um ParProdQtd com os dados passados como parâmetros.
      * @param prod Código de produto.
-     * @param qtd Quantidade comprada por <code>cli</code>
+     * @param qtd Quantidade comprada.
      */
     public ParProdQtd(String prod, int qtd){
         this.prod = prod;
@@ -92,7 +92,7 @@ public class ParProdQtd {
     
     /**
      * Testa se este ParProdQtd é igual ao objeto passado como parâmetro.
-     * @return <code>true</true> se os objetos comparados forem iguais.
+     * @return <code>true</code> se os objetos comparados forem iguais.
      */
     @Override
     public boolean equals(Object o){

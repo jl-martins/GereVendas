@@ -201,16 +201,17 @@ public class Hipermercado implements Serializable{
     }
     
     // Query6
-    public List<ParProdNumClis> maisVendidos(int X){
-        List<String> prodsMaisVendidos = faturacao.maisVendidos(X);
+    public List<TriploProdQtdClis> maisVendidos(int X){
+        List<ParProdQtd> prodsMaisVendidos = faturacao.maisVendidos(X);
         
         if(prodsMaisVendidos.isEmpty()) // X <= 0
             return Collections.emptyList();
         
-        List<ParProdNumClis> res = new ArrayList<>(X);
+        List<TriploProdQtdClis> res = new ArrayList<>(X);
         for(int i = 0; i < X; ++i){
-            String prod = prodsMaisVendidos.get(i);
-            res.add(new ParProdNumClis(prod, filiais.quantosCompraramProduto(prod)));
+            ParProdQtd par = prodsMaisVendidos.get(i);
+            String prod = par.getProd(); // evita invocar getProd() 2 vezes por iteração
+            res.add(new TriploProdQtdClis(prod, par.getQtd(), filiais.quantosCompraramProduto(prod)));
         }
         return res;
     }

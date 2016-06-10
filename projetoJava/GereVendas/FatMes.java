@@ -37,7 +37,10 @@ public class FatMes implements Serializable {
         fatProds = new HashMap<>();
     }
 
-    /** Constrói uma cópia da faturação do mês passada como parâmetro. */
+    /** 
+     * Constrói uma cópia da faturação do mês passada como parâmetro.
+     * @param fatMes Faturação do mês a copiar.
+     */
     public FatMes(FatMes fatMes) {
         mes = fatMes.getMes();
         totalVendas = fatMes.getTotalVendas();
@@ -73,13 +76,11 @@ public class FatMes implements Serializable {
     
     /** @return Cópia do mapeamento de código de produto para a sua faturação do mês. */
     private Map<String, FatProdMes> getFatProds(){
-        /* O fator de carga por omissao de um HashMap e 0.75, por isso se dividirmos o tamanho do map 
-         * original por 0.75 e arredondarmos o resultado por excesso, evitamos a realizacao de rehashing. */
+        /* O fator de carga por omissao de um HashMap é 0.75, logo se dividirmos o tamanho do map         *
+         * original por 0.75 e arredondarmos o resultado por excesso, evitamos a realização de rehashing. */
         Map<String, FatProdMes> copia = new HashMap<>((int) Math.ceil(fatProds.size() / 0.75));
 
-        for(Map.Entry<String, FatProdMes> fProd : fatProds.entrySet())
-            copia.put(fProd.getKey(), fProd.getValue().clone());
-            
+        fatProds.forEach( (k,v) -> copia.put(k, v.clone()) );
         return copia;
     }
 
@@ -103,15 +104,15 @@ public class FatMes implements Serializable {
         double faturado;
         int mes, unidadesVendidas, filial;
         String codigoProduto = v.getCodigoProduto();
-        // Obtem os campos de Venda necessarios
+        // Obtém os campos de Venda necessarios
         mes = v.getMes();
         filial = v.getFilial();
         unidadesVendidas = v.getUnidadesVendidas();
         faturado = unidadesVendidas * v.getPrecoUnitario();
-        // Atualiza os totais do mes
+        // Atualiza os totais do mês
         ++totalVendas;
         totalFaturado += faturado;
-        // Se a faturacao do produto vendido ja existir, atualiza-a, se nao, cria-a.
+        // Se a faturação do produto vendido já existir, atualiza-a, se não, cria-a.
         FatProdMes fProdMes = fatProds.get(codigoProduto);
         if(fProdMes != null)
             fProdMes.adiciona(unidadesVendidas, faturado, filial);
@@ -129,8 +130,8 @@ public class FatMes implements Serializable {
         
         for(FatProdMes fProdMes : fatProds.values()){
             double[] faturacaoProd = fProdMes.getFaturacao();
-            for(int i = 1; i <= Constantes.N_FILIAIS; ++i){
-                res[i] += faturacaoProd[i];
+            for(int filial = 1; filial <= Constantes.N_FILIAIS; ++filial){
+                res[filial] += faturacaoProd[filial];
             }
         }
         return res;
@@ -169,12 +170,12 @@ public class FatMes implements Serializable {
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        String separadorLinhas = System.getProperty("line.separator");
+        String separador = System.getProperty("line.separator");
 
-        sb.append("-> Faturação do mês " + mes + separadorLinhas);
-        sb.append("Total de vendas: " + totalVendas + separadorLinhas);
-        sb.append("Total faturado: " + totalFaturado + separadorLinhas);
-        sb.append("Faturação dos produtos: " + separadorLinhas);
+        sb.append("-> Faturação do mês " + mes + separador);
+        sb.append("Total de vendas: " + totalVendas + separador);
+        sb.append("Total faturado: " + totalFaturado + separador);
+        sb.append("Faturação dos produtos: " + separador);
         for(FatProdMes fProdMes : fatProds.values())
             sb.append(fProdMes.toString());
 
@@ -182,11 +183,11 @@ public class FatMes implements Serializable {
     }
 
     /**
-     * Calcula e devolve o valor do hash code desta faturação do mês.
-     * @return Valor do hash code desta faturação do mês.
+     * Calcula e devolve o valor do <i>hash code</i> desta faturação do mês.
+     * @return Valor do <i>hash code</i> desta faturação do mês.
      */
     @Override
     public int hashCode(){
-        return Arrays.hashCode(new Object[]{mes, totalVendas, totalFaturado, fatProds});
+        return Arrays.hashCode(new Object[]{mes, fatProds}); 
     }
 }

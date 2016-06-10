@@ -16,9 +16,9 @@ public class FatProdMes implements Serializable, Comparable<FatProdMes> {
     private final int mes;
     /** Código de produto da FatProdMes. */
     private String codigoProduto;
-    /** array que na posição i guarda o número de unidades vendidas na filial i, para o produto e mês considerados. */
+    /** Array que na posição i guarda o número de unidades vendidas na filial i, para o produto e mês considerados. */
     private int[] unidsVendFilial;
-    /** array que na posição i guarda a faturação total da filial i, para o produto e mês considerados. */
+    /** Array que na posição i guarda a faturação total da filial i, para o produto e mês considerados. */
     private double[] faturacao;
     
     /** Construtores */
@@ -42,7 +42,10 @@ public class FatProdMes implements Serializable, Comparable<FatProdMes> {
         this.faturacao[filial] = faturado;
     }
 
-    /** Constrói uma cópia da FatProdMes passada como parâmetro. */
+    /**
+     * Constrói uma cópia da FatProdMes passada como parâmetro. 
+     * @param fProdMes FatProdMes a copiar.
+     */
     public FatProdMes(FatProdMes fProdMes){
         mes = fProdMes.getMes();
         codigoProduto = fProdMes.getCodigoProduto();
@@ -76,8 +79,8 @@ public class FatProdMes implements Serializable, Comparable<FatProdMes> {
     }
     
     /**
-     * Devolve um array que na posição de índice <code>i</code> o valor faturado
-     * na filial <code>i</code>, para o produto e mês desta FatProdMes.
+     * Devolve um array que na posição de índice <code>i</code> tem o valor 
+     * faturado na filial <code>i</code>, para o produto e mês desta FatProdMes.
      * @return Array com a faturação de cada filial, para o produto e mês desta FatProdMes.
      */
     public double[] getFaturacao(){
@@ -85,7 +88,7 @@ public class FatProdMes implements Serializable, Comparable<FatProdMes> {
     }
 
     /**
-     * Atualiza os dados desta FatProdMes relativos à filial passada como 3º argumento.
+     * Atualiza os dados desta FatProdMes, relativos à filial passada como 3º argumento.
      * @param unidadesVendidas Número de unidades vendidas a adicionar ao total de unidades vendidas.
      * @param faturado Valor a adicionar à faturação da filial dada pelo 3º argumento.
      * @param filial Filial cujos dados serão atualizados.
@@ -138,7 +141,7 @@ public class FatProdMes implements Serializable, Comparable<FatProdMes> {
 
     /**
      * Indica se esta FatProdMes é igual ao objeto passado como parâmetro.
-     * @return <code>true</code> se esta FatProdMes for igual ao objeto passado como parâmetro.
+     * @return <code>true</code> se os objetos comparados forem iguais.
      */
     public boolean equals(Object o){
         if(this == o)
@@ -153,10 +156,15 @@ public class FatProdMes implements Serializable, Comparable<FatProdMes> {
     }
     
     /** 
-     * Calcula e devolve o hash code desta FatProdMes
-     * @return Valor do hash code desta FatProdMes.
+     * Calcula e devolve o <i>hash code</i> desta FatProdMes
+     * @return Valor do <i>hash code</i> desta FatProdMes.
      */
     public int hashCode(){
-        return Arrays.hashCode(new Object[]{mes, codigoProduto, unidsVendFilial, faturacao});
+        int hash = Arrays.hashCode(new Object[]{mes, codigoProduto});
+        /* unidsVendFilial e faturacao são arrays de tipos primitivos. Se os passássemos para o Object[] usado em          *
+         * Arrays.hashCode(Object[] a), o seu hash code seria calculado com base na sua referência e não pretendemos isso. */
+        hash = 31 * hash + Arrays.hashCode(unidsVendFilial);
+        hash = 31 * hash + Arrays.hashCode(faturacao);
+        return hash;
     }
 }
