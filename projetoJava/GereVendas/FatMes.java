@@ -17,6 +17,8 @@ import java.util.Arrays;
 public class FatMes implements Serializable {
     /** Mês desta faturação. */
     private final int mes;
+    /** Número de filiais. */
+    private final int nfiliais;
     /** Total de vendas registadas no mês. */
     private int totalVendas;
     /** Total faturado no mês. */
@@ -26,12 +28,23 @@ public class FatMes implements Serializable {
     
     /** Construtores */
     
-    /** 
-     * Constrói uma faturação vazia para o mês passado como parâmetro.
+    /**
+     * Constrói a faturação do mês passado como parâmetro, que guarda dados 
+     * relativos ao número de filiais por omissão (i.e.: Constantes.N_FILIAIS)
      * @param mes Mês a que a faturação a construir diz respeito.
      */
-    public FatMes(int mes) {
+    public FatMes(int mes){
+        this(mes, Constantes.N_FILIAIS);
+    }
+    
+    /** 
+     * Constrói uma faturação vazia para o mês passado e número de filiais passados como parâmetro.
+     * @param mes Mês a que a faturação a construir diz respeito.
+     * @param nfiliais Número de filiais a considerar.
+     */
+    public FatMes(int mes, int nfiliais) {
         this.mes = mes;
+        this.nfiliais = nfiliais;
         totalVendas = 0;
         totalFaturado = 0.0;
         fatProds = new HashMap<>();
@@ -43,6 +56,7 @@ public class FatMes implements Serializable {
      */
     public FatMes(FatMes fatMes) {
         mes = fatMes.getMes();
+        nfiliais = fatMes.getNfiliais();
         totalVendas = fatMes.getTotalVendas();
         totalFaturado = fatMes.getTotalFaturado();
         fatProds = fatMes.getFatProds();
@@ -56,6 +70,14 @@ public class FatMes implements Serializable {
      */
     public int getMes(){
         return mes;
+    }
+    
+    /**
+     * Devolve o número de filiais para as quais esta FatMes guarda informação.
+     * @return Número de filiais desta faturação do mês.
+     */
+    public int getNfiliais(){
+        return nfiliais;
     }
     
     /** 
@@ -117,7 +139,7 @@ public class FatMes implements Serializable {
         if(fProdMes != null)
             fProdMes.adiciona(unidadesVendidas, faturado, filial);
         else
-            fatProds.put(codigoProduto, new FatProdMes(mes, codigoProduto, unidadesVendidas, faturado, filial));
+            fatProds.put(codigoProduto, new FatProdMes(mes, nfiliais, codigoProduto, unidadesVendidas, faturado, filial));
     }
     
     /**
@@ -126,11 +148,11 @@ public class FatMes implements Serializable {
      * @return Faturação de cada filial, no mês a que esta FatMes diz respeito.
      */
     public double[] faturacaoPorFilial(){
-        double[] res = new double[Constantes.N_FILIAIS+1];
+        double[] res = new double[nfiliais+1];
         
         for(FatProdMes fProdMes : fatProds.values()){
             double[] faturacaoProd = fProdMes.getFaturacao();
-            for(int filial = 1; filial <= Constantes.N_FILIAIS; ++filial){
+            for(int filial = 1; filial <= nfiliais; ++filial){
                 res[filial] += faturacaoProd[filial];
             }
         }
@@ -158,7 +180,9 @@ public class FatMes implements Serializable {
             return false;
     
         FatMes fatMes = (FatMes) o;
-        return totalVendas == fatMes.getTotalVendas() &&
+        return mes == fatMes.getMes() &&
+               nfiliais == fatMes.getNfiliais() &&
+               totalVendas == fatMes.getTotalVendas() &&
                totalFaturado == fatMes.getTotalFaturado() &&
                fatProds.equals(fatMes.getFatProds());
     }
@@ -173,6 +197,7 @@ public class FatMes implements Serializable {
         String separador = System.getProperty("line.separator");
 
         sb.append("-> Faturação do mês " + mes + separador);
+        sb.append("Número de filiais nesta faturação: " + nfiliais + separador);
         sb.append("Total de vendas: " + totalVendas + separador);
         sb.append("Total faturado: " + totalFaturado + separador);
         sb.append("Faturação dos produtos: " + separador);
@@ -188,6 +213,6 @@ public class FatMes implements Serializable {
      */
     @Override
     public int hashCode(){
-        return Arrays.hashCode(new Object[]{mes, fatProds}); 
+        return Arrays.hashCode(new Object[]{mes, nfiliais, totalVendas, totalFaturado, fatProds}); 
     }
 }

@@ -23,21 +23,27 @@ public class FatProdMes implements Serializable, Comparable<FatProdMes> {
     
     /** Construtores */
     
-    /** Constrói uma FatProdMes com base no mês e código de produto dados. */
-    public FatProdMes(int mes, String codigoProduto){
+    /** Constrói uma FatProdMes com base no mês, número de filiais e código de produto dados. */
+    public FatProdMes(int mes, int nfiliais, String codigoProduto){
         this.mes = mes;
         this.codigoProduto = codigoProduto;
-        this.unidsVendFilial = new int[Constantes.N_FILIAIS+1];
-        this.faturacao = new double[Constantes.N_FILIAIS+1];
+        this.unidsVendFilial = new int[nfiliais+1];
+        this.faturacao = new double[nfiliais+1];
     }
     
     /** 
-     * Constrói uma FatProdMes com base no mês e código de produto dados.
+     * Constrói uma FatProdMes com base nos dados passados como parâmetros.
      * O número de unidades e faturação de <code>filial</code> são inicializados com
      * os valores de <code>unidadesVendidas</code> e <code>faturado</code>, respetivamente.
+     * @param mes Mês desta FatProdMes.
+     * @param nfiliais Número de filiais em que o produto desta FatProdMes poderá ser vendido.
+     * @param codigoProduto Código do produto desta FatProdMes.
+     * @param unidadesVendidas Número de unidades vendidas a registar inicialmente.
+     * @param faturado Valor faturado a registar inicialmente.
+     * @param filial Filial para a qual se pretende registar <code>unidadesVendidas</code> e <code>faturado</code>.
      */
-    public FatProdMes(int mes, String codigoProduto, int unidadesVendidas, double faturado, int filial){
-        this(mes, codigoProduto);
+    public FatProdMes(int mes, int nfiliais, String codigoProduto, int unidadesVendidas, double faturado, int filial){
+        this(mes, nfiliais, codigoProduto);
         this.unidsVendFilial[filial] = unidadesVendidas;
         this.faturacao[filial] = faturado;
     }
@@ -75,7 +81,7 @@ public class FatProdMes implements Serializable, Comparable<FatProdMes> {
      * @return Array com o número de unidades vendidas em cada filial, para o produto e mês desta FatProdMes.
      */
     public int[] getUnidsVendFilial(){
-        return Arrays.copyOf(unidsVendFilial, Constantes.N_FILIAIS+1);
+        return Arrays.copyOf(unidsVendFilial, unidsVendFilial.length);
     }
     
     /**
@@ -84,7 +90,7 @@ public class FatProdMes implements Serializable, Comparable<FatProdMes> {
      * @return Array com a faturação de cada filial, para o produto e mês desta FatProdMes.
      */
     public double[] getFaturacao(){
-        return Arrays.copyOf(faturacao, Constantes.N_FILIAIS+1);
+        return Arrays.copyOf(faturacao, faturacao.length);
     }
 
     /**
@@ -150,7 +156,8 @@ public class FatProdMes implements Serializable, Comparable<FatProdMes> {
             return false;
 
         FatProdMes fProdMes = (FatProdMes) o;
-        return codigoProduto.equals(fProdMes.getCodigoProduto()) &&
+        return mes == fProdMes.getMes() &&
+               codigoProduto.equals(fProdMes.getCodigoProduto()) &&
                Arrays.equals(unidsVendFilial, fProdMes.getUnidsVendFilial()) &&
                Arrays.equals(faturacao, fProdMes.getFaturacao());
     }

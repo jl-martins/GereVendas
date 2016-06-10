@@ -28,19 +28,33 @@ import java.util.Arrays;
  */
 
 public class Faturacao implements Serializable {
+    /** Número de filiais para as quais esta faturação guarda informação */
+    private final int nfiliais;
     /** 
      * Faturação de cada mês (a posição de índice i armazena a faturação do mês i)
      * Em cada mês só é feita referência aos produtos vendidos nesse mês.
      */
     private FatMes[] fatMensal;
-    
     /** Mapeia códigos de produto na respetiva faturação do ano (referencia todos os produtos) */
     private Map<String, FatAnualProd> todosProdutos;
     
     /** Construtores */
     
-    /** Cria uma faturação com os totais de unidades  vendidas e de valor gasto inicializados a zero. */
+    /** 
+     * Cria uma faturação com os totais de unidades vendidas e de valor gasto inicializados a zero
+     * e que relaciona produtos e vendas de um número de filiais igual a Constantes.N_FILIAIS.
+     */
     public Faturacao(){
+        this(Constantes.N_FILIAIS);
+    }
+    
+    /** 
+     * Cria uma faturação com os totais de unidades vendidas e de valor gasto inicializados a zero
+     * e que relaciona produtos e vendas de um número de filiais igual ao valor passado como parâmetro.
+     * @param nfiliais Número de filiais a considerar.
+     */
+    public Faturacao(int nfiliais){
+        this.nfiliais = nfiliais;
         fatMensal = new FatMes[Constantes.N_MESES+1];
         
         for(int mes = 1; mes <= Constantes.N_MESES; ++mes)
@@ -53,19 +67,28 @@ public class Faturacao implements Serializable {
      * @param original Faturação a copiar.
      */
     public Faturacao(Faturacao original){
+        nfiliais = original.getNfiliais();
         todosProdutos = original.getTodosProdutos();
         fatMensal = original.getFatMensal();
     }
     
     /** Getters */
     
+    /**
+     * Devolve o número de filiais para as quais esta faturação relaciona produtos e vendas.
+     * @return Número de filiais.
+     */
+    public int getNfiliais(){
+        return nfiliais;
+    }
+    
     /** @return Cópia do array de faturação mensal. */
     private FatMes[] getFatMensal(){
         FatMes[] copia = new FatMes[Constantes.N_MESES+1];
 
-        for(int i = 1; i <= Constantes.N_MESES; ++i)
-            copia[i] = fatMensal[i].clone();
-
+        for(int mes = 1; mes <= Constantes.N_MESES; ++mes)
+            copia[mes] = fatMensal[mes].clone();
+            
         return copia;
     }
     
@@ -73,14 +96,12 @@ public class Faturacao implements Serializable {
     private Map<String, FatAnualProd> getTodosProdutos() {
         Map<String, FatAnualProd> copia = new TreeMap<>();
         
-        for(Map.Entry<String, FatAnualProd> entrada : todosProdutos.entrySet())
-            copia.put(entrada.getKey(), entrada.getValue().clone());
-        
+        todosProdutos.forEach( (k,v) -> copia.put(k, v.clone()) );
         return copia;
     }
     
     // Nota: Esta classe não tem setters para que não seja possível alterar diretamente fatMensal e todosProdutos.
-    // A alteração e atualização dos campos da faturação é feita através dos métodos registaProduto() e registaVenda().
+    // A alteração e atualização destes campos da faturação é feita através dos métodos registaProduto() e registaVenda().
     
     /**
      * Regista um produto nesta faturação.
@@ -98,9 +119,10 @@ public class Faturacao implements Serializable {
      * @throws NullPointerException se a venda passada como parâmetro for <code>null</code>.
      */
     public void registaVenda(Venda v){
-        // quando este metodo e invocado, todosProdutos ja tem todos os produtos registados.
+        // quando este metodo é invocado, todosProdutos já tem todos os produtos registados.
         FatAnualProd fAnualProd = todosProdutos.get(v.getCodigoProduto());
         fAnualProd.adicionaUnidades(v.getFilial(), v.getUnidadesVendidas());
+        
         fatMensal[v.getMes()].registaVenda(v);
     }
     
@@ -112,22 +134,23 @@ public class Faturacao implements Serializable {
     public int[] comprasPorMes(){
         int[] res = new int[Constantes.N_MESES+1];
         
-        for(int mes = 1; mes <= 12; ++mes)
+        for(int mes = 1; mes <= Constantes.N_MESES; ++mes)
             res[mes] = fatMensal[mes].getTotalVendas();
+            
         return res;
     }
     
     /** 
      * Devolve uma matriz de doubles que na posição <code>(i,j)</code> armazena o
      * valor total faturado no mês <code>i</code>, na filial <code>j</code>.
-     * @return Matriz com a faturação total por mês, para cada filial.
+     * @return Matriz com a faturação total por mês, de cada filial.
      */
     public double[][] faturacaoPorFilialPorMes(){
-        double res[][] = new double[Constantes.N_MESES+1][Constantes.N_FILIAIS+1];
+        double res[][] = new double[Constantes.N_MESES+1][nfiliais+1];
         
         for(int mes = 1; mes <= Constantes.N_MESES; ++mes)
             res[mes] = fatMensal[mes].faturacaoPorFilial();
-        
+            
         return res;
     }
 
@@ -143,7 +166,7 @@ public class Faturacao implements Serializable {
         for(FatAnualProd fAnualProd : todosProdutos.values())
             if(fAnualProd.zeroUnidsVendidas())
                 res.add(fAnualProd.getCodigoProduto());
-
+                
         return res;
     }
 
@@ -178,7 +201,7 @@ public class Faturacao implements Serializable {
         
         FatProdMes fProdMes = fatMensal[mes].getFatProdMes(codigoProduto);
         // Se o produto nao foi vendido no mes escolhido, devolvemos uma FatProdMes com o num de unidades vendidas e faturacao a 0
-        return (fProdMes != null) ? fProdMes.clone() : new FatProdMes(mes, codigoProduto);
+        return (fProdMes != null) ? fProdMes.clone() : new FatProdMes(mes, nfiliais, codigoProduto);
     }
     
     /** 
@@ -223,7 +246,30 @@ public class Faturacao implements Serializable {
             return false;
 
         Faturacao faturacao = (Faturacao) o;
-        return Arrays.equals(fatMensal, faturacao.fatMensal) && todosProdutos.equals(faturacao.todosProdutos);
+        return nfiliais == faturacao.getNfiliais() &&
+               Arrays.equals(fatMensal, faturacao.fatMensal) &&
+               todosProdutos.equals(faturacao.todosProdutos);
+    }
+    
+    /**
+     * Cria e devolve uma representação textual desta faturação.
+     * @return Representação textual desta faturação.
+     */
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        String separador = System.getProperty("line.separator");
+        
+        sb.append("-> Faturação" + separador);
+        sb.append("Número de filiais: " + nfiliais + separador);
+        for(int mes = 1; mes <= Constantes.N_MESES; ++mes)
+            sb.append(fatMensal[mes]);
+        
+        sb.append("-> Faturação anual" + separador);
+        for(FatAnualProd fAnualProd : todosProdutos.values())
+            sb.append(fAnualProd.toString());
+        
+        return sb.toString();
     }
     
     /** 
