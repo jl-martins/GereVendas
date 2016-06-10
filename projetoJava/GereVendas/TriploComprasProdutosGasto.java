@@ -96,7 +96,7 @@ public class TriploComprasProdutosGasto implements java.io.Serializable
     }
 
     /**
-     * Calcula e devolve o hash code deste TriploComprasProdutosGasto.
+     * Devolve o hash code deste TriploComprasProdutosGasto.
      * @return Valor do hash code deste TriploComprasProdutosGasto.
      */
     public int hashCode(){
@@ -104,7 +104,7 @@ public class TriploComprasProdutosGasto implements java.io.Serializable
     }
 
     /**
-     * Gera e devolve uma representação textual deste TriploComprasProdutosGasto.
+     * Devolve uma representação textual deste TriploComprasProdutosGasto.
      * @return Representação textual deste TriploComprasProdutosGasto.
      */
     public String toString(){
