@@ -57,6 +57,7 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
         this.codigoCliente = c.codigoCliente;
         this.comprasPorMes = new ArrayList<>(13);
         this.quantasComprasPorMes = Arrays.copyOf(c.quantasComprasPorMes, c.quantasComprasPorMes.length);
+        this.comprasPorMes.add(null);
         for(int i = 1; i < 13; i++){
             this.comprasPorMes.add(copiaMap(c.comprasPorMes.get(i)));
         }     
