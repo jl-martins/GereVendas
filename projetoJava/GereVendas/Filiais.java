@@ -224,7 +224,6 @@ public class Filiais implements java.io.Serializable{
         return filiais[f-1].tresMaioresCompradores();
     }
 
-    // Query8
     /**
      * Calcula e devolve o <i>top</i> <code>X</code> de clientes que mais produtos diferentes compraram e
      * devolve-o na forma de uma {@code List<ParCliProdsDif> }, ordenada decrescentemente pelo número de
@@ -266,7 +265,6 @@ public class Filiais implements java.io.Serializable{
                        .collect(Collectors.toCollection(ArrayList :: new));
     }
 
-    // Query9
     /**
      * Calcula e devolve o <i>top</i> <code>X</code> de clientes que mais compraram
      * o produto passado como 1º argumento, ordenando o resultado por ordem decrescente
