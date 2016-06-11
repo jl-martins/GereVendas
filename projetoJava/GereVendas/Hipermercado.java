@@ -257,6 +257,14 @@ public class Hipermercado implements Serializable{
     }
     
     /**
+     * Devolve quantas filiais tem o Hipermercado.
+     * @return Quantas filiais tem o Hipermercado.
+     */
+    public int quantasFiliais(){
+        return filiais.quantasFiliais();
+    }
+    
+    /**
      * Verifica se o código de produto passado como parâmetro faz parte deste hipermercado.
      * @param codigoProduto Código de produto a considerar.
      * @throws ProdutoInexistenteException se este hipermercado não tiver o produto passado como parâmetro.

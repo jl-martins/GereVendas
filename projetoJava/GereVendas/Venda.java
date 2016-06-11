@@ -59,8 +59,9 @@ public class Venda implements Serializable {
     }
     
     /**
-     * Testa se esta venda é válida.
-     * @return <code>true</code> se esta venda for válida.
+     * Testa se alguns dados da Venda são válidos, nomeadamente se as unidades vendidas, o mes em que foi vendido e o preço unitário dos produtos
+     * estão dentro dos limites estabelecidos.
+     * @return <code>true</code> se os dados testados desta venda forem válidos.
      */
     public boolean eValida(){
         return unidadesVendidas > 0 && unidadesVendidas <= 200 && mes > 0 && mes < 13 && filial > 0 && precoUnitario >= 0 

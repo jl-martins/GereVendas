@@ -339,7 +339,7 @@ public class HipermercadoApp {
             v = Venda.parseLinhaVenda(linha);
             ++nlinhas;
             
-            if(v.eValida() && hipermercado.existeProduto(v.getCodigoProduto()) && hipermercado.existeCliente(v.getCodigoCliente())){
+            if(vendaValida(v)){
                 ++nvalidas;
                 hipermercado.registaVenda(v);
                 produtosVendidos.add(v.getCodigoProduto());
@@ -356,6 +356,17 @@ public class HipermercadoApp {
         imprimeDadosLeitura(fich, nvalidas);
 
         return nvalidas;
+    }
+    
+    /** 
+     * Verifica se todos os dados de uma venda são válidos, tendo em conta os clientes e produtos registados no Hipermercado.
+     * @param v Venda cuja validade queremos testar.
+     * @return <code>true</true> se todos os dados da venda são válidos.
+     */
+    private boolean vendaValida(Venda v){
+        int filial = v.getFilial();
+        return filial >= 1 && filial <= hipermercado.quantasFiliais() && v.eValida() &&
+               hipermercado.existeProduto(v.getCodigoProduto()) && hipermercado.existeCliente(v.getCodigoCliente());
     }
     
     /** Executa o menu de estatísticas */
