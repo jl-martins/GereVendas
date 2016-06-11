@@ -588,9 +588,10 @@ public class HipermercadoApp {
             Crono.start();
             dadosCliente = hipermercado.infoPorMes(codigoCliente);
     
+            out.println("Mes | Total de Compras | Produtos distintos comprados | Total gasto");
             for(int mes = 1; mes <= Constantes.N_MESES; mes++){
                 TriploComprasProdutosGasto dadosDoMes = dadosCliente.get(mes);
-                out.printf("Mes: %2d, Total de compras: %3d, Nº de produtos distintos comprados: %3d, Total Gasto: %.2f%n",
+                out.printf("%3d | %16d | %28d | %11.2f%n",
                             mes, dadosDoMes.getTotalCompras(), dadosDoMes.getProdutosDistintos(), dadosDoMes.getTotalGasto());
             }
             Crono.stop();
