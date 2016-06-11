@@ -2,8 +2,11 @@ import java.util.Arrays;
 import java.io.Serializable;
 
 public class EstatisticasGerais implements Serializable{
-    private int[] totalCompras;
+    /** Total de compras para cada mês.  */
+	private int[] totalCompras;
+	/** Total faturado em cada mês nas diferentes Filial */
     private double[][] totalFaturado;
+	/** Total de clientes distintos que compraram em cada mês */
     private int[] totalCliDistintos;
 
     public EstatisticasGerais(){
@@ -23,8 +26,10 @@ public class EstatisticasGerais implements Serializable{
         this(est.getTotalCompras(), est.getTotalFaturado(), est.getTotalCliDistintos());
     }
 
+	/** @return total de compras por mês. */
     public int[] getTotalCompras() { return Arrays.copyOf(totalCompras, totalCompras.length); }
     
+	/** @return total faturado em cada mes pelas diferentes filiais. */
     public double[][] getTotalFaturado() { 
         double[][] copia = new double[Constantes.N_MESES+1][Constantes.N_FILIAIS+1];
         
@@ -33,23 +38,30 @@ public class EstatisticasGerais implements Serializable{
         return copia;
     }
     
+	/** @return total de clientes distintos que compraram em cada mes. */
     public int[] getTotalCliDistintos() { return Arrays.copyOf(totalCliDistintos, totalCliDistintos.length); }
-    // length do nosso array para o caso do array argumento ser maior
-    public void setTotalCompras(int[] totalCompras) {
+    
+	// length do nosso array para o caso do array argumento ser maior
+    /** Atualiza o total de compras por mês.  */
+	public void setTotalCompras(int[] totalCompras) {
         this.totalCompras = Arrays.copyOf(totalCompras, this.totalCompras.length);
     }
     
+	/** Atualiza to total faturado por mes em cada filial. */
     public void setTotalFaturado(double[][] totalFaturado) { 
         for(int i = 1; i < totalFaturado.length; i++)
             this.totalFaturado[i] = Arrays.copyOf(totalFaturado[i], this.totalFaturado[i].length);
     }
     
+	/** Atualiza o total de clientes distintos que compraram em cada mes. */
     public void setTotalCliDistintos(int[] totalCliDistintos) {
         this.totalCliDistintos = Arrays.copyOf(totalCliDistintos, this.totalCliDistintos.length);
     }
 
-    /* Adicionar alguns métodos para atualizar a as variaveis por mês ou assim, se facilitar */
-
+	/**
+	 * Testa se estas EstatisticasGerais são iguais ao objecto passado como argumento.
+	 * @return <code>true</code> se os objectos comparados forem iguais, <code>false</code> caso o contrário se suceda.
+	 */
     public boolean equals(Object o){
         if(this == o)
             return true;
@@ -67,10 +79,18 @@ public class EstatisticasGerais implements Serializable{
                Arrays.equals(totalCliDistintos, est.getTotalCliDistintos());
     }
 
+	/**
+	 * Cria e retorna uma cópia de uma qualquer instancia desta classe
+	 * @return cópia da instancia (desta classe) que chamou o método.
+	 */
     public EstatisticasGerais clone(){
         return new EstatisticasGerais(this);
     }
 
+	/**
+	 * Cria e retorna uma string com toda a informacao de EstatisticasGerais
+	 * @return string com toda a informacao contida pela instancia (desta classe) que invocou o metodo.
+	 */
     public String toString(){
         StringBuilder str = new StringBuilder();
 
