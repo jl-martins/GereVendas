@@ -229,8 +229,8 @@ public class LStrings {
     }
     
     /**
-     * Calcula e devolve o valor do hash code desta LStrings.
-     * @return Valor do hash code desta LStrings.
+     * Calcula e devolve o valor do <i>hash code</i> desta LStrings.
+     * @return Valor do <i>hash code</i> desta LStrings.
      */
     @Override
     public int hashCode(){

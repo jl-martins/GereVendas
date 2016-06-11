@@ -129,8 +129,8 @@ public class FatAnualProd implements Serializable, Comparable<FatAnualProd> {
     }
 
     /**
-     * Calcula e devolve o hash code desta faturação anual do produto.
-     * @return Valor do hash code desta FatAnualProd.
+     * Calcula e devolve o <i>hash code</i> desta faturação anual do produto.
+     * @return Valor do <i>hash code</i> desta FatAnualProd.
      */
     @Override
     public int hashCode(){

@@ -142,8 +142,8 @@ public class ParQtdValor{
     }
     
     /**
-     * Calcula e devolve o hash code deste ParQtdValor.
-     * @return Valor do hash code deste ParQtdValor.
+     * Calcula e devolve o <i>hash code</i> deste ParQtdValor.
+     * @return Valor do <i>hash code</i> deste ParQtdValor.
      */
     @Override
     public int hashCode(){

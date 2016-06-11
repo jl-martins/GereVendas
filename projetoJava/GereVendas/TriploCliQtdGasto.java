@@ -1,7 +1,7 @@
 import java.util.Arrays;
 
 /**
- * Classe que representa pares com um triplo com código de cliente, quantidade comprada e valor gasto.
+ * Classe que representa triplos com código de cliente, quantidade comprada e valor gasto.
  * 
  * @author LI3_Grupo1
  * @version 1.0 (6/2016)
@@ -145,8 +145,8 @@ public class TriploCliQtdGasto {
     }
     
     /**
-     * Calcula e devolve o valor do hash code deste TriploCliQtdGasto.
-     * @return Valor do hash code deste TriploCliQtdGasto.
+     * Calcula e devolve o valor do <i>hash code</i> deste TriploCliQtdGasto.
+     * @return Valor do <i>hash code</i> deste TriploCliQtdGasto.
      */
     @Override
     public int hashCode(){

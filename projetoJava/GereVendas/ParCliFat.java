@@ -121,8 +121,8 @@ public class ParCliFat {
     }
     
     /**
-     * Calcula e devolve o hash code deste ParCliFat.
-     * @return Valor do hash code deste ParCliFat.
+     * Calcula e devolve o <i>hash code</i> deste ParCliFat.
+     * @return Valor do <i>hash code</i> deste ParCliFat.
      */
     @Override
     public int hashCode(){

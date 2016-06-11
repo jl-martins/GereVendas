@@ -94,8 +94,8 @@ public class CatalogoClientes implements Serializable{
     }
     
     /**
-     * Calcula e devolve o hash code deste catálogo de clientes.
-     * @return Valor do hash code deste catálogo de clientes.
+     * Calcula e devolve o <i>hash code</i> deste catálogo de clientes.
+     * @return Valor do <i>hash code</i> deste catálogo de clientes.
      */
     @Override
     public int hashCode(){

@@ -112,8 +112,8 @@ public class ParCliProdsDif{
     }
     
     /**
-     * Calcula e devolve o hash code deste ParCliProdsDif.
-     * @return Valor do hash code deste ParCliProdsDif.
+     * Calcula e devolve o <i>hash code</i> deste ParCliProdsDif.
+     * @return Valor do <i>hash code</i> deste ParCliProdsDif.
      */
     @Override
     public int hashCode(){

@@ -194,7 +194,7 @@ public class Venda implements Serializable {
     return tipoVenda;
     }*/
 
-    /* nao definimos setters porque queremos que as instancias desta class sejam imutaveis */
+    /* não definimos setters porque queremos que as instâncias desta class sejam imutáveis */
 
     /** Restantes métodos */
     

@@ -10,76 +10,47 @@ import java.util.Arrays;
 
 public final class EstatisticasFicheiro implements Serializable{
     
-	/**
-	 * Nome do Ficheiro lido.
-	 */
-	private final String ficheiro;
-	
-	/**
-	 * Total de vendas inválidas.
-	 */
+    /**
+     * Nome do Ficheiro lido.
+     */
+    private final String ficheiro;
+    
+    /**
+     * Total de vendas inválidas.
+     */
     private final int totalVendasErr;
-	
-	/**
-	 * Total de produtos.
-	 */ 
+    
+    /**
+     * Total de produtos.
+     */ 
     private final int totalProdutos;
 
-	/**
-	 * Total de podutos distintos comprados.
-	 */
+    /**
+     * Total de podutos distintos comprados.
+     */
     private final int totalDifProdsCompr;
 
-	/**
-	 * Total de clientes.
-	 */
+    /**
+     * Total de clientes.
+     */
     private final int totalClientes;
 
-	/**
-	 * Total de clientes que compraram.
-	 */
+    /**
+     * Total de clientes que compraram.
+     */
     private final int totalCliCompr;
 
-	/**
-	 * Total de compras de valor total igual a 0.0
-	 */
+    /**
+     * Total de compras de valor total igual a 0.0
+     */
     private final int totalComprasZero;
-	
-	/**
-	 * Facturacao total.
-	 */ 
+    
+    /**
+     * Facturacao total.
+     */ 
     private final double faturacaoTotal;
-
-	/**
-	 * Cria uma cópia das Estatisticas do ultimo ficheiro lido.
-	 * @param est EstatisticasFicheiro a copiar.
-	 */
-    public EstatisticasFicheiro(EstatisticasFicheiro est){
-        ficheiro = est.getFicheiro();
-        totalVendasErr = est.getTotalVendasErr();
-        totalProdutos = est.getTotalProdutos();
-        totalDifProdsCompr = est.getTotalDifProdsCompr();
-        totalClientes = est.getTotalClientes();
-        totalCliCompr = est.getTotalCliCompr();
-        totalComprasZero = est.getTotalComprasZero();
-        faturacaoTotal = est.getFaturacaoTotal();
-    }
-
-	/**
-	 * Cria estatísticas do ficheiro passado como argumentos, e inicializa todos os campos a zero.
-	 */
-    public EstatisticasFicheiro(String ficheiro){
-        this.ficheiro = ficheiro;
-        totalVendasErr = 0;
-        totalProdutos = 0;
-        totalDifProdsCompr = 0;
-        totalClientes = 0;
-        totalCliCompr = 0;
-        totalComprasZero = 0;
-        faturacaoTotal = 0;
-    }
-
-	/**
+    
+    /**
 	 * Cria estatísticas do ficheiro lido, com os dados passados como parâmetros.
 	 * @param ficheiro Nome do ficheiro.
 	 * @param totalVendasErr Número total de registos de venda errados.
@@ -90,7 +61,9 @@ public final class EstatisticasFicheiro implements Serializable{
 	 * @param totalComprasZero Total de compras de valor total igual a 0.0
 	 * @param faturacaoTotal Total faturado.
 	 */
-    public EstatisticasFicheiro(String ficheiro, int totalVendasErr, int totalProdutos,int totalDifProdsCompr, int totalClientes, int totalCliCompr, int totalComprasZero, double faturacaoTotal){
+    public EstatisticasFicheiro(String ficheiro, int totalVendasErr, int totalProdutos, int totalDifProdsCompr,
+                                 int totalClientes, int totalCliCompr, int totalComprasZero, double faturacaoTotal)
+    {
         this.ficheiro = ficheiro;
         this.totalVendasErr = totalVendasErr;
         this.totalProdutos = totalProdutos;
@@ -100,48 +73,101 @@ public final class EstatisticasFicheiro implements Serializable{
         this.totalComprasZero = totalComprasZero;
         this.faturacaoTotal = faturacaoTotal;
     }
+
+    /**
+     * Cria uma cópia das Estatisticas do ultimo ficheiro lido.
+     * @param est EstatisticasFicheiro a copiar.
+     */
+    public EstatisticasFicheiro(EstatisticasFicheiro est){
+        ficheiro = est.getFicheiro();
+        totalVendasErr = est.getTotalVendasErr();
+        totalProdutos = est.getTotalProdutos();
+        totalDifProdsCompr = est.getTotalDifProdsCompr();
+        totalClientes = est.getTotalClientes();
+        totalCliCompr = est.getTotalCliCompr();
+        totalComprasZero = est.getTotalComprasZero();
+        faturacaoTotal = est.getFaturacaoTotal();
+    }
     
     /** Getters */
 
-	/** @return Nome do último ficheiro. */
+    /**
+     * Devolve o nome do ficheiro de vendas a que estas estatísticas dizem respeito.
+     * @return Nome do ficheiro de vendas.
+     */
     public String getFicheiro() { return ficheiro; }
-	/** @return Total de vendas inválidas. */
+    
+    /**
+     * Devolve o total de vendas inválidas no ficheiro a que estas estatísticas dizem respeito.
+     * @return Total de vendas inválidas.
+     */
     public int getTotalVendasErr() { return totalVendasErr; }
-	/** @return Total de produtos. */
+    
+    /** 
+     * Devolve o total de produtos.
+     * @return Total de produtos.
+     */
     public int getTotalProdutos() { return totalProdutos; }
-	/** @return Total de produtos diferentes comprados. */
+    
+    /** 
+     * Devolve o total de produtos diferentes comprados.
+     * @return Total de produtos diferentes comprados.
+     */
     public int getTotalDifProdsCompr() { return totalDifProdsCompr; }
-	/** @return Total de clientes. */
+    
+    /** 
+     * Devolve o total de clientes.
+     * @return Total de clientes.
+     */
     public int getTotalClientes() { return totalClientes; }
-	/** @return Total de clientes que compraram. */
+    
+    /**
+     * Devolve o número total de clientes distintos que realizaram compras.
+     * @return Total de clientes distintso que compraram.
+     */
     public int getTotalCliCompr() { return totalCliCompr; }
-	/** @return Total de compras de valor total igual a 0.0 */
+    
+    /** 
+     * Devolve o total de compras de custo total 0.0
+     * @return Total de compras de valor total igual a 0.0 
+     */
     public int getTotalComprasZero() { return totalComprasZero; }
-	/** @return Faturação total. */
+    
+    /** 
+     * Devolve a faturação total.
+     * @return Faturação total.
+     */
     public double getFaturacaoTotal() { return faturacaoTotal; }
     
-	// (getters por subtracao)
-    /** @return Total de produtos nao comprados. */
-	public int getTotalProdsNCompr() { return totalProdutos - totalDifProdsCompr; }
-	/** @return Total de clientes que não compraram. */
+    // (getters por subtracao)
+    /** 
+     * Devolve o número total de produtos que nunca foram comprados no ano.
+     * @return Total de produtos nunca comprados.
+     */
+    public int getTotalProdsNCompr() { return totalProdutos - totalDifProdsCompr; }
+    
+    /**
+     * Devolve o número total de clientes que não realizaram qualquer compra durante o ano.
+     * @return Total de clientes que não realizaram compras.
+     */
     public int getTotalCliNCompr() { return totalClientes - totalCliCompr; } 
     
     // Não disponibilizamos setters para garantir a imutabilidade das instâncias de EstatisticasFicheiro.
     
-	/**
-	 * Cria e retorna uma cópia desta EstatisticaFicheiro.
-	 * @return Cópia desta EstatisticaFicheiro.
-	 */
-	@Override
+    /**
+     * Cria e retorna uma cópia desta EstatisticaFicheiro.
+     * @return Cópia desta EstatisticaFicheiro.
+     */
+    @Override
     public EstatisticasFicheiro clone(){
         return new EstatisticasFicheiro(this);
     }
     
-	/**
-	 * Testa se esta estatistica é igual ao objecto passado como parâmetro.
-	 * @return <code>true</code> se os objectos comparados forem iguais; <code>false</code> se o contrário se suceder.
-	 */
-	@Override
+    /**
+     * Testa se esta estatistica é igual ao objecto passado como parâmetro.
+     * @return <code>true</code> se os objectos comparados forem iguais; <code>false</code> se o contrário se suceder.
+     */
+    @Override
     public boolean equals(Object o){
         if(this == o)
             return true;
@@ -155,17 +181,16 @@ public final class EstatisticasFicheiro implements Serializable{
             && totalComprasZero == est.getTotalComprasZero() && faturacaoTotal == est.getFaturacaoTotal();
     }
     
-	/**
-	 * Cria e retorna uma string com toda a informação sobre esta EstatisticaFicheiro.
-	 * @return String com a informação da instância que invocou o método.
-	 */
-	@Override
+    /**
+     * Cria e retorna uma string com toda a informação sobre esta EstatisticaFicheiro.
+     * @return String com a informação da instância que invocou o método.
+     */
+    @Override
     public String toString(){
         StringBuilder str = new StringBuilder();
         String separador = System.getProperty("line.separator");
-		str.append("Ficheiro de vendas: " + ficheiro + separador + separador);
-		
-		str.append("Total clientes: " + totalClientes + separador);
+        str.append("Ficheiro de vendas: " + ficheiro + separador + separador);
+        
 		str.append("Nº de clientes distintos que compraram: " + totalCliCompr + separador + separador);
 
 		str.append("Total produtos: " + totalProdutos + separador);

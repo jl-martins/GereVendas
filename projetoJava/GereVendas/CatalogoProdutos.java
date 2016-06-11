@@ -94,8 +94,8 @@ public class CatalogoProdutos implements Serializable{
     }
     
     /**
-     * Calcula e devolve o hash code deste catálogo de produtos.
-     * @return Valor do hash code deste catálogo de produtos.
+     * Calcula e devolve o <i>hash code</i> deste catálogo de produtos.
+     * @return Valor do <i>hash code</i> deste catálogo de produtos.
      */
     @Override
     public int hashCode(){

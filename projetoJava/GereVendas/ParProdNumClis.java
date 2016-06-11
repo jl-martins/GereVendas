@@ -117,8 +117,8 @@ public class ParProdNumClis {
     }
     
     /**
-     * Calcula e devolve o valor do hash code deste ParProdNumClis.
-     * @return Valor do hash code deste ParProdNumClis.
+     * Calcula e devolve o valor do <i>hash code</i> deste ParProdNumClis.
+     * @return Valor do <i>hash code</i> deste ParProdNumClis.
      */
     @Override
     public int hashCode(){

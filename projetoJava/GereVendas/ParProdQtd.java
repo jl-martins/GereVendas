@@ -120,8 +120,8 @@ public class ParProdQtd {
     }
     
     /**
-     * Calcula e devolve o valor do hash code deste ParProdQtd.
-     * @return Valor do hash code deste ParProdQtd.
+     * Calcula e devolve o valor do <i>hash code</i> deste ParProdQtd.
+     * @return Valor do <i>hash code</i> deste ParProdQtd.
      */
     @Override
     public int hashCode(){
