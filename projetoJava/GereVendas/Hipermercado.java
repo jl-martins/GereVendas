@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Arrays;
 
 /**
  * Classe agregadora do projeto <strong>GereVendas</strong>.
@@ -53,6 +54,8 @@ public class Hipermercado implements Serializable{
         catalogoClientes = new CatalogoClientes();
         faturacao = new Faturacao();
         filiais = new Filiais(Constantes.N_FILIAIS);
+        // as estatísticas do ficheiro são criadas a pedido do utilizador
+        // as estatísticas gerais são criadas da 1ª vez que o utilizador invoca getEstatisticasGerais()
     }
     
     /** 
@@ -152,7 +155,7 @@ public class Hipermercado implements Serializable{
      * (declarado como privado pelas razões que foram apresentadas para os catálogos e faturação. )
      */
     private Filiais getFiliais(){
-        return null; // MUDAR PARA ESTE CODIGO --> (filiais != null) ? filiais.clone() : null;
+        return (filiais != null) ? filiais.clone() : null;
     }
     
     /**
@@ -167,9 +170,9 @@ public class Hipermercado implements Serializable{
      * @return Cópia das estatísticas gerais deste Hipermercado.
      */
     public EstatisticasGerais getEstatisticasGerais(){
-        if(estatisticasGerais == null)
-            criaEstatisticasGerais(); // cria estatisticas gerais a partir dos dados da faturacao e das filiais
-        return (estatisticasGerais != null) ? estatisticasGerais.clone() : null;
+        if(estatisticasGerais == null) 
+            criaEstatisticasGerais(); // cria estatisticas gerais a partir dos dados da faturaçãoo e das filiais
+        return estatisticasGerais; // as instâncias de EstatisticasGerais são imutáveis, logo não quebramos o encapsulamento.
     }
     
     /**
@@ -273,7 +276,6 @@ public class Hipermercado implements Serializable{
             throw new ClienteInexistenteException("O código de cliente '" + codigoCliente + "' não faz parte deste hipermercado.");
     }
     
-    // Query1
     /**
      * Devolve o conjunto de códigos dos produtos que nunca foram comprados no ano.
      * @return Conjunto ordenado alfabeticamente dos códigos dos produtos nunca comprados.
@@ -282,7 +284,6 @@ public class Hipermercado implements Serializable{
         return faturacao.nuncaComprados();
     }
     
-    // Query2
     /**
      * Calcula e devolve o total global de vendas realizadas neste hipermercado, no mês passado como parâmetro.
      * @param mes Mês a considerar.
@@ -304,7 +305,6 @@ public class Hipermercado implements Serializable{
         return filiais.quantosClientesCompraramMes(mes);
     }
     
-    // Query3
     /**
      * Dado um cliente e um mês, devolve uma lista de triplos (1 por mês, lista indexada de 1 a 12), em que cada 
      * triplo contém o total de compras de um mês, o número de produtos comprados e o total gasto.
@@ -332,8 +332,6 @@ public class Hipermercado implements Serializable{
         return dadosPorMes;
     }
     
-    // Query4
-    
     /**
      * Dado um código de produto e um mês, devolve a faturação desse produto nesse mês.
      * @param codigoProduto Código de produto a quem a consulta diz respeito.
@@ -359,8 +357,6 @@ public class Hipermercado implements Serializable{
         return filiais.quantosCompraramProdutoMes(codigoProduto, mes);
     }
     
-    // Query5
-    
     /**
      * Devolve uma {@code List<ParProdQtd> } ordenada por ordem decrescente de quantidade e, para quantidades iguais,
      * por ordem alfabética dos códigos de produto mais comprados pelo cliente passado como parâmetro.
@@ -374,8 +370,6 @@ public class Hipermercado implements Serializable{
         List<ComprasDoProduto> compras = filiais.comprasFeitasTotal(codigoCliente);
         return filiais.produtosMaisComprados(compras);
     }
-    
-    // Query6
     
     /**
      * Dado um valor inteiro <code>X</code>, devolve uma {@code List<TriploProdQtdClis> } com os <code>X</code>
@@ -402,7 +396,6 @@ public class Hipermercado implements Serializable{
         return res;
     }
     
-    // Query7
     /**
      * Dada uma filial, devolve um array de comprimento 3 que na posição de índice <code>i</code> tem um
      * ParCliFat com o código e valor gatos pelo iesimo comprador que mais dinheiro gastou na filial escolhida.
@@ -417,8 +410,6 @@ public class Hipermercado implements Serializable{
         return filiais.tresMaioresCompradores(filial);
     }
     
-    // Query8
-    
     /**
      * Dado um valor inteiro <code>X</code>, devolve uma {@code List<ParCliProdsDif>}, ordenada por ordem
      * decrescente de número de produtos diferentes comprados e, para quantidade iguais, ordenada por
@@ -432,7 +423,6 @@ public class Hipermercado implements Serializable{
         return filiais.clisCompraramMaisProdsDif(X);
     }
     
-    // Query9
     /**
      * Dado um código de produto e um inteiro <code>X</code>, devolve uma {@code List<TriploCliQtdGasto>}
      * com os <code>X</code> clientes que mais compraram o produto passado como parâmetro e a respetiva
@@ -450,5 +440,64 @@ public class Hipermercado implements Serializable{
     public List<TriploCliQtdGasto> clientesMaisCompraram(String codigoProduto, int X) throws ProdutoInexistenteException {
         requerProdutoExistente(codigoProduto);
         return filiais.clientesMaisCompraram(codigoProduto, X);
+    }
+    
+    /**
+     * Cria e devolve uma cópia deste Hipermercado.
+     * @return Cópia deste Hipermercado.
+     */
+    @Override
+    public Hipermercado clone(){
+        return new Hipermercado(this);
+    }
+    
+    /**
+     * Testa se este Hipermercado é igual ao objeto passado como parâmetro.
+     * @return <code>true</code> se os objetos comparados forem iguais.
+     */
+    @Override
+    public boolean equals(Object o){
+        if(this == o)
+            return true;
+        else if(o == null || this.getClass() != o.getClass())
+            return false;
+        
+        Hipermercado h = (Hipermercado) o;
+        return (catalogoProdutos == null ? h.catalogoProdutos == null : catalogoProdutos.equals(h.catalogoProdutos)) &&
+               (catalogoClientes == null ? h.catalogoClientes == null : catalogoClientes.equals(h.catalogoClientes)) &&
+               (faturacao == null ? h.faturacao == null : faturacao.equals(h.faturacao)) &&
+               (filiais == null ? h.filiais == null : filiais.equals(h.filiais)) &&
+               (estatisticasFicheiro == null ? h.estatisticasFicheiro == null : estatisticasFicheiro.equals(h.estatisticasFicheiro)) &&
+               (estatisticasGerais == null ? h.estatisticasGerais == null : estatisticasGerais.equals(h.estatisticasGerais));
+    }
+    
+    /**
+     * Cria e devolve uma representação textual deste Hipermercado.
+     * @return String com uma representação textual deste Hipermercado.
+     */
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        String separador = System.getProperty("line.separator");
+        
+        sb.append("-> Hipermercado" + separador);
+        sb.append(catalogoProdutos == null ? ("Catálogo produto: n/a" + separador) : catalogoProdutos.toString());
+        sb.append(catalogoClientes == null ? ("Catálogo clientes: n/a" + separador) : toString());
+        sb.append(faturacao == null ? ("Faturação: n/a" + separador) : faturacao.toString());
+        sb.append(filiais == null ? ("Filiais: n/a" + separador) : filiais.toString());
+        sb.append(estatisticasFicheiro == null ? ("Estatísticas ficheiro: n/a" + separador) : estatisticasFicheiro.toString());
+        sb.append(estatisticasGerais == null ? ("Estatísticas gerais: n/a" + separador) : estatisticasGerais.toString());
+        return sb.toString();
+    }
+    
+    /**
+     * Calcula e devolve o valor do <i>hash code</i> deste Hipermercado.
+     * @return Valor do <i>hash code</i> deste Hipermercado.
+     */
+    @Override
+    public int hashCode(){
+        return Arrays.hashCode(new Object[]{
+            catalogoProdutos, catalogoClientes, faturacao, filiais, estatisticasFicheiro, estatisticasGerais
+        });
     }
 }
