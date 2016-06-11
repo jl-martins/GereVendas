@@ -153,9 +153,7 @@ public class Faturacao implements Serializable {
             
         return res;
     }
-
-    // Query1
-
+    
     /** 
      * Cria e retorna o conjunto dos códigos de produtos que nunca foram comprados.
      * @return Conjunto dos códigos dos produtos nunca comprados. 
@@ -170,8 +168,6 @@ public class Faturacao implements Serializable {
         return res;
     }
 
-    // Query2
-
     /**
      * Dado um mês, devolve o número total global de vendas realizadas nesse mês.
      * @param mes Mês cujo número total global de vendas se pretende consultar.
@@ -180,8 +176,6 @@ public class Faturacao implements Serializable {
     public int totalVendasMes(int mes) {
         return fatMensal[mes].getTotalVendas();
     }
-
-    // Query4 (usar este método para cada um dos meses)
 
     /**
      * Dado um código de produto e um mês, devolve um objeto do tipo FatProdMes, 
@@ -192,7 +186,8 @@ public class Faturacao implements Serializable {
      */
     public FatProdMes getFatProdMes(String codigoProduto, int mes) {   
         FatProdMes fProdMes = fatMensal[mes].getFatProdMes(codigoProduto);
-        // Se o produto nao foi vendido no mes escolhido, devolvemos uma FatProdMes com o num de unidades vendidas e faturacao a 0
+        // Se o produto não foi vendido no mês escolhido, devolvemos uma 
+        // FatProdMes com o número de unidades vendidas e faturação a 0.
         return (fProdMes != null) ? fProdMes.clone() : new FatProdMes(mes, nfiliais, codigoProduto);
     }
     

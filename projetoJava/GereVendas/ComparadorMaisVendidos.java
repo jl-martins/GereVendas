@@ -6,7 +6,11 @@ import java.util.Comparator;
  * esse total for igual, compara o código de produto de cada uma das instâncias,
  * conforme o <code>compareTo()</code> da classe String. Este comparador define
  * uma ordem crescente de quantidade total vendida (para obter um comparador que
- * define uma ordem decrescente de quantidade total, basta passá-lo para Collections.reverseOrder()).
+ * define uma ordem decrescente de quantidade total, basta passar uma instância
+ * de ComparadorMaisVendidos para Collections.reverseOrder()).
+ * 
+ * @author LI3_Grupo1
+ * @version 1.0 (6/2016)
  */
 public class ComparadorMaisVendidos implements Comparator<FatAnualProd>{
     /**

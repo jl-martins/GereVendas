@@ -11,9 +11,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
+ * Classe agregadora do projeto <strong>GereVendas</strong>.
  * 
+ * <p>Cada instância de Hipermercado permite o registo de produtos, clientes e vendas.
+ * O registo das vendas só deve ser efetuado depois do registo de todos os clientes e
+ * produtos que possam surgir nas mesmas. Depois de criado um Hipermercado, é possível:
+ * <op>
+ *      <it> Registar e consultar estatísticas relativas ao ficheiro de vendas lidos ao criá-lo;</it>
+ *      <it> Consultar estatísticas gerais sobre os dados guardados no mesmo;</it>
+ *      <it> Obter várias informações sobre os produtos, clientes e vendas;</it>
+ *      <it> Gravar a instância numa <code>ObjectStream</code> para posterior leitura;</it>
+ * </op>
  * 
- * 
+ * @author LI3_Grupo1
+ * @version 1.0 (6/2016)
  */
 public class Hipermercado implements Serializable{
     /** Catálogo com todos os produtos  */
