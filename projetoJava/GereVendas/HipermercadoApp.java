@@ -1,4 +1,4 @@
-import java.io.BufferedReader;
+    import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
@@ -73,15 +73,15 @@ public class HipermercadoApp {
             "Voltar ao menu principal"
         };
     private static final String[] opcoesMenuQueries = {
-            "Códigos dos produtos nunca comprados e total",
+            "Produtos nunca comprados",
             "Vendas gerais e nº de clientes distintos que compraram num mês",
             "Compras, produtos distintos comprados e total gasto por um cliente, mês a mês",
             "Quantas vezes um produto foi comprado, por quantos clientes distintos e total faturado",
-            "Lista de códigos de produto mais comprados por um cliente",
-            "X produtos mais vendidos em todo o ano",
+            "Produtos mais comprados por um cliente",
+            "Top de produtos mais vendidos em todo o ano",
             "Lista dos 3 maiores compradores, para cada filial",
-            "X clientes que compraram mais produtos diferentes",
-            "Conjunto dos X clientes que mais compraram um produto e valor gasto",
+            "Top de clientes que compraram mais produtos diferentes",
+            "Top de clientes que mais compraram um produto e valor gasto",
             "Voltar ao menu principal"
         };
     private static final String[] respostaSimNao = {"Sim", "Não"};
