@@ -219,11 +219,12 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
+        String ls = System.getProperty("line.separator");
         sb.append("Código de cliente: ");
-        sb.append(codigoCliente + "\n");
+        sb.append(codigoCliente + ls);
         for(int i = 1; i < 13; i++){
-            sb.append("Quantas compras foram feitas no mês " + i + ": " + quantasComprasPorMes[i]+ "\n");
-            sb.append("Produtos comprados no mês " + i + ":\n");
+            sb.append("Quantas compras foram feitas no mês " + i + ": " + quantasComprasPorMes[i]+ ls);
+            sb.append("Produtos comprados no mês " + i + ":"+ ls);
             sb.append(comprasPorMes.get(i));
         }
         return sb.toString();

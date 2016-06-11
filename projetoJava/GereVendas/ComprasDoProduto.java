@@ -129,13 +129,14 @@ public class ComprasDoProduto implements java.io.Serializable, Comparable<Compra
      */
     @Override
     public String toString(){
+        String ls = System.getProperty("line.separator");
         StringBuilder sb = new StringBuilder();
         sb.append("Código do Produto: ");
-        sb.append(codigoProduto);
-        sb.append("\nUnidades compradas do produto: ");
-        sb.append(unidadesCompradas);
-        sb.append("\nDinheiro gasto no produto: ");
-        sb.append(faturacao + "\n");
+        sb.append(codigoProduto + ls);
+        sb.append("Unidades compradas do produto: ");
+        sb.append(unidadesCompradas + ls);
+        sb.append("Dinheiro gasto no produto: ");
+        sb.append(faturacao + ls);
         return sb.toString();
     }
 

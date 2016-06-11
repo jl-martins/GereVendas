@@ -339,10 +339,11 @@ public class Filiais implements java.io.Serializable{
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
+        String ls = System.getProperty("line.separator");
         for(int i = 0; i < filiais.length; i++){
-            sb.append("Filial " + (i+1) + ":\n");
+            sb.append("Filial " + (i+1) + ":" + ls);
             sb.append(filiais[i].toString());
-            sb.append("\n");
+            sb.append(ls);
         }
         return sb.toString();
     }
