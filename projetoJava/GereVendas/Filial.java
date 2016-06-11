@@ -57,15 +57,15 @@ public class Filial implements java.io.Serializable{
      * Dado um código do cliente, devolve o indíce correspondente na clientesOrdenados.
      * @param codigoCliente Código do Cliente.
      * @return Indíce correspondente na clientesOrdenados.
+     * @throws NullPointerException se o codigoCliente for null.
      */
     private static int indiceCorrespondente(String codigoCliente){
-        if(codigoCliente == null)
-            ;/*atirar excepçoes*/
+        java.util.Objects.requireNonNull(codigoCliente);
         char c = codigoCliente.charAt(0);
         c = Character.toUpperCase(c);
         int indice = ((int) c) - ((int) 'A');
-        if(indice < 0 || indice >= 26)
-            ;
+        indice %= 26; /* Neste caso, garantimos que se o código de clientes não começar por uma letra do alfabeto(se passarmos um ficheiro 
+                         cujos códigos de cliente começam com números, por ex), conseguimos guardar estes valores */        
         return indice;
     }
 

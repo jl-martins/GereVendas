@@ -63,7 +63,8 @@ public class Venda implements Serializable {
      * @return <code>true</code> se esta venda for válida.
      */
     public boolean eValida(){
-        return unidadesVendidas >= 0 && mes > 0 && mes < 13 && filial > 0 /*&& filial <= Numero de filiais */ && precoUnitario >= 0;
+        return unidadesVendidas > 0 && unidadesVendidas <= 200 && mes > 0 && mes < 13 && filial > 0 && precoUnitario >= 0 
+        && precoUnitario <= 999.99;
     }
     
     /**
