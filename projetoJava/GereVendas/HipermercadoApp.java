@@ -15,6 +15,43 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Formatter;
 
+/**
+ * Classe principal do projeto <strong>GereVendas</strong>, que permite
+ * a criação e execução de instâncias de HipermercadoApp.
+ * 
+ * <p>Cada instância de HipermercadoApp tem 5 menus:
+ * <op>
+ *      <li> Menu principal; </li>
+ *      <li> Menu de leitura </li>
+ *      <li> Menu de estatísticas </li>
+ *      <li> Menu de queries interativas </li>
+ *      <li> Menu sair </li>
+ * </op>
+ * O menu principal é apresentado quando uma instância de HipermercadoApp
+ * inicia a sua execução. A partir do menu principal, o utilizador pode
+ * ler os dados da aplicação a partir de ficheiros de texto ou de uma
+ * <code>ObjectStream</code>; entrar no menu de estatística ou no menu
+ * de queries interativas, se já tiver lido os dados; guardar o estado
+ * da aplicação, caso esta esteja populada e, por fim, sair da aplicação.
+ * 
+ * <p> O menu de estatísticas dá ao utilizador a possibilidade de escolher
+ * entre as estatísticas do último ficheiro de vendas lido e as estatísticas
+ * gerais, relativas aos dados atuais da aplicação. Além dessas duas
+ * opções, o utilizador pode ainda optar por regressar ao menu principal
+ * ou por sair da aplicação.
+ * 
+ * <p> No menu de queries interativas, o utilizador pode selecionar qualquer uma
+ * de 9 queries interativas que lhe permitem obter várias informações
+ * relativas às vendas mensais e/ou anuais do hipermercado em questão.
+ * Estando no menu de queries interativas, o utilizador pode também optar
+ * por regressar ao menu principal, ou sair diretamente da aplicação.
+ * 
+ * <p> Se a aplicação estiver populada quando o utilizador opta por sair,
+ * é-lhe apresentado o "menu sair", em que é dada a possibilidade de o
+ * utilizador guardar o estado da aplicação antes de concluir a execução
+ * da mesma.
+ */
+
 public class HipermercadoApp {
     private Hipermercado hipermercado;
     private Menu menuPrincipal, menuSair;
