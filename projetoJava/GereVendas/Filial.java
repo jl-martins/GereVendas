@@ -48,7 +48,7 @@ public class Filial implements java.io.Serializable{
      * @return Cópia do Map<String, ComprasPorCliente> passado como argumento.
      */
     private static HashMap<String, ComprasPorCliente> copiaMap(Map<String, ComprasPorCliente> map){
-        HashMap<String, ComprasPorCliente> novoMap = new HashMap<String, ComprasPorCliente>();
+        HashMap<String, ComprasPorCliente> novoMap = new HashMap<>();
         map.forEach((key, value) -> novoMap.put(key, value.clone()));
         return novoMap;
     }
