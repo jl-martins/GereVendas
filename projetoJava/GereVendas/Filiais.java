@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.Arrays;
 
 /** 
- * Classe que guarda informações relativas às diversas filiais de um Hipermercado e que permite fazer operações sobre as várias queries em conjunto.
+ * Classe que guarda informações relativas às diversas filiais de um Hipermercado e que permite fazer operações sobre as várias filiais em conjunto.
  * 
  * @author LI3_Grupo1
  * @version 1.1 (06/2016)
@@ -101,7 +101,6 @@ public class Filiais implements java.io.Serializable{
         return compras;
     }
 
-    /* query 5 */
     /** 
      * Devolve uma lista de ComprasDoProduto que contém informação sobre as compras que um determinado cliente fez em todas as filiais.
      * @param codigoCliente Código do cliente cuja informação se pretende consultar. 
