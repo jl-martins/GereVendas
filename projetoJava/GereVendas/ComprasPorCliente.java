@@ -14,6 +14,9 @@ import java.util.stream.Stream;
 
 /**
  * Classe que guarda informação sobre as compras que um cliente fez, mês a mês.
+ * 
+ * @author LI3_Grupo1
+ * @version 1.0 (6/2016)
  */
 public class ComprasPorCliente implements java.io.Serializable, Comparable<ComprasPorCliente> {
     /** Código do cliente para o qual guardamos dados das compras */
@@ -55,12 +58,15 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
         }     
     }
 
-    /** Faz uma deep-copy de um Map<String, ComprasDoProduto>. 
-     * @param map Map<String, ComprasDoProduto> a ser copiado.
-     * @return Cópia do Map<String, ComprasDoProduto> passado como argumento.
+    /**
+     * Faz uma deep-copy de um {@ code Map<String, ComprasDoProduto>}. 
+     * @param map {@code Map<String, ComprasDoProduto>} a ser copiado.
+     * @return Cópia do {@code Map<String, ComprasDoProduto>} passado como argumento.
      */
     private static HashMap<String, ComprasDoProduto> copiaMap(Map<String, ComprasDoProduto> map){
-        HashMap<String, ComprasDoProduto> novoMap = new HashMap<>();
+        /* o fator de carga de um HashMap é 0.75 por omissão. Ao inicializarmos a cópia de map  *
+         * com o tamanho (int) Math.ceil(map.size() / 0.75) evitamos a realização de rehashing. */
+        HashMap<String, ComprasDoProduto> novoMap = new HashMap<>((int) Math.ceil(map.size() / 0.75));
         map.forEach((key, value) -> novoMap.put(key, value.clone()));
         return novoMap;
     }
@@ -102,8 +108,10 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
         comprasProduto.registaVenda(v);
     }
 
-    /** 
-     * @return @c true se o cliente desta ComprasPorCliente comprou no mês passado como argumento.
+    /**
+     * Testa se o cliente desta ComparasPorCliente comprou no mês passado como parâmetro.
+     * @param mes Mês a considerar na verificação.
+     * @return @c true se o cliente desta ComprasPorCliente comprou no mês <code>mes</code>.
      */
     public boolean comprouNoMes(int mes){
         return quantasComprasPorMes[mes] > 0;
@@ -111,7 +119,7 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
 
     /**
      * Devolve uma lista de ComprasDoProduto que corresponde aos dados de todos os produtos que o cliente comprou.
-     * @param mes Mês para o qual queremos obter dados.
+     * @param mes Mês para o qual queremos obter os dados.
      * @return Conjunto das ComprasDoProduto que corresponde aos dados de todos os produtos que o cliente comprou
      */
     public Set<ComprasDoProduto> comprasPorMes(int mes){
@@ -123,7 +131,7 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
      * Verifica se o cliente comprou um determindao produto num determinado mês.
      * @param codigoProduto Código do produto que queremos verificar se foi comprado.
      * @param mes Mês em que queremos verificar se o cliente comprou o produto.
-     * @return @c true se o cliente desta ComprasPorCliente comprou o produto no mês pretendido.
+     * @return <code>true</code> se o cliente desta ComprasPorCliente comprou o produto no mês pretendido.
      */
     public boolean comprouProdutoMes(String codigoProduto, int mes){
         return comprasPorMes.get(mes).containsKey(codigoProduto);
@@ -132,7 +140,7 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
     /** 
      * Verifica se o cliente comprou um determinado produto.
      * @param codigoProduto Código do produto que queremos verificar se foi comprado.
-     * @return @c true se o cliente desta ComprasPorCliente comprou o produto.
+     * @return <code>true</code> se o cliente desta ComprasPorCliente comprou o produto.
      */
     public boolean comprouProduto(String codigoProduto){
         boolean comprou = false;
@@ -145,7 +153,7 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
 
     /**
      * Calcula o total gasto nas compras que o cliente fez ao longo do ano.
-     * @return Total gasto nas compras que o cliente fez ao longo do ano.
+     * @return Total gasto nas compras feitas pelo cliente.
      */
     public double totalGastoAno(){
         double total = 0.0;
@@ -158,8 +166,8 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
     }
 
     /**
-     * Devolve conjunto dos códigos que o cliente comprou ao longo de todo o ano.
-     * @return Conjunto dos códigos que o cliente comprou ao longo de todo o ano.
+     * Devolve um {@code Set<String> } com os códigos dos produtos que o cliente comprou ao longo de todo o ano.
+     * @return Conjunto dos códigos dos produtos que o cliente comprou ao longo de todo o ano.
      */
     public Set<String> produtosCompradosAno(){
         Set<String> produtosComprados = new TreeSet<>();
