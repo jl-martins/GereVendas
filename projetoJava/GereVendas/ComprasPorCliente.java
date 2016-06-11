@@ -22,7 +22,10 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
     /** Código do cliente para o qual guardamos dados das compras */
     private String codigoCliente;
 
-    /** Lista de 12 Maps, 1 por mês, que a cada produto comprado nesse mês faz corresponder o respetivo ComprasDoProduto. */
+    /** 
+     * Lista de 13 Maps, 1 por mês, que a cada produto comprado nesse mês faz corresponder o respetivo ComprasDoProduto. O elemento de indice 0 
+     * serve apenas de padding para podermos aceder à info dos meses pelo número do mês. 
+     */
     private List<Map<String, ComprasDoProduto>> comprasPorMes;
 
     /** Array de 13 elementos, que ao indice i faz corresponder o número de compras que o cliente fez no mês i */
@@ -40,7 +43,8 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
         comprasPorMes = new ArrayList<>(13);
         quantasComprasPorMes = new int[13];
 
-        for(int i = 0; i < 13; i++){
+        comprasPorMes.add(null);
+        for(int i = 1; i < 13; i++){
             comprasPorMes.add(new HashMap<>());
         }
     }
@@ -53,7 +57,7 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
         this.codigoCliente = c.codigoCliente;
         this.comprasPorMes = new ArrayList<>(13);
         this.quantasComprasPorMes = Arrays.copyOf(c.quantasComprasPorMes, c.quantasComprasPorMes.length);
-        for(int i = 0; i < 13; i++){
+        for(int i = 1; i < 13; i++){
             this.comprasPorMes.add(copiaMap(c.comprasPorMes.get(i)));
         }     
     }
@@ -219,7 +223,7 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
         for(int i = 1; i < 13; i++){
             sb.append("Quantas compras foram feitas no mês " + i + ": " + quantasComprasPorMes[i]+ "\n");
             sb.append("Produtos comprados no mês " + i + ":\n");
-            sb.append(comprasPorMes.get(i-1));
+            sb.append(comprasPorMes.get(i));
         }
         return sb.toString();
     }
@@ -259,7 +263,7 @@ public class ComprasPorCliente implements java.io.Serializable, Comparable<Compr
             else 
                 return -1;
         }
-        
+
         return this.codigoCliente.compareTo(c.codigoCliente);
     }
 }
