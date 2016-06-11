@@ -162,18 +162,19 @@ public final class EstatisticasFicheiro implements Serializable{
 	@Override
     public String toString(){
         StringBuilder str = new StringBuilder();
-		str.append("Ficheiro de vendas: ").append(ficheiro).append("\n\n");
+        String separador = System.getProperty("line.separator");
+		str.append("Ficheiro de vendas: " + ficheiro + separador + separador);
 		
-		str.append("Total clientes: ").append(totalClientes).append("\n");
-		str.append("Nº de clientes distintos que compraram: ").append(totalCliCompr).append("\n\n");
+		str.append("Total clientes: " + totalClientes + separador);
+		str.append("Nº de clientes distintos que compraram: " + totalCliCompr + separador + separador);
 
-		str.append("Total produtos: ").append(totalProdutos).append("\n");
-		str.append("Total de produtos diferentes comprados: ").append(totalDifProdsCompr).append("\n\n");
+		str.append("Total produtos: " + totalProdutos + separador);
+		str.append("Total de produtos diferentes comprados: " + totalDifProdsCompr + separador + separador);
 
-		str.append("Total vendas inválidas: ").append(totalVendasErr).append("\n");
-		str.append("Total compras de valor total igual a 0.0: ").append(totalComprasZero).append("\n\n");
+		str.append("Total vendas inválidas: " + totalVendasErr + separador);
+		str.append("Total compras de valor total igual a 0.0: " + totalComprasZero + separador + separador);
 
-		str.append("Total facturado: ").append(faturacaoTotal).append("\n");
+		str.append("Total facturado: " + faturacaoTotal + separador);
         return str.toString();
     }
     

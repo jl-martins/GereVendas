@@ -16,7 +16,7 @@ public class CatalogoClientes implements Serializable{
     
     /** Constrói um catálogo de clientes vazio. */
     public CatalogoClientes(){
-        codigosClientes = new HashSet<>();
+        codigosClientes = new HashSet<>(); // permite inserir e consultar códigos de clientes em tempo tendencialmente constante.
     }
     
     /**

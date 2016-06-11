@@ -1,4 +1,4 @@
-    import java.io.BufferedReader;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
@@ -216,7 +216,7 @@ public class HipermercadoApp {
      */
     private void lerDados() {
         int op;
-        Hipermercado anterior = hipermercado; // guarda a instancia anterior de hipermercado para a recuperarmos se a leitura falhar
+        Hipermercado anterior = hipermercado; // guarda a instância anterior de hipermercado para a recuperarmos se a leitura falhar
 
         menuLeitura.executa();
         op = menuLeitura.getOpcao();
@@ -338,7 +338,7 @@ public class HipermercadoApp {
         while((linha = inStream.readLine()) != null){
             v = Venda.parseLinhaVenda(linha);
             ++nlinhas;
-            // CRIAR SE VALIDA NA CLASSE HIPERMERCADOAPP
+            
             if(v.eValida() && hipermercado.existeProduto(v.getCodigoProduto()) && hipermercado.existeCliente(v.getCodigoCliente())){
                 ++nvalidas;
                 hipermercado.registaVenda(v);
@@ -498,13 +498,13 @@ public class HipermercadoApp {
             switch(op){
                 case 0: // Sair
                 break;
-                case 1: // Pagina anterior
+                case 1: // Página anterior
                 lStr.pagAnt();
                 break;
-                case 2: // Proxima pagina
+                case 2: // Próxima página
                 lStr.proxPag();
                 break;
-                case 3: // Ir para pagina
+                case 3: // Ir para página
                 out.print("Para que página pretende ir? ");
                 int numPag = Input.lerInt();
                 if(!lStr.irParaPag(numPag)){
@@ -512,13 +512,13 @@ public class HipermercadoApp {
                     enterParaContinuar();
                 }
                 break;
-                case 4: // Primeira pagina
+                case 4: // Primeira página
                 lStr.primPag();
                 break;
-                case 5: // Ultima pagina
+                case 5: // Última página
                 lStr.ultimaPag();
                 break;
-                case 6: // Informacao sobre a LStrings
+                case 6: // Informação sobre a LStrings
                 out.println(info);
                 enterParaContinuar();
                 break;

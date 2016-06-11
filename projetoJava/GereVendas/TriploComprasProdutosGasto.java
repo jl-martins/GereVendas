@@ -105,9 +105,11 @@ public class TriploComprasProdutosGasto implements java.io.Serializable{
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("Total de Compras: " + totalCompras);
-        sb.append("\nProdutos Distintos: " + produtosDistintos);
-        sb.append("\nTotal Gasto: " + totalGasto + "\n");
+        String separador = System.getProperty("line.separator");
+        
+        sb.append("Total de Compras: " + totalCompras + separador);
+        sb.append("Produtos Distintos: " + produtosDistintos + separador);
+        sb.append("Total Gasto: " + totalGasto + separador);
         return sb.toString();
     }
     

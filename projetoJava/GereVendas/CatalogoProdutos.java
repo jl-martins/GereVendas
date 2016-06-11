@@ -16,7 +16,7 @@ public class CatalogoProdutos implements Serializable{
     
     /** Constrói um catálogo de produtos vazio. */
     public CatalogoProdutos(){
-        codigosProdutos = new HashSet<>();
+        codigosProdutos = new HashSet<>(); // permite inserir e consultar códigos de produtos em tempo tendencialmente constante.
     }
     
     /**

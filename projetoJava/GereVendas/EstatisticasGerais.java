@@ -70,6 +70,20 @@ public final class EstatisticasGerais implements Serializable{
     // Não disponibilizamos setters para garantir a imutabilidade das instâncias de EstatisticasGerais.
     
     /**
+     * Calcula e devolve a faturação total global do ano, registada nestas estatísticas gerais.
+     * @return Faturação total global do ano.
+     */
+    public double faturacaoTotalGlobal(){
+        double total = 0.0;
+        
+        for(int mes = 1; mes <= Constantes.N_MESES; ++mes)
+            for(int filial = 1; filial <= Constantes.N_FILIAIS; ++filial)
+                total += totalFaturado[mes][filial];
+        
+        return total;
+    }
+    
+    /**
      * Cria e retorna uma cópia de uma qualquer instancia desta classe
      * @return cópia da instancia (desta classe) que chamou o método.
      */
@@ -107,31 +121,33 @@ public final class EstatisticasGerais implements Serializable{
     @Override
     public String toString(){
         StringBuilder str = new StringBuilder();
-
-        str.append("- Total de compras e total de clientes distintos que compraram por mês: \n");
+        String separador = System.getProperty("line.separator");
+        
+        str.append("- Total de compras e total de clientes distintos que compraram por mês:" + separador);
         str.append("|  Meses  |");
         str.append("|  Total Compras  |"); 
-        str.append("|  Clientes Distintos  |\n");
+        str.append("|  Clientes Distintos  |" + separador);
         for(int i = 1; i <= Constantes.N_MESES; i++){
             str.append(String.format("|%7d  |", i));
             str.append(String.format("|%15d  |", totalCompras[i]));
-            str.append(String.format("|%20d  |\n", totalCliDistintos[i]));
+            str.append(String.format("|%20d  |%n", totalCliDistintos[i]));
         }
-        str.append("\n");
+        str.append(separador);
         
-        str.append("- Total faturado por mês por cada Filial: \n");
+        str.append("- Total faturado por mês, para cada Filial:" + separador);
         str.append("|  Meses  |");
         for(int i = 1; i <= Constantes.N_FILIAIS; i++)
             str.append("|        Filial ").append(i).append("    |");
 
-        str.append("\n");
+        str.append(separador);
         for(int i = 1; i <= Constantes.N_MESES; i++){
             str.append(String.format("|%7d  |", i));
             for(int j = 1; j <= Constantes.N_FILIAIS; j++){
                 str.append(String.format("|%16.2f    |", totalFaturado[i][j]));
             }
-            str.append("\n");
+            str.append(separador);
         }
+        str.append(separador + "- Faturação total global: " + faturacaoTotalGlobal() + separador);
         return str.toString();
     }
     
