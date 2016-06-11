@@ -15,8 +15,47 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Formatter;
 
+/**
+ * Classe principal do projeto <strong>GereVendas</strong>, que permite
+ * a criação e execução de instâncias de HipermercadoApp.
+ * 
+ * <p>Cada instância de HipermercadoApp tem 5 menus:
+ * <op>
+ *      <li> Menu principal; </li>
+ *      <li> Menu de leitura </li>
+ *      <li> Menu de estatísticas </li>
+ *      <li> Menu de queries interativas </li>
+ *      <li> Menu sair </li>
+ * </op>
+ * O menu principal é apresentado quando uma instância de HipermercadoApp
+ * inicia a sua execução. A partir do menu principal, o utilizador pode
+ * ler os dados da aplicação a partir de ficheiros de texto ou de uma
+ * <code>ObjectStream</code>; entrar no menu de estatística ou no menu
+ * de queries interativas, se já tiver lido os dados; guardar o estado
+ * da aplicação, caso esta esteja populada e, por fim, sair da aplicação.
+ * 
+ * <p> O menu de estatísticas dá ao utilizador a possibilidade de escolher
+ * entre as estatísticas do último ficheiro de vendas lido e as estatísticas
+ * gerais, relativas aos dados atuais da aplicação. Além dessas duas
+ * opções, o utilizador pode ainda optar por regressar ao menu principal
+ * ou por sair da aplicação.
+ * 
+ * <p> No menu de queries interativas, o utilizador pode selecionar qualquer uma
+ * de 9 queries interativas que lhe permitem obter várias informações
+ * relativas às vendas mensais e/ou anuais do hipermercado em questão.
+ * Estando no menu de queries interativas, o utilizador pode também optar
+ * por regressar ao menu principal, ou sair diretamente da aplicação.
+ * 
+ * <p> Se a aplicação estiver populada quando o utilizador opta por sair,
+ * é-lhe apresentado o "menu sair", em que é dada a possibilidade de guardar
+ * o estado da aplicação antes de concluir a execução da mesma.
+ */
+
 public class HipermercadoApp {
+    /** Guarda os produtos, clientes e vendas e permite obter informações relativas aos mesmos */
     private Hipermercado hipermercado;
+    
+    /** Menus da aplicação */
     private Menu menuPrincipal, menuSair;
     private Menu menuLeitura, menuEstatisticas, menuQueries;
 
@@ -46,7 +85,12 @@ public class HipermercadoApp {
             "Voltar ao menu principal"
         };
     private static final String[] respostaSimNao = {"Sim", "Não"};
-
+    
+    /** 
+     * Constrói uma instância de HipermercadoApp com os vários menus predefinidos.
+     * Nota: A instância construída não tem à partida quaisquer dados de
+     *       produtos, clientes ou vendas.
+     */
     public HipermercadoApp() {
         hipermercado = null; // indica que ainda não carregamos os dados do hipermercado
         menuPrincipal = new Menu(" Menu principal", opcoesMenuPrincipal, true);
@@ -55,7 +99,8 @@ public class HipermercadoApp {
         menuQueries = new Menu(" Queries interativas", opcoesMenuQueries, true);
         menuSair = new Menu(" Deseja guardar o estado da aplicação?", respostaSimNao, false);
     }
-
+    
+    /** Splash screen apresentado quando uma instância de ImoobiliariaApp começa a executar. */
     private void splashScreen() {
         String separador = System.getProperty("line.separator");
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
@@ -75,20 +120,34 @@ public class HipermercadoApp {
         catch(IOException e){err.println("Erro de I/O: Não foi possível apresentar o ecrã inicial.");}
     }
 
-    private void limparEcra() { out.print("\f"); } // So funciona no bluej
-
+    /**
+     * Limpa o ecrã 
+     * (só funciona no BlueJ, dado que nas várias pesquisas que realizámos não conseguimos
+     *  encontrar uma forma de limpar o ecrã que fosse independente da consola/IDE utilizado.)
+     */
+    private void limparEcra() { out.print("\f"); }
+    
+    /** Apresenta a mensagem "Prima ENTER para continuar", aguarda que o utilizador prima enter e depois disso limpa o ecrã. */
     private void enterParaContinuar() {
         out.print("Prima ENTER para continuar... ");
         Input.lerString();
         limparEcra();
     }
-
+    
+    /** 
+     * Ponto de entrada do executável.
+     * Cria uma HipermercadoApp e envia-lhe a mensagem executa().
+     */
     public static void main(String[] args) {
         HipermercadoApp app = new HipermercadoApp();
 
         app.executa();
     }
-
+    
+    /**
+     * Apresenta o menu principal, lê uma opção do mesmo e, se esta for válida
+     * executa-a, se não apresenta uma mensagem de erro e lê outra opção.
+     */
     public void executa() {
         int op;
 
@@ -105,8 +164,8 @@ public class HipermercadoApp {
                     enterParaContinuar();
                     break;
                     case 2:
-                    // a atribuicao op = menuEstatisticas() permite-nos sair do ciclo 'do while', 
-                    // quando o utilizador opta por sair do programa em menuEstatisticas().
+                    // a atribuição op = menuEstatisticas() permite-nos sair do ciclo 'do while', 
+                    // de executa() quando o utilizador opta por sair do programa em menuEstatisticas().
                     if(appPopulada())
                         op = menuEstatisticas();
                     else
@@ -127,12 +186,17 @@ public class HipermercadoApp {
         while(op != 0);
 
         if(appPopulada()){
-            menuSair.executa();
+            menuSair.executa(); // Pergunta ao utilizador se pretende guardar o estado da aplicação, antes de sair.
             if(menuSair.getOpcao() == 1)
                 gravarEstado();
         }
     }
-
+    
+    /**
+     * Método invocado antes de ler/escrever num ficheiro, para ler e devolver o nome do mesmo.
+     * O utilizador pode optar por introduzir uma linha em branco e nesse caso o nome de
+     * ficheiro devolvido é igual a <code>ficheiroPadrao</code> (1º argumento do método.
+     */
     private String obterNomeFicheiro(String ficheiroPadrao, String tipoFicheiro) {
         String nomeFicheiro;
 
@@ -144,7 +208,12 @@ public class HipermercadoApp {
 
         return nomeFicheiro;
     }
-
+    
+    /**
+     * Executa o menu de leitura para que o utilizador indique se pretende ler os dados do hipermercado
+     * a partir de ficheiros de texto ou de uma <code>ObjectStream</code> e executa a opção adequada.
+     * Se houver uma falha a ler os dados, a instância anterior de Hipermercado é recuperada.
+     */
     private void lerDados() {
         int op;
         Hipermercado anterior = hipermercado; // guarda a instancia anterior de hipermercado para a recuperarmos se a leitura falhar
@@ -158,11 +227,16 @@ public class HipermercadoApp {
                 lerEstado();
         }catch(IOException | ClassNotFoundException e){ hipermercado = anterior; err.println(e.getMessage()); }
     }
-
+    
+    /** @return <code>true</true> se esta aplicação estiver populada. */
     public boolean appPopulada(){
         return hipermercado != null;
     }
-
+    
+    /**
+     * Método responsável por perguntar ao utilizador o nome dos ficheiros de produtos, 
+     * clientes e vendas e invocar os métodos adqueados para ler cada um desses ficheiros.
+     */
     private void lerFicheirosTexto() throws IOException{
         int nprodutos, nclientes;
         String fichProdutos, fichClientes, fichVendas;
@@ -179,7 +253,11 @@ public class HipermercadoApp {
         fichVendas = obterNomeFicheiro(caminhoData + "Vendas_1M.txt", "vendas");
         leFicheiroVendas(fichVendas);
     }
-
+    
+    /**
+     * Pergunta ao utilizador o nome do ficheiro de estado e, se o mesmo for válido,
+     * lê o ficheiro de estado e popula a variável hipermercado, desta HipermercadoApp.
+     */
     private void lerEstado() throws IOException, ClassNotFoundException{
         String fich = obterNomeFicheiro("data" + File.separator + "hipermercado.dat", "estado");
         
@@ -188,14 +266,19 @@ public class HipermercadoApp {
         Crono.stop();
         out.println("Ficheiro '" + fich + "' lido em " + Crono.print() + "segundos");
     }
-
+    
+    /** 
+     * Imprime dados relativos à leitura de um dos ficheiros de texto, como o nome 
+     * do ficheiro lido, o número de linhas válidas e o tempo gasto a ler o ficheiro.
+     */
     private void imprimeDadosLeitura(String fich, int nLinhasValidas){
         out.println("--------------------------------");
         out.println("Ficheiro lido: " + fich);
         out.println("Número de linhas válidas: " + nLinhasValidas);
         out.println("Tempo: " + Crono.print());
     }
-
+    
+    /** Lê o ficheiro de produtos cujo nome foi passado como parâmetro. */
     private int leFicheiroProdutos(String fich) throws IOException {
         int nprodutos = 0;
         String produto = null;
@@ -212,7 +295,8 @@ public class HipermercadoApp {
 
         return nprodutos;
     }
-
+    
+    /** Lê o ficheiro de clientes cujo nome foi passado como parâmetro. */
     private int leFicheiroClientes(String fich) throws IOException{
         int nclientes = 0;
         String cliente = null;
@@ -229,7 +313,13 @@ public class HipermercadoApp {
 
         return nclientes;
     }
-
+    
+    /**
+     * Lê o ficheiro de vendas, validando cada uma das linhas lidas de forma a evitar
+     * o registo de vendas inválidas. Este método reúne as várias informações necessárias
+     * para criar as estatísticas do ficheiro de vendas e, por esse motivo, invoca o método
+     * criaEstatisticasFicheiro() sobre a instância de hipermercado desta HipermercadoApp.
+     */
     private int leFicheiroVendas(String fich) throws IOException{
         Venda v = null;
         String linha = null;
@@ -267,7 +357,8 @@ public class HipermercadoApp {
 
         return nvalidas;
     }
-
+    
+    /** Executa o menu de estatísticas */
     private int menuEstatisticas() {
         int op;
 
@@ -340,19 +431,22 @@ public class HipermercadoApp {
 
         return op;
     }
-
+    
+    /** Imprime as estatísticas do último ficheiro de vendas lido. */
     private void imprimeEstatisticasFicheiro(){
         EstatisticasFicheiro est = hipermercado.getEstatisticasFicheiro();
 
         out.println(est.toString());
     }
-
+    
+    /** Imprime estatísticas gerais relativas aos dados registados nas estruturas. */
     private void imprimeEstatisticasGerais(){
         EstatisticasGerais est = hipermercado.getEstatisticasGerais();
 
         out.println(est.toString());
     }
-
+    
+    /** Imprime as opções do menu de navegação em LStrings. */
     private void imprimeOpcoesNavega(int pag, int totalPags){
         final String separador = System.getProperty("line.separator");
         final String opcoesNavega = "[1] Pag. ant.  [2] Pag. seg.   [3] Selec. pag.   [4] Prim. pag.   [5] Ult. pag  [6] Info.  [0] Sair";
@@ -361,11 +455,24 @@ public class HipermercadoApp {
         out.printf("(%d/%d): ", pag, totalPags);
     }
     
-    /** Navega a LStrings passada como parametro, sem especificar um titulo. */
+    /** Navega a LStrings passada como parâmetro, sem especificar um título. */
     private void navega(LStrings lStr){
         navega(lStr, null);
     }
-
+    
+    /**
+     * Navega a LStrings passada como parâmetro, apresentado o título
+     * passado como 2º argumento, antes de cada página da LStrings
+     * passada como 1º argumento. O utilizador tem as opções:
+     * 
+     * 1. Ir para a página anterior;
+     * 2. Ir para a página seguinte;
+     * 3. Selecionar uma página;
+     * 4. Ir para a primeira página;
+     * 5. Ir para a última página;
+     * 6. Apresentar informação sobre a LStrings que está a ser navegada;
+     * 0. Sair;
+     */
     private void navega(LStrings lStr, String header){
         if(lStr.estaVazia()){
             out.println("Lista vazia");
@@ -423,7 +530,14 @@ public class HipermercadoApp {
         }
         while(op != 0);
     }
-
+    
+    /**
+     * Apresenta uma lista de Strings navegável ordenada alfabeticamente, com
+     * os códigos dos produtos nunca comprados. Se todos os produtos tiverem
+     * sido comprados, em vez disso é apresentada a mensagem "Lista vazia".
+     * (o total de produtos nunca comprados pode ser obtido 
+     *  através da opção 'info' do menu de navegação na LStrings)
+     */
     private void query1() {
         Crono.start();
         LStrings nuncaComprados = new LStrings(hipermercado.nuncaComprados());
@@ -431,7 +545,11 @@ public class HipermercadoApp {
         imprimeTempoQuery();
         navega(nuncaComprados);
     }
-
+    
+    /**
+     * Lê um mês do stdin e se este for válido, apresenta no stdout o total global 
+     * de vendas realizadas nesse mês e o número total de clientes distintos que as fizeram.
+     */
     private void query2() {
         int mes;
         int totalVendas, totalClientes;
@@ -452,7 +570,13 @@ public class HipermercadoApp {
             imprimeTempoQuery();
         }catch(MesInvalidoException e){ err.println(e.getMessage()); }
     }
-
+    
+    /**
+     * Lê um código de cliente do stdin e, se este existir no hipermercado
+     * desta instância de HipermercadoApp, apresenta no stdout o número de
+     * compras que o cliente fez, o número de produtos distintos que comprou
+     * e o total gasto, para cada um dos meses do ano.
+     */
     private void query3() {
         String codigoCliente;
         List<TriploComprasProdutosGasto> dadosCliente;
@@ -473,7 +597,12 @@ public class HipermercadoApp {
             imprimeTempoQuery();
         }catch(ClienteInexistenteException e){ err.println(e.getMessage()); }
     }
-
+    
+    /**
+     * Lê um código de produto do stdin e se este existir no hipermercado desta HipermercadoApp,
+     * apresenta, para cada mês, o número de vezes que esse produto foi comprado, o número de clientes
+     * distintos que o compraram e o total faturado.
+     */
     private void query4() {
         String codigoProduto;
 
@@ -500,7 +629,13 @@ public class HipermercadoApp {
             imprimeTempoQuery();
         }catch(MesInvalidoException e) { err.println(e.getMessage()); }
     }
-
+    
+    /**
+     * Lê um código de cliente e, se este for válido, apresenta a lista de códigos
+     * de produtos que esse cliente mais comprou e a quantidade comprada. A lista
+     * apresentada encontra-se ordenada por ordem decrescente de quantidade comprada
+     * e, para quantidades iguais, por ordem alfabética dos códigos de produto.
+     */
     private void query5() {
         out.print("Que cliente pretende consultar? ");
         String codigoCliente = Input.lerString();
@@ -520,7 +655,15 @@ public class HipermercadoApp {
             navega(l, header);
         }catch(ClienteInexistenteException e){ err.println(e.getMessage()); }
     }
-
+    
+    /**
+     * Lê um inteiro X do stdin e:
+     *  - Se X for positivo, navega numa LStrings com os códigos dos X produtos mais vendidos
+     *    no ano, o número total de clientes distintos que compraram cada produto e a quantidade
+     *    vendida. A lista apresentada está ordenada por ordem decrescente de quantidade comprada
+     *    e, para quantidades iguais, por ordem alfabética dos códigos de produto.
+     *  - Caso contrário apresenta a mensagem "Lista vazia";
+     */
     private void query6() {
         int X;
         List<TriploProdQtdClis> topX;
@@ -545,7 +688,10 @@ public class HipermercadoApp {
             navega(l, header);
         }
     }
-
+    
+    /**
+     * Apresenta no stdout a lista dos 3 maiores compradores de cada filial.
+     */
     private void query7() {
         int rank, filial;
         ParCliFat[][] res = new ParCliFat[Constantes.N_FILIAIS][];
@@ -580,7 +726,13 @@ public class HipermercadoApp {
         Crono.stop();
         imprimeTempoQuery();
     }
-
+    
+    /**
+     * Lê um inteiro X do stdin e apresenta os códigos dos X clientes que compraram mais
+     * produtos diferentes e indica a quantidade comprada de cada um desses produtos.
+     * Os códigos de cliente são apresentados por ordem decrescente do número de produtos
+     * distintos comprados e, para valores iguais, por ordem alfabética de códigos de cliente.
+     */
     private void query8() {
         int X;
 
@@ -600,7 +752,14 @@ public class HipermercadoApp {
         imprimeTempoQuery();
         navega(l, header);
     }
-
+    
+    /**
+     * Lê um código de produto e um inteiro X do stdin e se o código de produto
+     * lido for válido, apresenta o conjunto dos X clientes que mais compraram
+     * esse produto, a quantidade comprada por cada um e o valor gasto. Os
+     * resultados são apresentados por ordem decrescente de quantidade comprada
+     * e, para quantidades iguais, por ordem alfabética de códigos de cliente.
+     */
     private void query9() {
         int X;
         String codigoProduto;
@@ -625,10 +784,25 @@ public class HipermercadoApp {
             navega(l, header);
         }catch(ProdutoInexistenteException e){ err.println(e.getMessage()); }
     }
-
+    
+    /**
+     * Imprime no stdout o tempo (em segundos) que a última query levou a executar.
+     */
+    private void imprimeTempoQuery(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Tempo gasto na query: ").append(Crono.print()).append("s");
+        out.println(sb.toString());
+        enterParaContinuar();
+    }
+    
+    /**
+     * Se a aplicação estiver populada, lê o nome do ficheiro onde o utilizador pretende
+     * gravar o estado atual da mesma e guarda o estado da aplicação nesse ficheiro. 
+     * Nota: O ficheiro de gravação por omissão é hipermercado.dat
+     */
     private void gravarEstado(){
         if(appPopulada()){
-            String fichEstado = obterNomeFicheiro("hipermercado.dat", "estado");
+            String fichEstado = obterNomeFicheiro("data" + File.separator + "hipermercado.dat", "estado");
 
             try{
                 hipermercado.gravaObj(fichEstado);
@@ -637,12 +811,5 @@ public class HipermercadoApp {
         }
         else
             err.println("Não existem dados para guardar. Primeiro deverá ler os dados.");
-    }
-
-    private void imprimeTempoQuery(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("Tempo gasto na query: ").append(Crono.print()).append("s");
-        out.println(sb.toString());
-        enterParaContinuar();
     }
 }
