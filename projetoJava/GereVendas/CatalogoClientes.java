@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 /**
  * Classe que representa um catálogo de clientes.
+ * 
+ * @author LI3_Grupo1
+ * @version 1.0 (6/2016) 
  */
 public class CatalogoClientes implements Serializable{
     /** Conjunto dos códigos de clientes no catálogo */

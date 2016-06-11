@@ -14,7 +14,8 @@ public class ParCliProdsDif{
     
     /** Construtores */
     
-    /** Construtor por omissão 
+    /** 
+     * Construtor por omissão 
      * (declarado como privado para não ser possível construir instâncias de ParCliProdsDif sem 
      *  especificar o código de cliente e o número de produtos diferentes comprados pelo mesmo)
      */
@@ -25,7 +26,7 @@ public class ParCliProdsDif{
     
     /** 
      * Constrói um ParCliProdsDif com os dados passados como parâmetros.
-     * @param cli Código de cliente
+     * @param cli Código de cliente.
      * @param prodsDif Número de produtos distintos comprados pelo cliente.
      */
     public ParCliProdsDif(String cli, int prodsDif){
@@ -53,7 +54,7 @@ public class ParCliProdsDif{
     }
     
     /**
-     * Devolve o número de produtos diferentes registados neste ParCliProdsDif.
+     * Devolve o número de produtos diferentes registado neste ParCliProdsDif.
      * @return Número de produtos diferentes comprados pelo cliente.
      */
     public int getProdsDif(){
@@ -110,11 +111,11 @@ public class ParCliProdsDif{
         return sb.toString();
     }
     
-    @Override
     /**
      * Calcula e devolve o hash code deste ParCliProdsDif.
      * @return Valor do hash code deste ParCliProdsDif.
      */
+    @Override
     public int hashCode(){
         return Arrays.hashCode(new Object[]{cli, prodsDif});
     }
