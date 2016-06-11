@@ -91,6 +91,7 @@ public class ComprasDoProduto implements java.io.Serializable, Comparable<Compra
      * Devolve uma cópia deste ComprasDoProduto.
      * @return Cópia da instância que invocou o método.
      */
+    @Override
     public ComprasDoProduto clone(){
         return new ComprasDoProduto(this);
     }
@@ -99,6 +100,7 @@ public class ComprasDoProduto implements java.io.Serializable, Comparable<Compra
      * Calcula o hash code deste ComprasDoProduto.
      * @return Valor do hash code deste ComprasDoProduto.
      */
+    @Override
     public int hashCode(){
         return Arrays.hashCode(new Object[]{codigoProduto, unidadesCompradas, faturacao});
     }
@@ -107,6 +109,7 @@ public class ComprasDoProduto implements java.io.Serializable, Comparable<Compra
      * Testa se este ComprasDoProduto é igual ao objeto passado como parâmetro.
      * @return <code>true</code> se os objetos comparados forem iguais.
      */
+    @Override
     public boolean equals(Object o){
         if(this == o)
             return true;
@@ -124,6 +127,7 @@ public class ComprasDoProduto implements java.io.Serializable, Comparable<Compra
      * Devolve uma representação textual do ComprasDoProduto sobre o qual o método foi invocado.
      * @return Representação textual do ComprasDoProduto sobre o qual o método foi invocado.
      */
+    @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append("Código do Produto: ");

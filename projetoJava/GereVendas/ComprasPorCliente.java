@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 
+ * Classe que guarda informação sobre as compras que um cliente fez, mês a mês.
  */
-public class ComprasPorCliente implements java.io.Serializable{
+public class ComprasPorCliente implements java.io.Serializable, Comparable<ComprasPorCliente> {
     /** Código do cliente para o qual guardamos dados das compras */
     private String codigoCliente;
 
@@ -190,27 +190,68 @@ public class ComprasPorCliente implements java.io.Serializable{
         return new ParQtdValor(qtdTotal, valorTotal);
     }
 
+    /**
+     * Cria e devolve uma cópia desta ComprasPorCliente.
+     * @return Cópia desta ComprasPorCliente.
+     */
+    @Override
     public ComprasPorCliente clone(){
         return new ComprasPorCliente(this);
     }
 
+    /**
+     * Devolve uma representação textual da ComprasPorCliente sobre o qual o método foi invocado.
+     * @return Representação textual da ComprasPorCliente sobre o qual o método foi invocado.
+     */
+    @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append("Código de cliente: ");
         sb.append(codigoCliente + "\n");
         for(int i = 1; i < 13; i++){
-            sb.append("Compras no mes" + i + ": " + quantasComprasMes[i]+ "\n");
+            sb.append("Quantas compras foram feitas no mês " + i + ": " + quantasComprasPorMes[i]+ "\n");
+            sb.append("Produtos comprados no mês " + i + ":\n");
+            sb.append(comprasPorMes.get(i-1));
         }
-        /*   ** acabar */
+        return sb.toString();
     }
 
+    /**
+     * Calcula e devolve o valor do hash code desta ComprasPorCliente.
+     * @return Valor do hash code desta ComprasPorCliente.
+     */
+    @Override
     public int hashCode(){
-        return 0;
+        int code = Arrays.hashCode(new Object[]{codigoCliente, comprasPorMes});
+        code = 31 * code + Arrays.hashCode(quantasComprasPorMes);
+        return code;
     }
 
+    /**
+     * Testa se esta ComprasPorCliente é igual ao objeto passado como parâmetro.
+     * @return <code>true</code> se os objetos comparados forem iguais.
+     */
+    @Override
     public boolean equals(Object o){
-        return true;
+        if(this == o)
+            return true;
+        if(o == null || o.getClass() != this.getClass())
+            return false;
+        ComprasPorCliente c = (ComprasPorCliente) o;
+        return ((this.codigoCliente == null)? c.codigoCliente == null : this.codigoCliente.equals(c.codigoCliente)) &&
+        Arrays.equals(this.quantasComprasPorMes, c.quantasComprasPorMes) &&
+        (this.comprasPorMes == null? c.comprasPorMes == null : this.comprasPorMes.equals(c.comprasPorMes));
     }
 
-    /* definir compareTo a ordenar por nome */
+    /** Estabelece a ordem natural dos objetos ComprasPorCliente, sendo esta igual à ordem natural dos códigos de Cliente que guardam(Strings) */
+    public int compareTo(ComprasPorCliente c){
+        if(this.codigoCliente == null){
+            if(c.codigoCliente == null)
+                return 0;
+            else 
+                return -1;
+        }
+        
+        return this.codigoCliente.compareTo(c.codigoCliente);
+    }
 }
